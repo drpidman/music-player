@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/splash"
+    android:background="#fff"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <View
+        android:id="@+id/leftView"
+        android:layout_width="200dp"
+        android:layout_height="450dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <View
+        android:id="@+id/rightView"
+        android:layout_width="200dp"
+        android:layout_height="440dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ImageView
+        android:id="@+id/appLogo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:layout_constraintTop_toBottomOf="@id/leftView"
+        app:layout_constraintStart_toStartOf="@id/leftView"
+        app:layout_constraintEnd_toEndOf="@id/rightView"
+        app:layout_constraintBottom_toTopOf="@id/rightView"
+        app:layout_constraintTop_toTopOf="@id/rightView"
+        app:layout_constraintBottom_toBottomOf="@id/leftView"
+        android:src="@drawable/ic_dashboard_black_24dp"
+        />
+
+    <TextView
+        android:id="@+id/appLogoText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/appLogo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="MUSIC PLAYER"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textColor="#000"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/appLogoDist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/appLogoText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="POWERED BY"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:textColor="#000"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/appLogoDist"
+        android:text="DRKRYZ PROJECT"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:textColor="#cecece"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

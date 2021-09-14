@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="#fff"
+    android:focusable="true"
+    android:id="@+id/MainMotion"
+    app:layoutDescription="@xml/activity_main_scene"
+    tools:showPaths="true"
+    tools:context=".screens.MainActivity"
+    >
+
+    <TextView
+        android:id="@+id/textTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elegantTextHeight="true"
+        android:padding="5sp"
+        android:text="player"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="#444"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/bottomNavDrag"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:elevation="10dp"
+        android:background="@drawable/playback_control_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/drawer"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:elevation="10dp"
+        android:background="@null"
+        android:src="@drawable/ic_baseline_expand"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@id/bottomNavDrag"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <ListView
+        android:id="@+id/musicList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="10dp"
+        tools:listitem="@layout/listview_item"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+</androidx.constraintlayout.motion.widget.MotionLayout>

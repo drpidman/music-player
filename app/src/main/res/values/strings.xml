@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Music Player</string>
+    <string name="error_info">
+        A permissão para o acesso ao armazenamento foi negada.
+        Para que o nosso aplicativo funcione corretamente, essa permissão é necessária!
+        Com ela conseguimos carregar arquivos de midía(.mp4, .mp3, .wav), e sem ela
+        voce tera apenas uma lista em branco.
+    </string>
+</resources>
