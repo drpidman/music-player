@@ -2,8 +2,18 @@ package com.drkryz.musicplayer.listeners.media;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.audiofx.AudioEffect;
+import android.media.audiofx.BassBoost;
+import android.media.audiofx.Equalizer;
 import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+
+import androidx.media.AudioManagerCompat;
 
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
@@ -15,7 +25,8 @@ public class MusicListeners implements
         MediaPlayer.OnInfoListener,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnSeekCompleteListener
+        MediaPlayer.OnSeekCompleteListener,
+        AudioManager.OnAudioFocusChangeListener
 {
 
     private final GlobalVariables globalVariables;
@@ -62,4 +73,13 @@ public class MusicListeners implements
         broadcastSenders.playbackNotification(BroadcastConstants.UpdateMetaData, null);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
+
+    @Override
+    public void onAudioFocusChange(int i) {
+
+    }
+
+    private void requestAudioFocus() {}
+
+    private void removeAudioFocus() {}
 }

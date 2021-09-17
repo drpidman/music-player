@@ -78,7 +78,6 @@ public class NotificationBuilderManager {
     }
 
     @SuppressLint("ServiceCast")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void buildNotification(GlobalVariables.Status status) {
         int notificationAction = R.drawable.ic_baseline_pause;
         PendingIntent playAction_PauseAction = null;
@@ -98,27 +97,62 @@ public class NotificationBuilderManager {
         Intent main = new Intent(ctx, MainActivity.class);
         PendingIntent openMainActivity = PendingIntent.getActivity(ctx, 0, main, 0);
 
-        Notification.Builder mBuilder = (Notification.Builder)
-                new Notification.Builder(ctx, "Music Player")
-                        .setShowWhen(true)
-                        .setOnlyAlertOnce(true)
-                        .setStyle(new Notification.MediaStyle()
-                        .setShowActionsInCompactView(0, 1, 2)
-                        .setMediaSession(globalVariables.mediaSession.getSessionToken())
-                        )
-                        .setContentIntent(openMainActivity)
-                        .setVisibility(Notification.VISIBILITY_PUBLIC)
-                        .setLargeIcon(largeIcon)
-                        .setSmallIcon(android.R.drawable.stat_sys_headset)
-                        .setColor(globalVariables.getResources().getColor(android.R.color.holo_purple))
-                        .setContentText(globalVariables.activeAudio.getAuthor())
-                        .setContentTitle(globalVariables.activeAudio.getTitle())
-                        .setContentInfo(globalVariables.activeAudio.getTitle())
-                        .setCategory(Notification.CATEGORY_SERVICE)
-                        .addAction(R.drawable.ic_baseline_previous, "previous", playbackAction(3))
-                        .addAction(notificationAction, "pause", playAction_PauseAction)
-                        .addAction(R.drawable.ic_baseline_skip, "next", playbackAction(2));
-        ((NotificationManager) globalVariables.getSystemService(Context.NOTIFICATION_SERVICE)).notify(145, mBuilder.build());
+        Notification.Builder mBuilder = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mBuilder = (Notification.Builder)
+                    new Notification.Builder(ctx, "Music Player")
+                            .setShowWhen(true)
+                            .setOnlyAlertOnce(true)
+                            .setStyle(new Notification.MediaStyle()
+                            .setShowActionsInCompactView(0, 1, 2)
+                            .setMediaSession(globalVariables.mediaSession.getSessionToken())
+                            )
+                            .setContentIntent(openMainActivity)
+                            .setVisibility(Notification.VISIBILITY_PUBLIC)
+                            .setLargeIcon(largeIcon)
+                            .setSmallIcon(android.R.drawable.stat_sys_headset)
+                            .setColor(globalVariables.getResources().getColor(android.R.color.holo_purple))
+                            .setContentText(globalVariables.activeAudio.getAuthor())
+                            .setContentTitle(globalVariables.activeAudio.getTitle())
+                            .setContentInfo(globalVariables.activeAudio.getTitle())
+                            .setCategory(Notification.CATEGORY_SERVICE)
+                            .addAction(R.drawable.ic_baseline_previous, "previous", playbackAction(3))
+                            .addAction(notificationAction, "pause", playAction_PauseAction)
+                            .addAction(R.drawable.ic_baseline_skip, "next", playbackAction(2));
+
+            ((NotificationManager) globalVariables.getSystemService(Context.NOTIFICATION_SERVICE)).notify(145, mBuilder.build());
+        } else {
+
+            MediaSession.Token token = globalVariables.mediaSession.getSessionToken();
+
+            androidx.core.app.NotificationCompat.Builder notificationCompat
+                    = (androidx.core.app.NotificationCompat.Builder)
+                    new androidx.core.app.NotificationCompat.Builder(ctx,
+                            "Music Player"
+                            )
+                    .setStyle(new MediaStyle()
+                            .setMediaSession(MediaSessionCompat.Token.fromToken(token))
+                            .setShowActionsInCompactView(0,1,2)
+                    )
+                            .setShowWhen(true)
+                            .setOnlyAlertOnce(true)
+                            .setContentIntent(openMainActivity)
+                            .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
+                            .setLargeIcon(largeIcon)
+                            .setSmallIcon(android.R.drawable.stat_sys_headset)
+                            .setColor(globalVariables.getResources().getColor(android.R.color.holo_purple))
+                            .setContentText(globalVariables.activeAudio.getAuthor())
+                            .setContentTitle(globalVariables.activeAudio.getTitle())
+                            .setContentInfo(globalVariables.activeAudio.getTitle())
+                            .setCategory(Notification.CATEGORY_SERVICE)
+                            .addAction(R.drawable.ic_baseline_previous, "previous", playbackAction(3))
+                            .addAction(notificationAction, "pause", playAction_PauseAction)
+                            .addAction(R.drawable.ic_baseline_skip, "next", playbackAction(2));
+
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(ctx);
+
+            notificationManagerCompat.notify(145, notificationCompat.build());
+        }
     }
 
     public void removeNotification() {
@@ -153,7 +187,6 @@ public class NotificationBuilderManager {
         return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void resolveNotificationStatus(Intent intent) {
         GlobalVariables.Status status =
                 (GlobalVariables.Status) intent.getSerializableExtra("status");

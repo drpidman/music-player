@@ -23,6 +23,37 @@
             motion:layout_constraintBottom_toBottomOf="parent">
         </Constraint>
 
+        <Constraint
+            android:layout_height="wrap_content"
+            motion:layout_constraintStart_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="@id/textTitle"
+            motion:layout_constraintBottom_toBottomOf="@+id/textTitle"
+            motion:layout_constraintHorizontal_bias="0.543"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:id="@+id/appSettings"
+            motion:layout_constraintTop_toTopOf="@+id/textTitle" />
+
+
+        <Constraint
+            android:id="@+id/webPlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintEnd_toEndOf="@id/textTitle"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintBottom_toBottomOf="@id/textTitle"
+            motion:layout_constraintTop_toTopOf="@id/textTitle"
+            />
+
+        <Constraint
+            android:id="@+id/appSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/textTitle"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="@id/textTitle"
+            motion:layout_constraintTop_toTopOf="@id/textTitle" />
 
     </ConstraintSet>
 
@@ -53,6 +84,26 @@
             >
 
         </Constraint>
+
+        <Constraint
+            android:id="@+id/webPlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintEnd_toEndOf="@id/textTitle"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintBottom_toBottomOf="@id/textTitle"
+            motion:layout_constraintTop_toTopOf="@id/textTitle"
+            />
+
+        <Constraint
+            android:id="@+id/appSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/textTitle"
+            motion:layout_constraintEnd_toEndOf="parent"
+            motion:layout_constraintStart_toEndOf="parent"
+            motion:layout_constraintStart_toStartOf="@id/textTitle"
+            motion:layout_constraintTop_toTopOf="@id/textTitle" />
 
     </ConstraintSet>
 </MotionScene>

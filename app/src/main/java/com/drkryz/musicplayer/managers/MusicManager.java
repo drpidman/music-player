@@ -11,7 +11,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
+import android.media.audiofx.AudioEffect;
+import android.media.audiofx.BassBoost;
+import android.media.audiofx.Equalizer;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -30,6 +34,7 @@ import com.drkryz.musicplayer.utils.GlobalVariables;
 import com.drkryz.musicplayer.utils.StorageUtil;
 
 import java.io.IOException;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadLocalRandom;
@@ -49,7 +54,6 @@ public class MusicManager {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void initMediaPlayer() {
         Log.d("initMediaPlayer()", "init");
         if (mediaPlayer == null) mediaPlayer = new MediaPlayer();
@@ -69,10 +73,9 @@ public class MusicManager {
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .build()
         );
-
-
         mediaPlayer.setWakeMode(ctx, PowerManager.PARTIAL_WAKE_LOCK);
 
+        Log.e("activate:audiossid", "" + mediaPlayer.getAudioSessionId());
 
         try {
             mediaPlayer.setDataSource(globalVariables.activeAudio.getPath());
@@ -82,28 +85,13 @@ public class MusicManager {
         }
 
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mediaPlayer.prepareAsync();
-            }
-        }).start();
+        mediaPlayer.prepareAsync();
+
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void Play() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
-
-            Bitmap bitmap = BitmapFactory.decodeResource(ctx.getResources(),
-                    R.mipmap.ic_headset
-                    );
-
-
-            Intent main = new Intent(ctx, MainActivity.class);
-
-            PendingIntent openMain = PendingIntent.getActivity(ctx, 0, main, 0);
-
             globalVariables.musicService.startForeground(0, null);
         }
     }
@@ -118,12 +106,11 @@ public class MusicManager {
     private void Stop() {
         if (mediaPlayer == null) return;
         if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
             globalVariables.musicService.stopForeground(true);
+            mediaPlayer.stop();
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void Skip() {
         if (globalVariables.audioIndex == globalVariables.songList.size() -1) {
             globalVariables.audioIndex = 0;
@@ -140,7 +127,6 @@ public class MusicManager {
         new BroadcastSenders(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalVariables.Status.PLAYING);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void Previous() {
         if (globalVariables.audioIndex == 0) {
             globalVariables.audioIndex = globalVariables.songList.size() -1;

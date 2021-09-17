@@ -65,7 +65,6 @@ public class MusicService extends Service {
 
 
     @SuppressLint("ResourceAsColor")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -73,7 +72,6 @@ public class MusicService extends Service {
     }
 
     @SuppressLint("WrongConstant")
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d("onUnbind()", intent.toString());
@@ -99,7 +97,6 @@ public class MusicService extends Service {
 
 
     @SuppressLint("ResourceAsColor")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -215,7 +212,6 @@ public class MusicService extends Service {
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void handleActions(Intent playbackAction) {
         if (playbackAction == null || playbackAction.getAction() == null) return;
 

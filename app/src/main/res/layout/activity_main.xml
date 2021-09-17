@@ -28,12 +28,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <ImageButton
+        android:id="@+id/webPlayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_online_navigator"
+        android:background="@null"
+        app:layout_constraintEnd_toEndOf="@id/textTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/textTitle"
+        app:layout_constraintTop_toTopOf="@id/textTitle"
+        />
+
+    <ImageButton
+        android:id="@+id/appSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:src="@drawable/ic_appstgs"
+        app:layout_constraintBottom_toBottomOf="@id/textTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/textTitle"
+        app:layout_constraintTop_toTopOf="@id/textTitle" />
+
     <View
         android:id="@+id/bottomNavDrag"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:elevation="10dp"
         android:background="@drawable/playback_control_background"
+        android:elevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -56,10 +81,13 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:elevation="10dp"
+        android:textAlignment="center"
         tools:listitem="@layout/listview_item"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="parent"
         />
+
 
 </androidx.constraintlayout.motion.widget.MotionLayout>
