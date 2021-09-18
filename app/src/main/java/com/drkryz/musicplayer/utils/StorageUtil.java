@@ -14,6 +14,8 @@ import java.util.logging.Handler;
 public class StorageUtil {
 
     private final String STORAGE = "com.drkryz.musicplayer.STORAGE";
+    private final String STATE = "com.drkryz.musicplayer.STATE";
+
     private SharedPreferences preferences;
     private Context context;
 
@@ -59,6 +61,29 @@ public class StorageUtil {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
+
+    public void storePlayingState(boolean state) {
+        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("isPlaying", state);
+        editor.apply();
+    }
+
+    public boolean loadPlayingState() {
+        preferences = context.getSharedPreferences(STATE, context.MODE_PRIVATE);
+        return preferences.getBoolean("isPlaying", false);
+    }
+
+    public void clearCachedPlayingStatus() {
+        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.clear();
+        editor.apply();
+    }
+
+
 }

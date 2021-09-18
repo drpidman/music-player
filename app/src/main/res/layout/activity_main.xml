@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="#fff"
+    android:background="#111"
     android:focusable="true"
     android:id="@+id/MainMotion"
     app:layoutDescription="@xml/activity_main_scene"
@@ -22,7 +22,7 @@
         android:text="player"
         android:textAlignment="center"
         android:textAllCaps="true"
-        android:textColor="#444"
+        android:textColor="@color/text"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +39,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/textTitle"
         app:layout_constraintTop_toTopOf="@id/textTitle"
-        />
+        app:tint="@color/text" />
 
     <ImageButton
         android:id="@+id/appSettings"
@@ -51,7 +51,49 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/textTitle"
+        app:layout_constraintTop_toTopOf="@id/textTitle"
+        app:tint="@color/text" />
+
+
+    <ImageView
+        android:id="@+id/musicAlbum"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/default_music"
+        app:layout_constraintBottom_toBottomOf="@id/bottomNavDrag"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/textTitle" />
+
+
+    <ImageButton
+        android:id="@+id/uiPlay"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@null"
+        android:src="@drawable/ui_playbtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="#fff" />
+
+    <ImageButton
+        android:id="@+id/uiSkip"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:background="@null"
+        android:src="@drawable/ic_baseline_skip"
+        app:tint="@color/text"
+        tools:layout_editor_absoluteX="281dp"
+        tools:layout_editor_absoluteY="694dp" />
+
+    <ImageButton
+        android:id="@+id/uiPrevious"
+        android:background="@null"
+        android:src="@drawable/ic_baseline_previous"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        app:tint="@color/text" />
 
     <View
         android:id="@+id/bottomNavDrag"
@@ -74,19 +116,20 @@
         app:layout_constraintTop_toTopOf="@id/bottomNavDrag"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:tint="@color/text" />
 
     <ListView
         android:id="@+id/musicList"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:elevation="10dp"
-        android:textAlignment="center"
+        android:divider="@null"
+        android:scrollbarStyle="outsideInset"
+        android:padding="10dp"
         tools:listitem="@layout/listview_item"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintEnd_toStartOf="parent"
         />
 
 

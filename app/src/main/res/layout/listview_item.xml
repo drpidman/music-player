@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="10dp"
+    android:padding="5dp"
+    android:background="@drawable/bg_listitem"
     android:descendantFocusability="blocksDescendants"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 
-    <TextView
-        android:id="@+id/musicTitle"
-        android:textColor="#000"
-        android:layout_margin="2dp"
-        android:padding="10sp"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/musicTitle"
+            android:textColor="@color/white"
+            android:layout_margin="2dp"
+            android:padding="10sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
 </LinearLayout>
