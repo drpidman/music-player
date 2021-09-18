@@ -5,6 +5,7 @@ import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_PLAY;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_PREV;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_SKIP;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_STOP;
+import static com.drkryz.musicplayer.utils.BroadcastConstants.Resume;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -89,8 +90,13 @@ public class MusicService extends Service {
 
         musicManager.unregisterAll();
         notificationBuilderManager.unregisterAll();
+
         unregisterReceiver(nowPlaying);
+        unregisterReceiver(pausePlaying);
+        unregisterReceiver(resumePlaying);
+
         new StorageUtil(this).clearCachedAudioPlaylist();
+        new StorageUtil(this).clearCachedPlayingStatus();
 
         super.onDestroy();
     }
@@ -132,19 +138,6 @@ public class MusicService extends Service {
             }
 
             broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
-
-            new Handler(Looper.getMainLooper()).postDelayed(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d(getPackageName(), "::meta updated");
-                            broadcastSenders.playbackNotification(
-                                    BroadcastConstants.UpdateMetaData, null
-                            );
-                        }
-                    },
-                    Integer.parseInt(globalVariables.activeAudio.getDuration())
-            );
         }
 
 
@@ -161,6 +154,9 @@ public class MusicService extends Service {
 
 
         registerPlay();
+        registerPause();
+        registerResume();
+
         musicManager.registerAll();
         notificationBuilderManager.registerAll();
     }
@@ -205,11 +201,40 @@ public class MusicService extends Service {
         registerReceiver(nowPlaying, broadcastSenders.playbackUIFilter(BroadcastConstants.Play));
     }
 
+    private void registerPause() {
+        broadcastSenders = new BroadcastSenders(getApplicationContext());
+        registerReceiver(pausePlaying, broadcastSenders.playbackUIFilter(BroadcastConstants.Pause));
+    }
 
+
+    private void registerResume() {
+        broadcastSenders = new BroadcastSenders(getApplicationContext());
+        registerReceiver(resumePlaying, broadcastSenders.playbackUIFilter(BroadcastConstants.Resume));
+    }
 
     private void Pause() {
-
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPause);
+        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
     }
+
+    private void Resume() {
+        broadcastSenders.playbackManager(BroadcastConstants.RequestResume);
+        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+    }
+
+    private final BroadcastReceiver pausePlaying = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Pause();
+        }
+    };
+
+    private final BroadcastReceiver resumePlaying = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Resume();
+        }
+    };
 
 
     private void handleActions(Intent playbackAction) {

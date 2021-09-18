@@ -17,6 +17,8 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.audiofx.AudioEffect;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastSenders broadcastSenders;
     private MediaBrowserCompat mMediaBrowser;
 
+
+    ImageButton PlayUiBtn;
+
     @SuppressLint("ServiceCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +77,34 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(new MusicListAdapter(globalVariables.getMusicList(), this));
 
 
+        PlayUiBtn = (ImageButton) findViewById(R.id.uiPlay);
+
+
+        new StorageUtil(getBaseContext()).storePlayingState(false);
+
+
+        PlayUiBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean state = new StorageUtil(getBaseContext()).loadPlayingState();
+                Log.d("PLAYBACK", "" + state);
+                if (state) {
+                    Pause();
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
+                } else {
+                    Resume();
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+                }
+            }
+        });
+
+
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Play(i);
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
             }
         });
 
@@ -160,12 +189,14 @@ public class MainActivity extends AppCompatActivity {
     private void Play(int position) {
         if (!globalVariables.isServiceBound()) {
             StorageUtil storage = new StorageUtil(getApplicationContext());
+
             storage.storageAudio(globalVariables.getMusicList());
             storage.storeAudioIndex(position);
 
             Intent player = new Intent(getBaseContext(), MusicService.class);
             startService(player);
             bindService(player, serviceConnection, BIND_AUTO_CREATE);
+
         } else {
             StorageUtil storage = new StorageUtil(getApplicationContext());
             storage.storeAudioIndex(position);
@@ -173,6 +204,16 @@ public class MainActivity extends AppCompatActivity {
             broadcastSenders.playbackUIManager(BroadcastConstants.Play);
         }
     }
+
+    private void Pause() {
+        broadcastSenders.playbackUIManager(BroadcastConstants.Pause);
+    }
+
+    private void Resume() {
+        broadcastSenders.playbackUIManager(BroadcastConstants.Resume);
+    }
+
+
 
     @Override
     protected void onStart() {

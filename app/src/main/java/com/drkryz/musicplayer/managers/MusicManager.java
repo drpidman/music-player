@@ -92,22 +92,31 @@ public class MusicManager {
     private void Play() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
-            globalVariables.musicService.startForeground(0, null);
+
+            // store playing state
+            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            Log.e("PlaybackState:::play", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         }
     }
 
     private void Pause() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
+
+            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             globalVariables.resumePosition = mediaPlayer.getCurrentPosition();
+            Log.e("PlaybackState:::pause", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         }
     }
 
     private void Stop() {
         if (mediaPlayer == null) return;
         if (mediaPlayer.isPlaying()) {
-            globalVariables.musicService.stopForeground(true);
             mediaPlayer.stop();
+
+
+            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            Log.e("PlaybackState:::stop", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         }
     }
 
@@ -121,10 +130,14 @@ public class MusicManager {
         }
 
         new StorageUtil(globalVariables.getContext()).storeAudioIndex(globalVariables.audioIndex);
+
         Stop();
         mediaPlayer.reset();
         initMediaPlayer();
+
+        new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
         new BroadcastSenders(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalVariables.Status.PLAYING);
+        Log.e("PlaybackState:::skip", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
     }
 
     private void Previous() {
@@ -136,6 +149,9 @@ public class MusicManager {
         }
 
         new StorageUtil(globalVariables.getContext()).storeAudioIndex(globalVariables.audioIndex);
+        new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+        Log.e("PlaybackState:::previous", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+
         mediaPlayer.reset();
         initMediaPlayer();
         new BroadcastSenders(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalVariables.Status.PLAYING);
@@ -145,12 +161,16 @@ public class MusicManager {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(globalVariables.resumePosition);
             mediaPlayer.start();
+
+            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            Log.e("PlaybackState:::resume", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         }
     }
 
     private void Reset() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.reset();
+            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
         }
     }
 
@@ -159,6 +179,8 @@ public class MusicManager {
         if (mediaPlayer != null) {
             Stop();
             mediaPlayer.release();
+
+            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             mediaPlayer = null;
         }
     }

@@ -71,7 +71,7 @@
             android:layout_width="60dp"
             motion:layout_constraintTop_toBottomOf="@+id/musicAlbum"
             android:id="@+id/uiPlay"
-            motion:layout_constraintBottom_toTopOf="@+id/bottomNavDrag" />
+            motion:layout_constraintBottom_toTopOf="@+id/musicList" />
         <Constraint
             android:layout_height="90dp"
             motion:layout_constraintEnd_toEndOf="parent"

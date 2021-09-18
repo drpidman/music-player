@@ -18,6 +18,7 @@ import androidx.media.AudioManagerCompat;
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
 import com.drkryz.musicplayer.utils.GlobalVariables;
+import com.drkryz.musicplayer.utils.StorageUtil;
 
 public class MusicListeners implements
         MediaPlayer.OnBufferingUpdateListener,
@@ -68,6 +69,8 @@ public class MusicListeners implements
         // play
         new BroadcastSenders(globalVariables.getContext())
                 .playbackManager(BroadcastConstants.RequestPlay);
+
+        Log.e("PlaybackState:::", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
     }
 
     @Override
@@ -77,6 +80,7 @@ public class MusicListeners implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
+        Log.e("PlaybackState:::", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         // auto play
         broadcastSenders.playbackManager(BroadcastConstants.RequestSkip);
         broadcastSenders.playbackNotification(BroadcastConstants.RemoveNotification, GlobalVariables.Status.PLAYING);

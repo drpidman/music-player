@@ -95,6 +95,10 @@ public class BroadcastSenders {
                 intent = new Intent(BroadcastConstants.Pause);
                 globalVariables.sendBroadcast(intent);
             break;
+            case BroadcastConstants.Resume:
+                intent = new Intent(BroadcastConstants.Resume);
+                globalVariables.sendBroadcast(intent);
+            break;
         }
         return null;
     }
@@ -106,6 +110,9 @@ public class BroadcastSenders {
                 return new IntentFilter(BroadcastConstants.Play);
             case BroadcastConstants.Pause:
                 return new IntentFilter(BroadcastConstants.Pause);
+            case BroadcastConstants.Resume:
+                Log.d(action, "");
+                return new IntentFilter(BroadcastConstants.Resume);
         }
         return null;
     }

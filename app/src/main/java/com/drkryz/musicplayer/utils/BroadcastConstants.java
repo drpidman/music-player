@@ -17,6 +17,7 @@ public class BroadcastConstants {
 
     public static final String Play = packageName + ".ui.play";
     public static final String Pause = packageName + ".ui.pause";
+    public static final String Resume = packageName + ".ui.resume";
 
 
     public static final String RequestNotification = packageName + ".notification";
