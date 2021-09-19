@@ -64,7 +64,7 @@ public class NotificationBuilderManager {
     private void updateMetaData() {
         Log.d("updateMetaData", "" + globalVariables.activeAudio);
         Bitmap albumArt = BitmapFactory.decodeResource(ctx
-                .getResources(),
+                        .getResources(),
                 R.mipmap.ic_headset
         );
 
@@ -94,8 +94,6 @@ public class NotificationBuilderManager {
                 .getResources(), R.mipmap.ic_headset
         );
 
-        Intent main = new Intent(ctx, MainActivity.class);
-        PendingIntent openMainActivity = PendingIntent.getActivity(ctx, 0, main, 0);
 
         Notification.Builder mBuilder = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -104,10 +102,9 @@ public class NotificationBuilderManager {
                             .setShowWhen(true)
                             .setOnlyAlertOnce(true)
                             .setStyle(new Notification.MediaStyle()
-                            .setShowActionsInCompactView(0, 1, 2)
-                            .setMediaSession(globalVariables.mediaSession.getSessionToken())
+                                    .setShowActionsInCompactView(0, 1, 2)
+                                    .setMediaSession(globalVariables.mediaSession.getSessionToken())
                             )
-                            .setContentIntent(openMainActivity)
                             .setVisibility(Notification.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
                             .setSmallIcon(android.R.drawable.stat_sys_headset)
@@ -129,14 +126,13 @@ public class NotificationBuilderManager {
                     = (androidx.core.app.NotificationCompat.Builder)
                     new androidx.core.app.NotificationCompat.Builder(ctx,
                             "Music Player"
-                            )
-                    .setStyle(new MediaStyle()
-                            .setMediaSession(MediaSessionCompat.Token.fromToken(token))
-                            .setShowActionsInCompactView(0,1,2)
                     )
+                            .setStyle(new MediaStyle()
+                                    .setMediaSession(MediaSessionCompat.Token.fromToken(token))
+                                    .setShowActionsInCompactView(0,1,2)
+                            )
                             .setShowWhen(true)
                             .setOnlyAlertOnce(true)
-                            .setContentIntent(openMainActivity)
                             .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
                             .setSmallIcon(android.R.drawable.stat_sys_headset)
@@ -230,13 +226,13 @@ public class NotificationBuilderManager {
     private void RegisterUpdater() {
         ctx.registerReceiver(notificationUpdateAction,
                 broadcastSenders.playbackFilter(BroadcastConstants.UpdateMetaData)
-                );
+        );
     }
 
     private void RegisterRemove() {
         ctx.registerReceiver(removeNotificationAction,
                 broadcastSenders.playbackFilter(BroadcastConstants.RemoveNotification)
-                );
+        );
     }
 
     public void registerAll() {

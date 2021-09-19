@@ -84,7 +84,7 @@ public class BroadcastSenders {
         return null;
     }
 
-    public Intent playbackUIManager(String action) {
+    public Intent playbackUIManager(String action, boolean isPlaying) {
         Intent intent;
         switch (action) {
             case BroadcastConstants.Play:
@@ -99,6 +99,18 @@ public class BroadcastSenders {
                 intent = new Intent(BroadcastConstants.Resume);
                 globalVariables.sendBroadcast(intent);
             break;
+            case BroadcastConstants.Skip:
+                intent = new Intent(BroadcastConstants.Skip);
+                globalVariables.sendBroadcast(intent);
+            break;
+            case BroadcastConstants.Prev:
+                intent = new Intent(BroadcastConstants.Prev);
+                globalVariables.sendBroadcast(intent);
+            case BroadcastConstants.RequestPlayChange:
+                intent = new Intent(BroadcastConstants.RequestPlayChange);
+                intent.putExtra("playingState", isPlaying);
+                globalVariables.sendBroadcast(intent);
+            break;
         }
         return null;
     }
@@ -110,9 +122,16 @@ public class BroadcastSenders {
                 return new IntentFilter(BroadcastConstants.Play);
             case BroadcastConstants.Pause:
                 return new IntentFilter(BroadcastConstants.Pause);
+            case BroadcastConstants.Skip:
+                return new IntentFilter(BroadcastConstants.Skip);
+            case BroadcastConstants.Prev:
+                return new IntentFilter(BroadcastConstants.Prev);
             case BroadcastConstants.Resume:
                 Log.d(action, "");
                 return new IntentFilter(BroadcastConstants.Resume);
+            case BroadcastConstants.RequestPlayChange:
+                Log.d(action, "");
+                return new IntentFilter(BroadcastConstants.RequestPlayChange);
         }
         return null;
     }

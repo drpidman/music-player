@@ -94,6 +94,8 @@ public class MusicService extends Service {
         unregisterReceiver(nowPlaying);
         unregisterReceiver(pausePlaying);
         unregisterReceiver(resumePlaying);
+        unregisterReceiver(skipPlaying);
+        unregisterReceiver(previousPlaying);
 
         new StorageUtil(this).clearCachedAudioPlaylist();
         new StorageUtil(this).clearCachedPlayingStatus();
@@ -156,6 +158,8 @@ public class MusicService extends Service {
         registerPlay();
         registerPause();
         registerResume();
+        registerSkip();
+        registerPrevious();
 
         musicManager.registerAll();
         notificationBuilderManager.registerAll();
@@ -187,6 +191,27 @@ public class MusicService extends Service {
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 
+    private void Pause() {
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPause);
+        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
+    }
+
+    private void Resume() {
+        broadcastSenders.playbackManager(BroadcastConstants.RequestResume);
+        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+    }
+
+    private void Skip() {
+        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip);
+        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+    }
+
+    private void Previous() {
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPrev);
+        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+    }
+
+
 
     private final BroadcastReceiver nowPlaying = new BroadcastReceiver() {
         @Override
@@ -194,6 +219,36 @@ public class MusicService extends Service {
             NowPlaying();
         }
     };
+
+    private final BroadcastReceiver pausePlaying = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Pause();
+        }
+    };
+
+    private final BroadcastReceiver resumePlaying = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Resume();
+        }
+    };
+
+    private final BroadcastReceiver skipPlaying = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Skip();
+        }
+    };
+
+    private final BroadcastReceiver previousPlaying = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Previous();
+        }
+    };
+
+
 
 
     private void registerPlay() {
@@ -212,29 +267,17 @@ public class MusicService extends Service {
         registerReceiver(resumePlaying, broadcastSenders.playbackUIFilter(BroadcastConstants.Resume));
     }
 
-    private void Pause() {
-        broadcastSenders.playbackManager(BroadcastConstants.RequestPause);
-        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
+    private void registerSkip() {
+        broadcastSenders = new BroadcastSenders(getApplicationContext());
+        registerReceiver(skipPlaying, broadcastSenders.playbackUIFilter(BroadcastConstants.Skip));
     }
 
-    private void Resume() {
-        broadcastSenders.playbackManager(BroadcastConstants.RequestResume);
-        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+    private void registerPrevious() {
+        broadcastSenders = new BroadcastSenders(getApplicationContext());
+        registerReceiver(previousPlaying, broadcastSenders.playbackUIFilter(BroadcastConstants.Prev));
     }
 
-    private final BroadcastReceiver pausePlaying = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Pause();
-        }
-    };
 
-    private final BroadcastReceiver resumePlaying = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Resume();
-        }
-    };
 
 
     private void handleActions(Intent playbackAction) {

@@ -14,11 +14,14 @@ import androidx.core.app.NotificationManagerCompat;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.media.audiofx.AudioEffect;
 import android.os.Build;
 import android.os.Bundle;
@@ -59,6 +62,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+        registerReceiver(receivePlaying,
+                new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
+                );
+
         globalVariables = (GlobalVariables) getApplicationContext();
         globalVariables.setServiceBound(false);
 
@@ -79,6 +88,24 @@ public class MainActivity extends AppCompatActivity {
 
         PlayUiBtn = (ImageButton) findViewById(R.id.uiPlay);
 
+        ImageButton UiPrevious = (ImageButton) findViewById(R.id.uiPrevious);
+
+        UiPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Previous();
+            }
+        });
+
+        ImageButton UiSkip = (ImageButton) findViewById(R.id.uiSkip);
+
+        UiSkip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Skip();
+            }
+        });
+
 
         new StorageUtil(getBaseContext()).storePlayingState(false);
 
@@ -97,6 +124,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+
+
 
 
 
@@ -201,17 +231,40 @@ public class MainActivity extends AppCompatActivity {
             StorageUtil storage = new StorageUtil(getApplicationContext());
             storage.storeAudioIndex(position);
 
-            broadcastSenders.playbackUIManager(BroadcastConstants.Play);
+            broadcastSenders.playbackUIManager(BroadcastConstants.Play, false);
         }
     }
 
+    // controls ===============
     private void Pause() {
-        broadcastSenders.playbackUIManager(BroadcastConstants.Pause);
+        broadcastSenders.playbackUIManager(BroadcastConstants.Pause, false);
     }
 
     private void Resume() {
-        broadcastSenders.playbackUIManager(BroadcastConstants.Resume);
+        broadcastSenders.playbackUIManager(BroadcastConstants.Resume, true);
     }
+
+    private void Skip() {
+        broadcastSenders.playbackUIManager(BroadcastConstants.Skip, true);
+    };
+
+    private void Previous() {
+        broadcastSenders.playbackUIManager(BroadcastConstants.Prev, true);
+    };
+    // ===============================
+
+
+
+    private final BroadcastReceiver receivePlaying = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getBooleanExtra("playingState", false)) {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+            } else {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
+            }
+        }
+    };
 
 
 
@@ -250,8 +303,9 @@ public class MainActivity extends AppCompatActivity {
             unbindService(serviceConnection);
 
             broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy);
-
             globalVariables.musicService.stopForeground(true);
+
+            unregisterReceiver(receivePlaying);
         } else {
             globalVariables.mediaSession.release();
         }

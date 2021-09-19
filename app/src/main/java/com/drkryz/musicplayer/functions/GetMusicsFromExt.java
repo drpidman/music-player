@@ -45,7 +45,7 @@ public class GetMusicsFromExt {
                     String author = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
                     String duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                    String AlbumArt = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                    String AlbumArt = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST));
                     Song song = new Song(title, author, path, duration, AlbumArt);
 
                     if (path.endsWith(".mp3")) musics.add(song);

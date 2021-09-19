@@ -23,6 +23,8 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         super.onPlay();
         broadcastSenders.playbackManager(BroadcastConstants.RequestPlay);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+
+        broadcastSenders.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
     }
 
     @Override
@@ -31,6 +33,9 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         broadcastSenders.playbackManager(BroadcastConstants.RequestPause);
         broadcastSenders.playbackManager(BroadcastConstants.RequestNotification);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
+
+        // send to user interface
+        broadcastSenders.playbackUIManager(BroadcastConstants.RequestPlayChange, false);
     }
 
     @Override
@@ -52,6 +57,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     @Override
     public void onStop() {
         super.onStop();
+        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
         broadcastSenders.playbackManager(BroadcastConstants.RequestStop);
     }
 

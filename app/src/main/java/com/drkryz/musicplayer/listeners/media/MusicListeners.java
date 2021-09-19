@@ -26,8 +26,7 @@ public class MusicListeners implements
         MediaPlayer.OnInfoListener,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnSeekCompleteListener,
-        AudioManager.OnAudioFocusChangeListener
+        MediaPlayer.OnSeekCompleteListener
 {
 
     private final GlobalVariables globalVariables;
@@ -87,13 +86,4 @@ public class MusicListeners implements
         broadcastSenders.playbackNotification(BroadcastConstants.UpdateMetaData, null);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
-
-    @Override
-    public void onAudioFocusChange(int i) {
-
-    }
-
-    private void requestAudioFocus() {}
-
-    private void removeAudioFocus() {}
 }

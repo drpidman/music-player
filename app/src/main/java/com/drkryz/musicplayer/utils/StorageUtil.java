@@ -14,7 +14,7 @@ import java.util.logging.Handler;
 public class StorageUtil {
 
     private final String STORAGE = "com.drkryz.musicplayer.STORAGE";
-    private final String STATE = "com.drkryz.musicplayer.STATE";
+    private final String STATE = "com.drkryz.musicplayer.STATES";
 
     private SharedPreferences preferences;
     private Context context;
@@ -84,6 +84,5 @@ public class StorageUtil {
         editor.clear();
         editor.apply();
     }
-
 
 }

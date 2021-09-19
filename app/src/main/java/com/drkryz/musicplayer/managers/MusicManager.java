@@ -258,13 +258,13 @@ public class MusicManager {
     private void RegisterInit() {
         ctx.registerReceiver(initAction,
                 broadcastSenders.playbackFilter(BroadcastConstants.RequestInit)
-                );
+        );
     }
 
     private void RegisterPlay() {
         ctx.registerReceiver(playAction,
                 broadcastSenders.playbackFilter(BroadcastConstants.RequestPlay)
-                );
+        );
     }
     private void RegisterPause() {
         ctx.registerReceiver(pauseAction,
@@ -295,7 +295,7 @@ public class MusicManager {
     private void RegisterReset() {
         ctx.registerReceiver(ResetAction,
                 broadcastSenders.playbackFilter(BroadcastConstants.RequestReset)
-                );
+        );
     }
 
     private void RegisterDestroy() {
