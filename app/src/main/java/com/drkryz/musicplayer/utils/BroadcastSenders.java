@@ -10,6 +10,7 @@ import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestPrev;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestRelease;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestReset;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestResume;
+import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestSeek;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestSkip;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestStop;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.UpdateMetaData;
@@ -28,7 +29,7 @@ public class BroadcastSenders {
         globalVariables = (GlobalVariables) context.getApplicationContext();
     }
 
-    public Intent playbackManager(String action) {
+    public Intent playbackManager(String action, long seekVal) {
         Intent intent;
 
         switch (action) {
@@ -66,6 +67,11 @@ public class BroadcastSenders {
                 intent = new Intent(RequestResume);
                 globalVariables.sendBroadcast(intent);
             break;
+            case RequestSeek:
+                Log.d(globalVariables.getPackageName(), action);
+                intent = new Intent(RequestSeek);
+                intent.putExtra("seekTo", seekVal);
+                globalVariables.sendBroadcast(intent);
             case RequestReset:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestReset);
@@ -157,6 +163,9 @@ public class BroadcastSenders {
             case RequestStop:
                 Log.d(action, "");
                 return new IntentFilter(RequestStop);
+            case RequestSeek:
+                Log.d(action, "");
+                return new IntentFilter(RequestSeek);
             case RequestResume:
                 Log.d(action, "");
                 return new IntentFilter(RequestResume);

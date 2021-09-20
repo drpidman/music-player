@@ -77,7 +77,7 @@ public class MusicService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d("onUnbind()", intent.toString());
         globalVariables.mediaSession.release();
-        broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy, 0);
         notificationBuilderManager.removeNotification();
         return super.onUnbind(intent);
     }
@@ -86,7 +86,7 @@ public class MusicService extends Service {
     public void onDestroy() {
         Log.d("onDestroy()", "called");
 
-        broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy, 0);
 
         musicManager.unregisterAll();
         notificationBuilderManager.unregisterAll();
@@ -133,7 +133,7 @@ public class MusicService extends Service {
         if (globalVariables.mediaSessionManager == null) {
             try {
                 notificationBuilderManager.initMediaSession();
-                broadcastSenders.playbackManager(BroadcastConstants.RequestInit);
+                broadcastSenders.playbackManager(BroadcastConstants.RequestInit, 0);
             } catch (RemoteException e) {
                 e.printStackTrace();
                 stopSelf();
@@ -142,7 +142,7 @@ public class MusicService extends Service {
             broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
         }
 
-
+        startForeground(0, null);
         handleActions(intent);
         return START_NOT_STICKY;
     }
@@ -183,31 +183,31 @@ public class MusicService extends Service {
         }
 
 
-        broadcastSenders.playbackManager(BroadcastConstants.RequestStop);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestReset);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestInit);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestStop, 0);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestReset, 0);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestInit, 0);
 
         broadcastSenders.playbackNotification(BroadcastConstants.UpdateMetaData, null);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 
     private void Pause() {
-        broadcastSenders.playbackManager(BroadcastConstants.RequestPause);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPause, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
     }
 
     private void Resume() {
-        broadcastSenders.playbackManager(BroadcastConstants.RequestResume);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestResume, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 
     private void Skip() {
-        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 
     private void Previous() {
-        broadcastSenders.playbackManager(BroadcastConstants.RequestPrev);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPrev, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 

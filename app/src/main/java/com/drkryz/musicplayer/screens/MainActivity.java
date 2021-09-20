@@ -276,9 +276,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (globalVariables.isServiceBound()) {
-            globalVariables.musicService.startForeground(0, null);
-        }
         Log.d(getPackageName(), "activity paused");
     }
 
@@ -291,9 +288,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (globalVariables.isServiceBound()) {
-            globalVariables.musicService.stopForeground(true);
-        }
         Log.d(getPackageName(), "activity resume");
     }
 
@@ -302,9 +296,9 @@ public class MainActivity extends AppCompatActivity {
         if (globalVariables.isServiceBound()) {
             unbindService(serviceConnection);
 
-            broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy);
-            globalVariables.musicService.stopForeground(true);
+            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
+            globalVariables.musicService.stopSelf();
             unregisterReceiver(receivePlaying);
         } else {
             globalVariables.mediaSession.release();

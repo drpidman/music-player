@@ -1,5 +1,6 @@
 package com.drkryz.musicplayer.managers;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,18 +10,28 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
+import android.media.PlaybackParams;
+import android.media.SyncParams;
 import android.media.audiofx.AudioEffect;
 import android.media.audiofx.BassBoost;
+import android.media.audiofx.DynamicsProcessing;
 import android.media.audiofx.Equalizer;
+import android.media.audiofx.LoudnessEnhancer;
+import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.PowerManager;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 
 import androidx.annotation.RequiresApi;
 
@@ -34,6 +45,7 @@ import com.drkryz.musicplayer.utils.GlobalVariables;
 import com.drkryz.musicplayer.utils.StorageUtil;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.RunnableFuture;
@@ -47,11 +59,17 @@ public class MusicManager {
     private final BroadcastSenders broadcastSenders;
     private final Context ctx;
 
+    BassBoost bassBoost;
+    Equalizer equalizer;
+    LoudnessEnhancer loudnessEnhancer;
+
+
+
+
     public MusicManager(Context context) {
         this.ctx = context;
         globalVariables = (GlobalVariables) ctx.getApplicationContext();
         broadcastSenders = new BroadcastSenders(globalVariables.getContext());
-
     }
 
     private void initMediaPlayer() {
@@ -73,7 +91,9 @@ public class MusicManager {
                 .setUsage(AudioAttributes.USAGE_MEDIA)
                 .build()
         );
+
         mediaPlayer.setWakeMode(ctx, PowerManager.PARTIAL_WAKE_LOCK);
+
 
         Log.e("activate:audiossid", "" + mediaPlayer.getAudioSessionId());
 
@@ -84,25 +104,56 @@ public class MusicManager {
             globalVariables.musicService.stopSelf();
         }
 
-
         mediaPlayer.prepareAsync();
 
+        bassBoost = new BassBoost(0, mediaPlayer.getAudioSessionId());
+        bassBoost.setEnabled(false);
+
+        equalizer = new Equalizer(0, mediaPlayer.getAudioSessionId());
+        equalizer.setEnabled(false);
+
+        loudnessEnhancer = new LoudnessEnhancer(mediaPlayer.getAudioSessionId());
+        equalizer.setEnabled(false);
+
     }
+
 
     private void Play() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
 
-            // store playing state
+            updateCurrentPosition(PlaybackState.STATE_PLAYING);
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             Log.e("PlaybackState:::play", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         }
+    }
+
+    private void updateCurrentPosition(int state) {
+        Log.e("called", "media update called");
+        if (mediaPlayer == null) return;
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("called", "media update called");
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                PlaybackState playbackState =
+                        new PlaybackState.Builder()
+                        .setState(state, currentPosition, 1)
+                        .setActions(PlaybackState.ACTION_SEEK_TO)
+                        .build();
+
+                globalVariables.mediaSession.setPlaybackState(playbackState);
+            }
+        }, 1000);
     }
 
     private void Pause() {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
 
+
+            updateCurrentPosition(PlaybackState.STATE_PAUSED);
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             globalVariables.resumePosition = mediaPlayer.getCurrentPosition();
             Log.e("PlaybackState:::pause", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
@@ -157,10 +208,21 @@ public class MusicManager {
         new BroadcastSenders(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalVariables.Status.PLAYING);
     }
 
+    private void SeekTo(int seek) {
+        if (mediaPlayer == null) return;
+        mediaPlayer.seekTo(seek);
+        updateCurrentPosition(PlaybackState.STATE_PLAYING);
+    }
+
     private void Resume() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(globalVariables.resumePosition);
             mediaPlayer.start();
+
+            bassBoost.setEnabled(false);
+            equalizer.setEnabled(false);
+            equalizer.setEnabled(false);
+
 
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             Log.e("PlaybackState:::resume", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
@@ -184,6 +246,7 @@ public class MusicManager {
             mediaPlayer = null;
         }
     }
+
 
 
     private final BroadcastReceiver initAction = new BroadcastReceiver() {
@@ -218,7 +281,6 @@ public class MusicManager {
 
 
     private final BroadcastReceiver skipAction = new BroadcastReceiver() {
-        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onReceive(Context context, Intent intent) {
             Skip();
@@ -226,7 +288,6 @@ public class MusicManager {
     };
 
     private final BroadcastReceiver prevAction = new BroadcastReceiver() {
-        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onReceive(Context context, Intent intent) {
             Previous();
@@ -237,6 +298,16 @@ public class MusicManager {
         @Override
         public void onReceive(Context context, Intent intent) {
             Resume();
+        }
+    };
+
+    private final BroadcastReceiver seekAction = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long seek = intent.getLongExtra("seekTo", 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                SeekTo(Math.toIntExact(seek));
+            }
         }
     };
 
@@ -292,6 +363,12 @@ public class MusicManager {
         );
     }
 
+    private void RegisterSeek() {
+        ctx.registerReceiver(seekAction,
+                broadcastSenders.playbackFilter(BroadcastConstants.RequestSeek)
+                );
+    }
+
     private void RegisterReset() {
         ctx.registerReceiver(ResetAction,
                 broadcastSenders.playbackFilter(BroadcastConstants.RequestReset)
@@ -312,6 +389,7 @@ public class MusicManager {
         ctx.unregisterReceiver(skipAction);
         ctx.unregisterReceiver(prevAction);
         ctx.unregisterReceiver(resumeAction);
+        ctx.unregisterReceiver(seekAction);
         ctx.unregisterReceiver(ResetAction);
         ctx.unregisterReceiver(DestroyAction);
     }
@@ -325,6 +403,7 @@ public class MusicManager {
         RegisterPrev();
         RegisterStop();
         RegisterResume();
+        RegisterSeek();
         RegisterReset();
         RegisterDestroy();
     }

@@ -20,7 +20,7 @@
         <entry key="app/src/main/res/drawable/playback_controol_background.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/drawable/ui_playbtn.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.12" />
+        <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.14" />
         <entry key="app/src/main/res/layout/activity_ytmusic.xml" value="0.12532894736842104" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.17239583333333333" />

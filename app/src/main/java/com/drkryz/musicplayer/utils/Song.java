@@ -1,5 +1,7 @@
 package com.drkryz.musicplayer.utils;
 
+import android.net.Uri;
+
 public class Song {
 
     private String Title;

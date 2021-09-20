@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.PlaybackParams;
 import android.media.audiofx.AudioEffect;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
@@ -66,8 +67,10 @@ public class MusicListeners implements
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         // play
+
         new BroadcastSenders(globalVariables.getContext())
-                .playbackManager(BroadcastConstants.RequestPlay);
+                .playbackManager(BroadcastConstants.RequestPlay, 0);
+
 
         Log.e("PlaybackState:::", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
     }
@@ -81,7 +84,7 @@ public class MusicListeners implements
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.e("PlaybackState:::", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         // auto play
-        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RemoveNotification, GlobalVariables.Status.PLAYING);
         broadcastSenders.playbackNotification(BroadcastConstants.UpdateMetaData, null);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);

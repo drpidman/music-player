@@ -3,6 +3,7 @@ package com.drkryz.musicplayer.functions;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -30,7 +31,7 @@ public class GetMusicsFromExt {
         return musics;
     }
 
-    @SuppressLint("range")
+    @SuppressLint("Range")
     private void GetExternalContent(@NonNull Application app) {
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -45,9 +46,12 @@ public class GetMusicsFromExt {
                     String author = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
                     String duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                    String AlbumArt = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST));
-                    Song song = new Song(title, author, path, duration, AlbumArt);
+                    Long AlbumArt = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 
+                    Uri artWork = Uri.parse("content://media/external/audio/albumart");
+                    Uri albumArt = ContentUris.withAppendedId(artWork, AlbumArt);
+
+                    Song song = new Song(title, author, path, duration, String.valueOf(albumArt));
                     if (path.endsWith(".mp3")) musics.add(song);
 
                 } while (cursor.moveToNext());

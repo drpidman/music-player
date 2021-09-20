@@ -9,13 +9,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Picture;
+import android.media.Image;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
+import android.media.session.PlaybackState;
+import android.net.Uri;
 import android.os.Build;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -30,6 +37,8 @@ import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
 import com.drkryz.musicplayer.utils.GlobalVariables;
+
+import java.io.IOException;
 
 public class NotificationBuilderManager {
 
@@ -59,20 +68,50 @@ public class NotificationBuilderManager {
         updateMetaData();
 
         globalVariables.mediaSession.setCallback(new MediaSessionCallbacks(ctx));
+
+        PlaybackState playbackState =
+                new PlaybackState.Builder()
+                        .setState(PlaybackState.STATE_PAUSED, 0, 1)
+                        .setActions(PlaybackState.ACTION_SEEK_TO)
+                        .build();
+
+        globalVariables.mediaSession.setPlaybackState(playbackState);
+    }
+
+    private Bitmap createBitmap(String image) {
+        try {
+            byte[] encodeByte= Base64.decode(image, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch (Exception e) {
+            e.getMessage();
+            return null;
+        }
     }
 
     private void updateMetaData() {
         Log.d("updateMetaData", "" + globalVariables.activeAudio);
-        Bitmap albumArt = BitmapFactory.decodeResource(ctx
-                        .getResources(),
-                R.mipmap.ic_headset
-        );
+
+        Uri url = Uri.parse(globalVariables.activeAudio.getAlbum());
+
+        Bitmap albumArt = null;
+        try {
+            albumArt = MediaStore.Images.Media.getBitmap(ctx.getContentResolver(), url);
+        } catch (IOException e) {
+            albumArt = BitmapFactory.decodeResource(
+                    ctx.getResources(),
+                    R.drawable.default_music
+            );
+        }
+
+        Long duration = Long.parseLong(globalVariables.activeAudio.getDuration());
 
         globalVariables.mediaSession.setMetadata(new MediaMetadata.Builder()
                 .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, globalVariables.activeAudio.getAuthor())
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, globalVariables.activeAudio.getAlbum())
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, globalVariables.activeAudio.getTitle())
                 .putString(MediaMetadata.METADATA_KEY_TITLE, globalVariables.activeAudio.getTitle())
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(globalVariables.activeAudio.getDuration()))
                 .build());
 
     }
@@ -90,9 +129,17 @@ public class NotificationBuilderManager {
             playAction_PauseAction = playbackAction(0);
         }
 
-        Bitmap largeIcon = BitmapFactory.decodeResource(ctx
-                .getResources(), R.mipmap.ic_headset
-        );
+        Uri url = Uri.parse(globalVariables.activeAudio.getAlbum());
+
+        Bitmap largeIcon = null;
+        try {
+            largeIcon = MediaStore.Images.Media.getBitmap(
+                    ctx.getContentResolver(),
+                    url
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
         Notification.Builder mBuilder = null;

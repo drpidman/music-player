@@ -3,6 +3,7 @@ package com.drkryz.musicplayer.listeners.media;
 import android.content.Context;
 import android.media.session.MediaSession;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.util.Log;
 
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
@@ -21,7 +22,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     @Override
     public void onPlay() {
         super.onPlay();
-        broadcastSenders.playbackManager(BroadcastConstants.RequestPlay);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPlay, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
 
         broadcastSenders.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
@@ -30,8 +31,8 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     @Override
     public void onPause() {
         super.onPause();
-        broadcastSenders.playbackManager(BroadcastConstants.RequestPause);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestNotification);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPause, 0);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestNotification, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
 
         // send to user interface
@@ -41,16 +42,14 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     @Override
     public void onSkipToNext() {
         super.onSkipToNext();
-        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestNotification);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 
     @Override
     public void onSkipToPrevious() {
         super.onSkipToPrevious();
-        broadcastSenders.playbackManager(BroadcastConstants.RequestPrev);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestNotification);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestPrev, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 
@@ -58,11 +57,12 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     public void onStop() {
         super.onStop();
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PAUSED);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestStop);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestStop, 0);
     }
 
     @Override
     public void onSeekTo(long pos) {
         super.onSeekTo(pos);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestSeek, pos);
     }
 }

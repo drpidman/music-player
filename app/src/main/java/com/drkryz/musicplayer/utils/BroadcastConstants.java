@@ -10,6 +10,7 @@ public class BroadcastConstants {
     public static final String RequestStop = packageName + ".stopMedia";
     public static final String RequestPlay = packageName + ".playMedia";
     public static final String RequestInit = packageName + ".initMedia";
+    public static final String RequestSeek = packageName + ".seek";
     public static final String RequestPause = packageName + ".pauseMedia";
     public static final String RequestReset = packageName + ".resetMedia";
     public static final String RequestResume = packageName + ".resumeMedia";
@@ -31,6 +32,9 @@ public class BroadcastConstants {
     public static final String RequestNotification = packageName + ".notification";
     public static final String RemoveNotification = packageName + ".notification.remove";
     public static final String UpdateMetaData = packageName + ".notification.update";
+    // use with handler
+    public static final String UpdateSeekBar = packageName + ".notification.updateSeekbar";
+
 
     // notification actions
     public static final String ACTION_PLAY = packageName + ".ACTION_PLAY";

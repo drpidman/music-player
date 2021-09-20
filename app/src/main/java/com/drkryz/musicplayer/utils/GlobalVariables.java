@@ -12,6 +12,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
@@ -43,6 +44,8 @@ public class GlobalVariables extends Application {
     public int resumePosition;
     public Song activeAudio;
     public ArrayList<Song> songList = musicList;
+
+    public PlaybackStateCompat.Builder playbackStateCompat;
 
 
     private int startId;
@@ -76,15 +79,15 @@ public class GlobalVariables extends Application {
     }
 
 
+    int Seek = -1;
 
-    public int getStartId() {
-        return startId;
+    public void setSeek(int seek) {
+        this.Seek = seek;
     }
 
-    public void setStartId(int startId) {
-        this.startId = startId;
+    public int getSeek() {
+        return Seek;
     }
-
 
     public enum Status {
         PLAYING,

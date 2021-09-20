@@ -10,7 +10,7 @@ android {
         minSdk 23
         targetSdk 31
         versionCode 1
-        versionName "1.2.2"
+        versionName "1.10.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -27,6 +27,12 @@ android {
     }
     buildFeatures {
         viewBinding true
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
     }
 }
 
