@@ -145,7 +145,7 @@ public class MusicManager {
 
                 globalVariables.mediaSession.setPlaybackState(playbackState);
             }
-        }, 1000);
+        }, 100);
     }
 
     private void Pause() {
@@ -223,6 +223,7 @@ public class MusicManager {
             equalizer.setEnabled(false);
             equalizer.setEnabled(false);
 
+            updateCurrentPosition(PlaybackState.STATE_PLAYING);
 
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             Log.e("PlaybackState:::resume", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
@@ -307,6 +308,9 @@ public class MusicManager {
             long seek = intent.getLongExtra("seekTo", 0);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 SeekTo(Math.toIntExact(seek));
+            } else {
+                String seekString = String.valueOf(seek);
+                SeekTo(Integer.parseInt(seekString));
             }
         }
     };

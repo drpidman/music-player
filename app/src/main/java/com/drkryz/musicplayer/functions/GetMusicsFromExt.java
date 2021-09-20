@@ -7,6 +7,7 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -52,7 +53,14 @@ public class GetMusicsFromExt {
                     Uri albumArt = ContentUris.withAppendedId(artWork, AlbumArt);
 
                     Song song = new Song(title, author, path, duration, String.valueOf(albumArt));
-                    if (path.endsWith(".mp3")) musics.add(song);
+
+                   if (path.endsWith(".mp3")) {
+                       if (duration != null) {
+                           int durationFilter = Integer.parseInt(duration);
+
+                           if (durationFilter > 5000) musics.add(song);
+                       }
+                   }
 
                 } while (cursor.moveToNext());
             }

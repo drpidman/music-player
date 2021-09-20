@@ -71,8 +71,9 @@ public class MusicListeners implements
         new BroadcastSenders(globalVariables.getContext())
                 .playbackManager(BroadcastConstants.RequestPlay, 0);
 
+        new BroadcastSenders(globalVariables.getContext())
+                .playbackUIManager(BroadcastConstants.UpdateCover, false);
 
-        Log.e("PlaybackState:::", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
     }
 
     @Override
@@ -82,10 +83,9 @@ public class MusicListeners implements
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        Log.e("PlaybackState:::", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+        Log.d("onCompletion()", "media completed");
         // auto play
         broadcastSenders.playbackManager(BroadcastConstants.RequestSkip, 0);
-        broadcastSenders.playbackNotification(BroadcastConstants.RemoveNotification, GlobalVariables.Status.PLAYING);
         broadcastSenders.playbackNotification(BroadcastConstants.UpdateMetaData, null);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }

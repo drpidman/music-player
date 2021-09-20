@@ -38,7 +38,7 @@
             android:name=".screens.MainActivity"
             android:exported="true" />
         <activity
-            android:name=".screens.PermissionDeniedActivity"
+            android:name=".screens.PermissionActivity"
             android:exported="true" />
         <activity
             android:name=".screens.SplashActivity"

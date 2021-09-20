@@ -22,7 +22,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     @Override
     public void onPlay() {
         super.onPlay();
-        broadcastSenders.playbackManager(BroadcastConstants.RequestPlay, 0);
+        broadcastSenders.playbackManager(BroadcastConstants.RequestResume, 0);
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
 
         broadcastSenders.playbackUIManager(BroadcastConstants.RequestPlayChange, true);

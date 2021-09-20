@@ -34,7 +34,7 @@ public class BroadcastConstants {
     public static final String UpdateMetaData = packageName + ".notification.update";
     // use with handler
     public static final String UpdateSeekBar = packageName + ".notification.updateSeekbar";
-
+    public static final String UpdateCover = packageName + ".cover.update";
 
     // notification actions
     public static final String ACTION_PLAY = packageName + ".ACTION_PLAY";

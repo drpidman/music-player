@@ -140,9 +140,9 @@ public class MusicService extends Service {
             }
 
             broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+            startForeground(0, null);
         }
 
-        startForeground(0, null);
         handleActions(intent);
         return START_NOT_STICKY;
     }

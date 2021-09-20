@@ -1,18 +1,17 @@
 package com.drkryz.musicplayer.screens;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.managers.PermissionManager;
 
 /*
  * configure app permissions in first initialization
@@ -24,52 +23,28 @@ public class SplashActivity extends AppCompatActivity {
     private static boolean PERMISSION_STATE;
     private Intent errorActivity;
 
-    private PermissionManager permissionManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        permissionManager = new PermissionManager();
-        permissionManager.RequestPermission(this);
+        Intent intent = null;
 
-        if (permissionManager.PermissionStatus(this)) {
-            Intent mainActivity = new Intent(SplashActivity.this, MainActivity.class);
-            loadMain(mainActivity, this);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            intent = new Intent(this, PermissionActivity.class);
+            startActivity(intent);
+        } else {
+            loadMain();
         }
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 240) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent mainWindowActivity = new Intent(SplashActivity.this, MainActivity.class);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadMain(mainWindowActivity, SplashActivity.this);
-                        finish();
-                    }
-                }, SPLASH_TIME);
-
-            } else {
-                errorActivity = new Intent(SplashActivity.this, PermissionDeniedActivity.class);
-                startActivity(errorActivity);
-                finish();
-            }
-        }
-    }
-
-    private void loadMain(Intent main, Activity ctx) {
+    private void loadMain() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(main);
-                finish();
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         }, SPLASH_TIME);
     }

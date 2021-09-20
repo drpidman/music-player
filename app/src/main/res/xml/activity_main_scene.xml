@@ -54,16 +54,8 @@
             motion:layout_constraintStart_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="@id/textTitle"
             motion:layout_constraintTop_toTopOf="@id/textTitle" />
-        <Constraint
-            motion:layout_constraintVertical_bias="0.465"
-            android:layout_height="150dp"
-            motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toTopOf="@id/textTitle"
-            motion:layout_constraintBottom_toBottomOf="@id/bottomNavDrag"
-            motion:layout_constraintHorizontal_bias="0.501"
-            motion:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="150dp"
-            android:id="@+id/musicAlbum" />
+
+
         <Constraint
             android:layout_height="60dp"
             motion:layout_constraintStart_toStartOf="parent"
@@ -99,7 +91,15 @@
             motion:layout_constraintBottom_toBottomOf="@+id/uiPlay"
             android:layout_marginBottom="175dp"
             motion:layout_constraintVertical_bias="1.0"
-            motion:layout_constraintHorizontal_bias="0.498" />
+            motion:layout_constraintHorizontal_bias="0.498" /><Constraint motion:layout_constraintVertical_bias="0.336"
+        android:layout_height="250dp"
+        motion:layout_constraintStart_toStartOf="parent"
+        motion:layout_constraintTop_toTopOf="@id/textTitle"
+        motion:layout_constraintBottom_toBottomOf="@id/bottomNavDrag"
+        motion:layout_constraintHorizontal_bias="0.496"
+        motion:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="250dp"
+        android:id="@+id/musicAlbum" />
 
     </ConstraintSet>
 

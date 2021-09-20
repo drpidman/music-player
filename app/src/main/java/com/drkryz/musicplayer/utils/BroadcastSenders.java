@@ -117,6 +117,10 @@ public class BroadcastSenders {
                 intent.putExtra("playingState", isPlaying);
                 globalVariables.sendBroadcast(intent);
             break;
+            case BroadcastConstants.UpdateCover:
+                intent = new Intent(BroadcastConstants.UpdateCover);
+                globalVariables.sendBroadcast(intent);
+            break;
         }
         return null;
     }
@@ -138,6 +142,9 @@ public class BroadcastSenders {
             case BroadcastConstants.RequestPlayChange:
                 Log.d(action, "");
                 return new IntentFilter(BroadcastConstants.RequestPlayChange);
+            case BroadcastConstants.UpdateCover:
+                Log.d(action, "");
+                return new IntentFilter(BroadcastConstants.UpdateCover);
         }
         return null;
     }

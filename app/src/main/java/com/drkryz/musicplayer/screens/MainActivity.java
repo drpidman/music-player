@@ -23,10 +23,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.media.audiofx.AudioEffect;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PersistableBundle;
+import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -34,17 +36,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.functions.GetMusicsFromExt;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
+import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
 import com.drkryz.musicplayer.screens.adapters.MusicListAdapter;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
 import com.drkryz.musicplayer.utils.GlobalVariables;
 import com.drkryz.musicplayer.utils.StorageUtil;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,8 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     ImageButton PlayUiBtn;
+    ImageView coverImage;
 
-    @SuppressLint("ServiceCast")
+    @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
                 new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
                 );
 
+        registerReceiver(updateCover,
+                new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.UpdateCover)
+        );
+
         globalVariables = (GlobalVariables) getApplicationContext();
         globalVariables.setServiceBound(false);
 
@@ -77,8 +88,30 @@ public class MainActivity extends AppCompatActivity {
 
         globalVariables.setMusicList(externalGet.getAll());
 
+
         MotionLayout motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
         motionLayout.setTransitionListener(new TransitionListener(this));
+
+
+
+        motionLayout.setOnTouchListener(new OnSwipeTouchListener() {
+            @Override
+            public boolean onSwipeLeft() {
+                if (globalVariables.isServiceBound()) {
+                    Skip();
+                }
+                return super.onSwipeLeft();
+            }
+
+            @Override
+            public boolean onSwipeRight() {
+                if (globalVariables.isServiceBound()) {
+                    Previous();
+                }
+                return super.onSwipeRight();
+            }
+        });
+
 
         ImageButton EQButton = (ImageButton) findViewById(R.id.appSettings);
 
@@ -87,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         PlayUiBtn = (ImageButton) findViewById(R.id.uiPlay);
+        coverImage = (ImageView) findViewById(R.id.musicAlbum);
 
         ImageButton UiPrevious = (ImageButton) findViewById(R.id.uiPrevious);
 
@@ -124,9 +158,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
 
 
 
@@ -226,11 +257,9 @@ public class MainActivity extends AppCompatActivity {
             Intent player = new Intent(getBaseContext(), MusicService.class);
             startService(player);
             bindService(player, serviceConnection, BIND_AUTO_CREATE);
-
         } else {
             StorageUtil storage = new StorageUtil(getApplicationContext());
             storage.storeAudioIndex(position);
-
             broadcastSenders.playbackUIManager(BroadcastConstants.Play, false);
         }
     }
@@ -254,6 +283,26 @@ public class MainActivity extends AppCompatActivity {
     // ===============================
 
 
+    private void updateCoverImage() {
+        Bitmap cover = null;
+
+        try {
+            cover = MediaStore.Images.Media.getBitmap(
+                    getContentResolver(),
+                    Uri.parse(globalVariables.activeAudio.getAlbum())
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            cover = BitmapFactory.decodeResource(
+                    getResources(),
+                    R.drawable.default_music
+            );
+        }
+
+        coverImage.setImageBitmap(cover);
+
+    }
+
 
     private final BroadcastReceiver receivePlaying = new BroadcastReceiver() {
         @Override
@@ -263,6 +312,13 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
             }
+        }
+    };
+
+    private final BroadcastReceiver updateCover = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateCoverImage();
         }
     };
 
@@ -299,7 +355,9 @@ public class MainActivity extends AppCompatActivity {
             ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
             globalVariables.musicService.stopSelf();
+
             unregisterReceiver(receivePlaying);
+            unregisterReceiver(updateCover);
         } else {
             globalVariables.mediaSession.release();
         }

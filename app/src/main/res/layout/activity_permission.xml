@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#111"
+    tools:context=".screens.PermissionActivity">
+
+
+    <TextView
+        android:id="@+id/permissionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="permissões"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textColor="@color/text"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+
+    <TextView
+        android:id="@+id/permissionExternal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:text="Armazenamento externo/interno"
+        android:textColor="@color/text"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissionText"
+        app:layout_constraintVertical_bias="0.069"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <Button
+        android:id="@+id/allowExternal"
+        android:layout_width="250dp"
+        android:layout_height="47dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/button_e_background"
+        android:focusable="true"
+        android:text="conceder"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/permissionExternal"
+        app:layout_constraintHorizontal_bias="0.061"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissionExternal"
+        app:layout_constraintVertical_bias="0.04" />
+
+    <TextView
+        android:id="@+id/externalDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/externalDescription"
+        android:textAlignment="center"
+        android:textColor="@color/text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/allowExternal"
+        app:layout_constraintVertical_bias="0.057"
+        tools:layout_editor_absoluteX="0dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
