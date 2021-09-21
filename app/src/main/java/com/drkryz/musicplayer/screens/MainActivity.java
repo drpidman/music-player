@@ -264,21 +264,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean serviceState() {
+        return globalVariables.isServiceBound();
+    }
+
     // controls ===============
     private void Pause() {
-        broadcastSenders.playbackUIManager(BroadcastConstants.Pause, false);
+        if (!serviceState()) return;
+        globalVariables.transportControls.pause();
+
     }
 
     private void Resume() {
-        broadcastSenders.playbackUIManager(BroadcastConstants.Resume, true);
+        if (!serviceState()) return;
+        globalVariables.transportControls.play();
     }
 
     private void Skip() {
-        broadcastSenders.playbackUIManager(BroadcastConstants.Skip, true);
+        if (!serviceState()) return;
+        globalVariables.transportControls.skipToNext();
     };
 
     private void Previous() {
-        broadcastSenders.playbackUIManager(BroadcastConstants.Prev, true);
+        if (!serviceState()) return;
+        globalVariables.transportControls.skipToPrevious();
     };
     // ===============================
 

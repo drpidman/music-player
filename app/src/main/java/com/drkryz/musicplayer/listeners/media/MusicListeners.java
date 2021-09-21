@@ -10,6 +10,7 @@ import android.media.PlaybackParams;
 import android.media.audiofx.AudioEffect;
 import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -84,9 +85,10 @@ public class MusicListeners implements
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d("onCompletion()", "media completed");
-        // auto play
-        broadcastSenders.playbackManager(BroadcastConstants.RequestSkip, 0);
-        broadcastSenders.playbackNotification(BroadcastConstants.UpdateMetaData, null);
+
+        // change: broadcastSenders.playbackManager(...) to transportControls.skipToNext();
+        // fix auto playing
+        globalVariables.transportControls.skipToNext();
         broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
     }
 }
