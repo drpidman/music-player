@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
 import androidx.media.AudioManagerCompat;
 
@@ -49,12 +50,16 @@ public class MusicListeners implements
         switch (i) {
             case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
                 Log.d("MediaPlayer Error", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + i1);
+                Toast.makeText(globalVariables.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
                 break;
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
                 Log.d("MediaPlayer Error", "MEDIA ERROR SERVER DIED " + i1);
+                Toast.makeText(globalVariables.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
+
                 break;
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
                 Log.d("MediaPlayer Error", "MEDIA ERROR UNKNOWN " + i1);
+                Toast.makeText(globalVariables.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
                 break;
         }
         return false;

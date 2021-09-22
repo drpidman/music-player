@@ -28,11 +28,8 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        Intent intent = null;
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            intent = new Intent(this, PermissionActivity.class);
-            startActivity(intent);
+            loadPermission();
         } else {
             loadMain();
         }
@@ -45,6 +42,18 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                 startActivity(intent);
+                finish();
+            }
+        }, SPLASH_TIME);
+    }
+
+    private void loadPermission() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(SplashActivity.this, PermissionActivity.class);
+                startActivity(intent);
+                finish();
             }
         }, SPLASH_TIME);
     }

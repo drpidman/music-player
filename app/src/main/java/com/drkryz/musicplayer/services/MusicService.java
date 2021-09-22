@@ -92,8 +92,6 @@ public class MusicService extends Service {
         notificationBuilderManager.unregisterAll();
 
         unregisterReceiver(nowPlaying);
-
-        new StorageUtil(this).clearCachedAudioPlaylist();
         new StorageUtil(this).clearCachedPlayingStatus();
 
         super.onDestroy();
@@ -103,7 +101,6 @@ public class MusicService extends Service {
     @SuppressLint("ResourceAsColor")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
         globalVariables = (GlobalVariables) getApplicationContext();
         broadcastSenders = (BroadcastSenders) new BroadcastSenders(getApplicationContext());
 
@@ -136,11 +133,12 @@ public class MusicService extends Service {
             }
 
             broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
-            startForeground(0, null);
         }
 
+        startForeground(0, null);
+
         handleActions(intent);
-        return START_NOT_STICKY;
+        return super.onStartCommand(intent, flags, startId);
     }
 
 

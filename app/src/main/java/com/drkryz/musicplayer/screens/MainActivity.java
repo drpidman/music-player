@@ -5,12 +5,16 @@ import static android.media.audiofx.AudioEffect.EXTRA_AUDIO_SESSION;
 import static android.media.audiofx.AudioEffect.EXTRA_CONTENT_TYPE;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -21,29 +25,24 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.audiofx.AudioEffect;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.PersistableBundle;
 import android.provider.MediaStore;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.functions.GetMusicsFromExt;
+import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
 import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
-import com.drkryz.musicplayer.screens.adapters.MusicListAdapter;
+import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
@@ -57,11 +56,11 @@ public class MainActivity extends AppCompatActivity {
 
     private GlobalVariables globalVariables;
     private BroadcastSenders broadcastSenders;
-    private MediaBrowserCompat mMediaBrowser;
 
 
     ImageButton PlayUiBtn;
     ImageView coverImage;
+    MotionLayout motionLayout;
 
     @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
     @Override
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         registerReceiver(receivePlaying,
                 new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
-                );
+        );
 
         registerReceiver(updateCover,
                 new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.UpdateCover)
@@ -87,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
         externalGet.populateSongs(getApplication());
 
         globalVariables.setMusicList(externalGet.getAll());
+        new StorageUtil(getBaseContext()).storePlayingState(false);
 
-
-        MotionLayout motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
+        motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
         motionLayout.setTransitionListener(new TransitionListener(this));
 
 
@@ -115,9 +114,23 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton EQButton = (ImageButton) findViewById(R.id.appSettings);
 
-        ListView listView = (ListView) findViewById(R.id.musicList);
-        listView.setAdapter(new MusicListAdapter(globalVariables.getMusicList(), this));
+        RecyclerView listView = (RecyclerView) findViewById(R.id.musicList);
 
+        MusicRecyclerView musicRecyclerView = new MusicRecyclerView(globalVariables.getMusicList(), this);
+
+        listView.setAdapter(musicRecyclerView);
+
+        listView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        ItemClickSupport.addTo(listView)
+                .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                        Play(position);
+                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+                    }
+                });
 
         PlayUiBtn = (ImageButton) findViewById(R.id.uiPlay);
         coverImage = (ImageView) findViewById(R.id.musicAlbum);
@@ -140,10 +153,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        new StorageUtil(getBaseContext()).storePlayingState(false);
-
-
         PlayUiBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,14 +169,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Play(i);
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
-            }
-        });
 
         // create notification channel
         NotificationChannel channel = null;
@@ -310,6 +311,72 @@ public class MainActivity extends AppCompatActivity {
 
         coverImage.setImageBitmap(cover);
 
+
+        Bitmap finalCover = cover;
+
+        // change status bar animated
+        ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                getWindow().setStatusBarColor(
+                        getDominantColor(finalCover)
+                );
+            }
+        });
+
+        animator.setDuration(2000);
+        animator.start();
+
+        // change background animated
+        final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();;
+        final int colorTo = getDominantColor(cover);
+
+        ObjectAnimator.ofObject(motionLayout, "backgroundColor",
+                new ArgbEvaluator(), colorFrom, colorTo
+                )
+                .setDuration(1000)
+                .start();
+    }
+
+    // get color from bitmap cover
+    private static int getDominantColor(Bitmap bitmap) {
+        if (bitmap == null) return Color.TRANSPARENT;
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int size = width * height;
+        int pixels[] = new int[size];
+
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        int color;
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        int a;
+
+        int count = 0;
+
+        for(int i = 0; i < pixels.length; i++) {
+            color = pixels[i];
+            a = Color.alpha(color);
+            if (a > 0) {
+                r += Color.red(color);
+                g += Color.green(color);
+                b += Color.blue(color);
+                count++;
+            }
+        }
+
+        r /= count;
+        g /= count;
+        b /= count;
+        r = (r << 16) & 0x00FF0000;
+        g = (g << 8) & 0x0000FF00;
+        b = b & 0x000000FF;
+        color = 0xFF000000 | r | g | b;
+
+        return color;
     }
 
 
@@ -331,31 +398,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(getPackageName(), "activity paused");
-    }
-
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        Log.d(getPackageName(), "activity leave hint");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(getPackageName(), "activity resume");
-    }
-
     @Override
     protected void onDestroy() {
         if (globalVariables.isServiceBound()) {
@@ -374,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("serviceStatus", globalVariables.isServiceBound());
     }

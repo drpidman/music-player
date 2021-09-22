@@ -10,4 +10,8 @@
         Permissão necessária para o aplicativo ler o conteúdo do armazenamento
         interno/externo(apenas arquivos de audio filtrados).
     </string>
+    <string name="battery_perm_title">Gerenciamento de bateria</string>
+    <string name="battery_perm_desc">Continue reproduzindo suas musicas mesmo com a tela desligada.
+         Na barra de pesquisa procure pelo nome do app e desative a otimização.
+    </string>
 </resources>

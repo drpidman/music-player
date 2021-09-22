@@ -19,46 +19,75 @@
         app:layout_constraintTop_toTopOf="parent"
         />
 
-
     <TextView
-        android:id="@+id/permissionExternal"
-        android:layout_width="match_parent"
+        android:id="@+id/permissionBatteryTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
-        android:text="Armazenamento externo/interno"
+        android:padding="20dp"
+        android:text="@string/battery_perm_title"
         android:textColor="@color/text"
         android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionText"
-        app:layout_constraintVertical_bias="0.07"
-        tools:layout_editor_absoluteX="27dp" />
+        android:textStyle="bold"
+        android:layout_margin="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissionText" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="@string/battery_perm_desc"
+        android:textAlignment="textStart"
+        android:textColor="@color/text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissionBatteryTitle" />
+
+    <Button
+        android:id="@+id/allowBattery"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@drawable/button_e_background"
+        android:text="conceder"
+        app:layout_constraintEnd_toEndOf="@+id/permissionExternalTitle"
+        app:layout_constraintStart_toStartOf="@+id/permissionExternalTitle"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/permissionExternalTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:padding="20dp"
+        android:text="Armazenamento interno/externo"
+        android:textColor="@color/text"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/allowBattery" />
+
+
+    <TextView
+        android:id="@+id/permissionExternalDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="@string/externalDescription"
+        android:textAlignment="textStart"
+        android:textColor="@color/text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissionExternalTitle" />
 
     <Button
         android:id="@+id/allowExternal"
-        android:layout_width="250dp"
-        android:layout_height="47dp"
-        android:layout_margin="20dp"
-        android:background="@drawable/button_e_background"
-        android:focusable="true"
-        android:text="conceder"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/permissionExternal"
-        app:layout_constraintHorizontal_bias="0.061"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionExternal"
-        app:layout_constraintVertical_bias="0.04" />
-
-    <TextView
-        android:id="@+id/externalDescription"
-        android:layout_width="match_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="@string/externalDescription"
-        android:textAlignment="center"
-        android:textColor="@color/text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/allowExternal"
-        app:layout_constraintVertical_bias="0.057"
-        tools:layout_editor_absoluteX="0dp" />
-
+        android:layout_margin="10dp"
+        android:background="@drawable/button_e_background"
+        android:text="conceder"
+        app:layout_constraintEnd_toEndOf="@+id/permissionExternalTitle"
+        app:layout_constraintStart_toStartOf="@+id/permissionExternalTitle"
+        app:layout_constraintTop_toBottomOf="@+id/permissionExternalDesc" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

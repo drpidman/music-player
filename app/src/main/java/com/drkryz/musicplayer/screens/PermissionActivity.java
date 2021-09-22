@@ -9,7 +9,9 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.audiofx.Equalizer;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +21,7 @@ import com.drkryz.musicplayer.R;
 public class PermissionActivity extends AppCompatActivity {
 
     Button allowExternal;
+    Button allowBattery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,14 @@ public class PermissionActivity extends AppCompatActivity {
                         new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE },
                         140
                 );
+            }
+        });
+
+        allowBattery = findViewById(R.id.allowBattery);
+        allowBattery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS), 0);
             }
         });
     }

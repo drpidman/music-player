@@ -65,22 +65,25 @@
             android:id="@+id/uiPlay"
             motion:layout_constraintBottom_toTopOf="@+id/musicList" />
         <Constraint
-            android:layout_height="90dp"
-            motion:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="90dp"
+            android:layout_height="40dp"
+            motion:layout_constraintEnd_toEndOf="@+id/musicAlbum"
+            android:layout_width="40dp"
             android:id="@+id/uiSkip"
             motion:layout_constraintBottom_toBottomOf="@+id/uiPlay"
             motion:layout_constraintStart_toEndOf="@+id/uiPlay"
-            motion:layout_constraintHorizontal_bias="0.529"
-            motion:layout_constraintTop_toTopOf="@+id/uiPlay" />
+            motion:layout_constraintHorizontal_bias="0.833"
+            motion:layout_constraintTop_toTopOf="@+id/uiPlay"
+            motion:layout_constraintVertical_bias="1.0" />
         <Constraint
-            android:layout_height="90dp"
+            android:layout_height="40dp"
             motion:layout_constraintBottom_toBottomOf="@+id/uiPlay"
-            android:layout_width="90dp"
+            android:layout_width="40dp"
             android:id="@+id/uiPrevious"
-            motion:layout_constraintStart_toStartOf="@+id/bottomNavDrag"
+            motion:layout_constraintStart_toStartOf="@+id/musicAlbum"
             motion:layout_constraintEnd_toStartOf="@+id/uiPlay"
-            motion:layout_constraintTop_toTopOf="@+id/uiPlay" />
+            motion:layout_constraintTop_toTopOf="@+id/uiPlay"
+            motion:layout_constraintHorizontal_bias="0.196"
+            motion:layout_constraintVertical_bias="1.0" />
         <Constraint
             motion:layout_constraintEnd_toEndOf="parent"
             android:layout_width="150dp"
@@ -123,7 +126,7 @@
 
         <Constraint
             android:id="@+id/musicList"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="600dp"
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintTop_toBottomOf="@id/drawer"

@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="5dp"
     android:background="@drawable/bg_listitem"
     android:descendantFocusability="blocksDescendants"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
 
     <RelativeLayout
@@ -27,6 +28,7 @@
             android:id="@+id/musicAlbumCover"
             android:layout_width="60dp"
             android:layout_height="60dp"
+            app:civ_shadow="true"
             android:layout_alignTop="@id/musicTitle"
             android:layout_alignBottom="@id/musicTitle"
             android:layout_alignParentStart="true"

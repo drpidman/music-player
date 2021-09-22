@@ -139,9 +139,9 @@ public class MusicManager {
                 int currentPosition = mediaPlayer.getCurrentPosition();
                 PlaybackState playbackState =
                         new PlaybackState.Builder()
-                        .setState(state, currentPosition, 1)
-                        .setActions(PlaybackState.ACTION_SEEK_TO)
-                        .build();
+                                .setState(state, currentPosition, 1)
+                                .setActions(PlaybackState.ACTION_SEEK_TO)
+                                .build();
 
                 globalVariables.mediaSession.setPlaybackState(playbackState);
             }
@@ -370,7 +370,7 @@ public class MusicManager {
     private void RegisterSeek() {
         ctx.registerReceiver(seekAction,
                 broadcastSenders.playbackFilter(BroadcastConstants.RequestSeek)
-                );
+        );
     }
 
     private void RegisterReset() {
