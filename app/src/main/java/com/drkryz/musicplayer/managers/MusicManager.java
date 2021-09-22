@@ -201,7 +201,7 @@ public class MusicManager {
 
         new StorageUtil(globalVariables.getContext()).storeAudioIndex(globalVariables.audioIndex);
         new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-        Log.e("PlaybackState:::previous", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+        Log.e("PlaybackState:::prev", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
 
         mediaPlayer.reset();
         initMediaPlayer();
@@ -243,8 +243,8 @@ public class MusicManager {
             Stop();
             mediaPlayer.release();
 
-            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             mediaPlayer = null;
+            unregisterAll();
         }
     }
 

@@ -2,6 +2,7 @@ package com.drkryz.musicplayer.utils;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.media.session.MediaController;
@@ -9,12 +10,17 @@ import android.media.session.MediaController.TransportControls;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
 import com.drkryz.musicplayer.services.MusicService;
@@ -76,17 +82,6 @@ public class GlobalVariables extends Application {
 
     public Context getContext() {
         return getApplicationContext();
-    }
-
-
-    int Seek = -1;
-
-    public void setSeek(int seek) {
-        this.Seek = seek;
-    }
-
-    public int getSeek() {
-        return Seek;
     }
 
     public enum Status {

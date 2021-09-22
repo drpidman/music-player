@@ -41,10 +41,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.managers.MusicManager;
 import com.drkryz.musicplayer.managers.NotificationBuilderManager;
+import com.drkryz.musicplayer.screens.MainActivity;
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
 import com.drkryz.musicplayer.utils.GlobalVariables;
@@ -76,26 +78,48 @@ public class MusicService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d("onUnbind()", intent.toString());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Log.e(getPackageName() + ":onUnbind():Service", "called");
+            NotificationManagerCompat notificationManagerCompat =
+                    NotificationManagerCompat.from(getApplicationContext());
+            notificationManagerCompat.cancelAll();
+        } else {
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
+        }
+
         globalVariables.mediaSession.release();
-        broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy, 0);
-        notificationBuilderManager.removeNotification();
         return super.onUnbind(intent);
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.e(getPackageName() + "onTaskRemoved()", "called");
+    }
+
+    @Override
     public void onDestroy() {
+        super.onDestroy();
         Log.d("onDestroy()", "called");
+        unregisterReceiver(nowPlaying);
 
         broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy, 0);
-
-        musicManager.unregisterAll();
         notificationBuilderManager.unregisterAll();
-
-        unregisterReceiver(nowPlaying);
-        new StorageUtil(this).clearCachedPlayingStatus();
-
-        super.onDestroy();
     }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        musicManager = new MusicManager(getBaseContext());
+        notificationBuilderManager = new NotificationBuilderManager(getBaseContext());
+
+
+        registerNowPlaying();
+
+        musicManager.registerAll();
+        notificationBuilderManager.registerAll();
+    }
+
 
 
     @SuppressLint("ResourceAsColor")
@@ -139,20 +163,6 @@ public class MusicService extends Service {
 
         handleActions(intent);
         return super.onStartCommand(intent, flags, startId);
-    }
-
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        musicManager = new MusicManager(getBaseContext());
-        notificationBuilderManager = new NotificationBuilderManager(getBaseContext());
-
-
-        registerNowPlaying();
-
-        musicManager.registerAll();
-        notificationBuilderManager.registerAll();
     }
 
     @Override

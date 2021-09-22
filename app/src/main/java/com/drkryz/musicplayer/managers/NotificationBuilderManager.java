@@ -294,5 +294,7 @@ public class NotificationBuilderManager {
         ctx.unregisterReceiver(buildNotificationAction);
         ctx.unregisterReceiver(notificationUpdateAction);
         ctx.unregisterReceiver(removeNotificationAction);
+
+        removeNotification();
     }
 }

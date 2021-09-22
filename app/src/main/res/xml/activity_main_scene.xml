@@ -57,10 +57,10 @@
 
 
         <Constraint
-            android:layout_height="60dp"
+            android:layout_height="80dp"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="60dp"
+            android:layout_width="80dp"
             motion:layout_constraintTop_toBottomOf="@+id/musicAlbum"
             android:id="@+id/uiPlay"
             motion:layout_constraintBottom_toTopOf="@+id/musicList" />
@@ -71,9 +71,7 @@
             android:id="@+id/uiSkip"
             motion:layout_constraintBottom_toBottomOf="@+id/uiPlay"
             motion:layout_constraintStart_toEndOf="@+id/uiPlay"
-            motion:layout_constraintHorizontal_bias="0.833"
-            motion:layout_constraintTop_toTopOf="@+id/uiPlay"
-            motion:layout_constraintVertical_bias="1.0" />
+            motion:layout_constraintTop_toTopOf="@+id/uiPlay" />
         <Constraint
             android:layout_height="40dp"
             motion:layout_constraintBottom_toBottomOf="@+id/uiPlay"
@@ -81,9 +79,7 @@
             android:id="@+id/uiPrevious"
             motion:layout_constraintStart_toStartOf="@+id/musicAlbum"
             motion:layout_constraintEnd_toStartOf="@+id/uiPlay"
-            motion:layout_constraintTop_toTopOf="@+id/uiPlay"
-            motion:layout_constraintHorizontal_bias="0.196"
-            motion:layout_constraintVertical_bias="1.0" />
+            motion:layout_constraintTop_toTopOf="@+id/uiPlay" />
         <Constraint
             motion:layout_constraintEnd_toEndOf="parent"
             android:layout_width="150dp"

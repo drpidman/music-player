@@ -37,22 +37,22 @@ public class BroadcastSenders {
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestInit);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RequestPlay:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestPlay);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RequestPause:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestPause);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RequestSkip:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestSkip);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RequestPrev:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestPrev);
@@ -61,12 +61,12 @@ public class BroadcastSenders {
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestStop);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RequestResume:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestResume);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RequestSeek:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestSeek);
@@ -76,7 +76,7 @@ public class BroadcastSenders {
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestReset);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RequestRelease:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestRelease);
@@ -85,7 +85,7 @@ public class BroadcastSenders {
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RequestDestroy);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
         }
         return null;
     }
@@ -96,19 +96,19 @@ public class BroadcastSenders {
             case BroadcastConstants.Play:
                 intent = new Intent(BroadcastConstants.Play);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case BroadcastConstants.Pause:
                 intent = new Intent(BroadcastConstants.Pause);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case BroadcastConstants.Resume:
                 intent = new Intent(BroadcastConstants.Resume);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case BroadcastConstants.Skip:
                 intent = new Intent(BroadcastConstants.Skip);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case BroadcastConstants.Prev:
                 intent = new Intent(BroadcastConstants.Prev);
                 globalVariables.sendBroadcast(intent);
@@ -116,11 +116,11 @@ public class BroadcastSenders {
                 intent = new Intent(BroadcastConstants.RequestPlayChange);
                 intent.putExtra("playingState", isPlaying);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case BroadcastConstants.UpdateCover:
                 intent = new Intent(BroadcastConstants.UpdateCover);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
         }
         return null;
     }
@@ -206,17 +206,17 @@ public class BroadcastSenders {
                 intent = new Intent(RequestNotification);
                 intent.putExtra("status", status);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case RemoveNotification:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(RemoveNotification);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
             case UpdateMetaData:
                 Log.d(globalVariables.getPackageName(), action);
                 intent = new Intent(UpdateMetaData);
                 globalVariables.sendBroadcast(intent);
-            break;
+                break;
         }
         return null;
     }

@@ -7,6 +7,7 @@
         <entry key="app/src/main/res/drawable/album_cover_background.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/bg_listitem.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/bg_playback_play.xml" value="0.13223684210526315" />
+        <entry key="app/src/main/res/drawable/bg_skip_prev.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/button_e_background.xml" value="0.1717948717948718" />
         <entry key="app/src/main/res/drawable/ic_appstgs.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ic_baseline_expand.xml" value="0.1" />
@@ -23,7 +24,7 @@
         <entry key="app/src/main/res/drawable/skip_prev_bg.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ui_pausebtn.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ui_playbtn.xml" value="0.1355263157894737" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.15" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.16" />
         <entry key="app/src/main/res/layout/activity_permission.xml" value="0.2" />
         <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.14" />

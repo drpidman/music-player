@@ -5,6 +5,8 @@ import static android.media.audiofx.AudioEffect.EXTRA_AUDIO_SESSION;
 import static android.media.audiofx.AudioEffect.EXTRA_CONTENT_TYPE;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NotificationChannelCompat;
@@ -16,6 +18,8 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -26,14 +30,19 @@ import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Outline;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.audiofx.AudioEffect;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewOutlineProvider;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -68,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         registerReceiver(receivePlaying,
                 new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
         );
@@ -90,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
 
         motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
         motionLayout.setTransitionListener(new TransitionListener(this));
-
 
 
         motionLayout.setOnTouchListener(new OnSwipeTouchListener() {
@@ -168,9 +174,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        broadcastSenders = new BroadcastSenders(getApplicationContext());
 
 
-        // create notification channel
+        EQButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent audioEQ = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+                audioEQ.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE_MUSIC);
+                audioEQ.putExtra(EXTRA_AUDIO_SESSION, CONTENT_TYPE_MUSIC);
+
+                if ((audioEQ.resolveActivity(getPackageManager()) != null)) {
+                    startActivityForResult(audioEQ, 0);
+                }
+            }
+        });
+
+        ImageButton openWebPlayer = (ImageButton) findViewById(R.id.webPlayer);
+
+        openWebPlayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent webViewPlayer = new Intent(getApplicationContext(), YTMusicActivity.class);
+                startActivity(webViewPlayer);
+            }
+        });
+
         NotificationChannel channel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             channel = new NotificationChannel(
@@ -200,35 +229,6 @@ public class MainActivity extends AppCompatActivity {
             notificationManager.createNotificationChannel(notificationChannel.build());
         }
 
-
-        broadcastSenders = new BroadcastSenders(getApplicationContext());
-
-
-        EQButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent audioEQ = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
-                audioEQ.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE_MUSIC);
-                audioEQ.putExtra(EXTRA_AUDIO_SESSION, CONTENT_TYPE_MUSIC);
-
-                if ((audioEQ.resolveActivity(getPackageManager()) != null)) {
-                    startActivityForResult(audioEQ, 0);
-                } else {
-
-                }
-            }
-        });
-
-
-        ImageButton openWebPlayer = (ImageButton) findViewById(R.id.webPlayer);
-
-        openWebPlayer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent webViewPlayer = new Intent(getApplicationContext(), YTMusicActivity.class);
-                startActivity(webViewPlayer);
-            }
-        });
     }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -273,22 +273,26 @@ public class MainActivity extends AppCompatActivity {
     private void Pause() {
         if (!serviceState()) return;
         globalVariables.transportControls.pause();
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
 
     }
 
     private void Resume() {
         if (!serviceState()) return;
         globalVariables.transportControls.play();
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
     }
 
     private void Skip() {
         if (!serviceState()) return;
         globalVariables.transportControls.skipToNext();
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
     };
 
     private void Previous() {
         if (!serviceState()) return;
         globalVariables.transportControls.skipToPrevious();
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
     };
     // ===============================
 
@@ -311,33 +315,32 @@ public class MainActivity extends AppCompatActivity {
 
         coverImage.setImageBitmap(cover);
 
-
-        Bitmap finalCover = cover;
-
-        // change status bar animated
-        ValueAnimator animator = ValueAnimator.ofFloat(0, 1);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                getWindow().setStatusBarColor(
-                        getDominantColor(finalCover)
-                );
-            }
-        });
-
-        animator.setDuration(2000);
-        animator.start();
-
         // change background animated
         final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();;
         final int colorTo = getDominantColor(cover);
 
         ObjectAnimator.ofObject(motionLayout, "backgroundColor",
                 new ArgbEvaluator(), colorFrom, colorTo
-                )
+        )
                 .setDuration(1000)
                 .start();
+
+
+        Drawable button = PlayUiBtn.getBackground();
+
+        ObjectAnimator.ofObject(button, "tint", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
+
+
+        Window window = getWindow();
+        
+        ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
+
     }
+
 
     // get color from bitmap cover
     private static int getDominantColor(Bitmap bitmap) {
@@ -398,22 +401,28 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
     @Override
     protected void onDestroy() {
+        Log.d("onDestroy():main", "called");
         if (globalVariables.isServiceBound()) {
-            unbindService(serviceConnection);
-
             ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
-
-            globalVariables.musicService.stopSelf();
 
             unregisterReceiver(receivePlaying);
             unregisterReceiver(updateCover);
-        } else {
-            globalVariables.mediaSession.release();
+
+            unbindService(serviceConnection);
+            globalVariables.musicService.stopSelf();
+
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                stopService(new Intent(this, MusicService.class));
+            }
+
         }
         super.onDestroy();
     }
+
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
