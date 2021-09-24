@@ -56,12 +56,24 @@ public class StorageUtil {
     }
 
     public void clearCachedAudioPlaylist() {
-        Log.d("clearCachedAudioPlaylist()", "called");
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.clear();
         editor.apply();
+    }
+
+    public void storeTotalDuration(int total) {
+        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt("totalDuration", total);
+        editor.apply();
+    }
+
+    public int loadTotalDuration() {
+        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
+        return preferences.getInt("totalDuration", 0);
     }
 
     public void storePlayingState(boolean state) {

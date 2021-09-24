@@ -17,16 +17,18 @@ public class BroadcastConstants {
     public static final String RequestRelease = packageName + ".release";
     public static final String RequestDestroy = packageName + ".destroy";
 
+    public static final String RequestAudioFocus = packageName + ".requestAudioFocus";
+    public static final String RemoveAudioFocus = packageName + ".removeAudioFocus";
+
+
     // ui events with service
     public static final String Play = packageName + ".ui.play";
     public static final String Pause = packageName + ".ui.pause";
     public static final String Skip = packageName + ".ui.skip";
     public static final String Prev = packageName + ".ui.previous";
     public static final String Resume = packageName + ".ui.resume";
-
-
     public static final String RequestPlayChange = packageName + ".ui.change.play";
-
+    public static final String RequestProgress = packageName + "ui.requestProgress";
 
     // notification manager
     public static final String RequestNotification = packageName + ".notification";

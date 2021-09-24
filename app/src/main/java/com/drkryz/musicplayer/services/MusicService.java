@@ -5,66 +5,37 @@ import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_PLAY;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_PREV;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_SKIP;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_STOP;
-import static com.drkryz.musicplayer.utils.BroadcastConstants.Resume;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.RemoteAction;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
-import android.media.browse.MediaBrowser;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
-import android.media.session.MediaSessionManager;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Process;
 import android.os.RemoteException;
-import android.service.media.MediaBrowserService;
 import android.util.Log;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.managers.MusicManager;
 import com.drkryz.musicplayer.managers.NotificationBuilderManager;
-import com.drkryz.musicplayer.screens.MainActivity;
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
 import com.drkryz.musicplayer.utils.GlobalVariables;
-import com.drkryz.musicplayer.utils.Song;
 import com.drkryz.musicplayer.utils.StorageUtil;
-
-import org.jetbrains.annotations.Contract;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MusicService extends Service {
 
     private final IBinder iBinder = new LocalBinder();
     private GlobalVariables globalVariables;
     private BroadcastSenders broadcastSenders;
-    private MusicManager musicManager;
     private NotificationBuilderManager notificationBuilderManager;
+    private MusicManager musicManager;
 
 
     @SuppressLint("ResourceAsColor")
@@ -222,6 +193,14 @@ public class MusicService extends Service {
         }
     }
 
+
+    public int getCurrentPosition() {
+        return musicManager.getCurrentPosition();
+    }
+
+    public int getTotalDuration() {
+        return musicManager.getTotalDuration();
+    }
 
     public class LocalBinder extends Binder {
         public MusicService getService() {

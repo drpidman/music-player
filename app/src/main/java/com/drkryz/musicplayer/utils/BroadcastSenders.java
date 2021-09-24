@@ -1,6 +1,8 @@
 package com.drkryz.musicplayer.utils;
 
+import static com.drkryz.musicplayer.utils.BroadcastConstants.RemoveAudioFocus;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RemoveNotification;
+import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestAudioFocus;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestDestroy;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestInit;
 import static com.drkryz.musicplayer.utils.BroadcastConstants.RequestNotification;
@@ -18,7 +20,6 @@ import static com.drkryz.musicplayer.utils.BroadcastConstants.UpdateMetaData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.session.PlaybackState;
 import android.util.Log;
 
 public class BroadcastSenders {
@@ -29,7 +30,7 @@ public class BroadcastSenders {
         globalVariables = (GlobalVariables) context.getApplicationContext();
     }
 
-    public Intent playbackManager(String action, long seekVal) {
+    public void playbackManager(String action, long seekVal) {
         Intent intent;
 
         switch (action) {
@@ -86,11 +87,20 @@ public class BroadcastSenders {
                 intent = new Intent(RequestDestroy);
                 globalVariables.sendBroadcast(intent);
                 break;
+            case RequestAudioFocus:
+                Log.d(globalVariables.getPackageName(), action);
+                intent = new Intent(RequestAudioFocus);
+                globalVariables.sendBroadcast(intent);
+            break;
+            case RemoveAudioFocus:
+                Log.d(globalVariables.getPackageName(), action);
+                intent = new Intent(RemoveAudioFocus);
+                globalVariables.sendBroadcast(intent);
+            break;
         }
-        return null;
     }
 
-    public Intent playbackUIManager(String action, boolean isPlaying) {
+    public void playbackUIManager(String action, boolean isPlaying) {
         Intent intent;
         switch (action) {
             case BroadcastConstants.Play:
@@ -121,8 +131,11 @@ public class BroadcastSenders {
                 intent = new Intent(BroadcastConstants.UpdateCover);
                 globalVariables.sendBroadcast(intent);
                 break;
+            case BroadcastConstants.RequestProgress:
+                intent = new Intent(BroadcastConstants.RequestProgress);
+                globalVariables.sendBroadcast(intent);
+                break;
         }
-        return null;
     }
 
     public IntentFilter playbackUIFilter(String action) {
@@ -145,6 +158,9 @@ public class BroadcastSenders {
             case BroadcastConstants.UpdateCover:
                 Log.d(action, "");
                 return new IntentFilter(BroadcastConstants.UpdateCover);
+            case BroadcastConstants.RequestProgress:
+                Log.d(action, "");
+                return new IntentFilter(BroadcastConstants.RequestProgress);
         }
         return null;
     }
@@ -194,11 +210,17 @@ public class BroadcastSenders {
             case UpdateMetaData:
                 Log.d(action, "");
                 return new IntentFilter(UpdateMetaData);
+            case RequestAudioFocus:
+                Log.d(action, "");
+                return new IntentFilter(RequestAudioFocus);
+            case RemoveAudioFocus:
+                Log.d(action, "");
+                return new IntentFilter(RemoveAudioFocus);
         }
         return null;
     }
 
-    public Intent playbackNotification(String action, GlobalVariables.Status status) {
+    public void playbackNotification(String action, GlobalVariables.Status status) {
         Intent intent;
         switch (action) {
             case RequestNotification:
@@ -218,6 +240,5 @@ public class BroadcastSenders {
                 globalVariables.sendBroadcast(intent);
                 break;
         }
-        return null;
     }
 }

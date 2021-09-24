@@ -37,8 +37,10 @@
             android:resource="@xml/automotive_app_desc" />
 
         <activity
-            android:name=".screens.MainActivity"
-            android:exported="true" />
+            android:name=".screens.PlayerActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".screens.PermissionActivity"
             android:exported="true" />
@@ -61,8 +63,7 @@
             android:exported="true"
             android:label="@string/app_name"
             android:stopWithTask="true"
-            tools:ignore="ExportedService"></service>
-
+            tools:ignore="ExportedService"/>
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">

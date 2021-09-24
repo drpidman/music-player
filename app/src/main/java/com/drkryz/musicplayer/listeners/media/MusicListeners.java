@@ -80,6 +80,8 @@ public class MusicListeners implements
         new BroadcastSenders(globalVariables.getContext())
                 .playbackUIManager(BroadcastConstants.UpdateCover, false);
 
+        new BroadcastSenders(globalVariables.getContext())
+                .playbackUIManager(BroadcastConstants.RequestProgress, false);
     }
 
     @Override

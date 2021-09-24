@@ -10,7 +10,7 @@
     android:id="@+id/MainMotion"
     app:layoutDescription="@xml/activity_main_scene"
     tools:showPaths="true"
-    tools:context=".screens.MainActivity"
+    tools:context=".screens.PlayerActivity"
     >
 
     <TextView
@@ -66,6 +66,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/textTitle" />
 
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/progressBar"
+        android:visibility="visible"
+        android:progressTint="#fff"
+        android:thumbTint="#fff"
+        android:progressBackgroundTint="#fff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteY="18dp" />
+
     <ImageButton
         android:id="@+id/uiPlay"
         android:layout_width="90dp"
@@ -97,9 +108,9 @@
     <View
         android:id="@+id/bottomNavDrag"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/playback_control_background"
-        android:elevation="10dp"
+        android:elevation="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -108,7 +119,7 @@
         android:id="@+id/drawer"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:elevation="10dp"
+        android:elevation="20dp"
         android:background="@null"
         android:src="@drawable/ic_baseline_expand"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -121,7 +132,8 @@
         android:id="@+id/musicList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:elevation="10dp"
+        android:elevation="20dp"
+        android:background="@null"
         android:divider="@null"
         android:scrollbarStyle="outsideInset"
         android:padding="10dp"

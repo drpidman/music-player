@@ -1,55 +1,29 @@
 package com.drkryz.musicplayer.managers;
 
-import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.drawable.Icon;
 import android.media.AudioAttributes;
-import android.media.AudioTrack;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.PlaybackParams;
-import android.media.SyncParams;
-import android.media.audiofx.AudioEffect;
 import android.media.audiofx.BassBoost;
-import android.media.audiofx.DynamicsProcessing;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.LoudnessEnhancer;
 import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.PowerManager;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
 
 import androidx.annotation.RequiresApi;
 
-import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.listeners.media.MusicListeners;
-import com.drkryz.musicplayer.screens.MainActivity;
-import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastSenders;
 import com.drkryz.musicplayer.utils.GlobalVariables;
 import com.drkryz.musicplayer.utils.StorageUtil;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 public class MusicManager {
@@ -57,6 +31,8 @@ public class MusicManager {
     private MediaPlayer mediaPlayer;
     private final GlobalVariables globalVariables;
     private final BroadcastSenders broadcastSenders;
+    private AudioManager audioManager;
+
     private final Context ctx;
 
     BassBoost bassBoost;
@@ -126,26 +102,6 @@ public class MusicManager {
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             Log.e("PlaybackState:::play", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
         }
-    }
-
-    private void updateCurrentPosition(int state) {
-        Log.e("called", "media update called");
-        if (mediaPlayer == null) return;
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.e("called", "media update called");
-                int currentPosition = mediaPlayer.getCurrentPosition();
-                PlaybackState playbackState =
-                        new PlaybackState.Builder()
-                                .setState(state, currentPosition, 1)
-                                .setActions(PlaybackState.ACTION_SEEK_TO)
-                                .build();
-
-                globalVariables.mediaSession.setPlaybackState(playbackState);
-            }
-        }, 100);
     }
 
     private void Pause() {
@@ -249,6 +205,36 @@ public class MusicManager {
     }
 
 
+    private void updateCurrentPosition(int state) {
+        Log.e("called", "media update called");
+        if (mediaPlayer == null) return;
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("called", "media update called");
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                PlaybackState playbackState =
+                        new PlaybackState.Builder()
+                                .setState(state, currentPosition, 1)
+                                .setActions(PlaybackState.ACTION_SEEK_TO)
+                                .build();
+
+                globalVariables.mediaSession.setPlaybackState(playbackState);
+
+                new StorageUtil(ctx).storeTotalDuration(mediaPlayer.getDuration());
+            }
+        }, 100);
+    }
+
+
+    public int getCurrentPosition() {
+        return mediaPlayer.getCurrentPosition();
+    }
+
+    public int getTotalDuration() {
+        return mediaPlayer.getDuration();
+    }
 
     private final BroadcastReceiver initAction = new BroadcastReceiver() {
         @RequiresApi(api = Build.VERSION_CODES.M)
