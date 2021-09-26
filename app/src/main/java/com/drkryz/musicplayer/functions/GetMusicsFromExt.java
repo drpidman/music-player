@@ -7,28 +7,27 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.drkryz.musicplayer.utils.Song;
+import com.drkryz.musicplayer.utils.SongUtil;
 
 import java.util.ArrayList;
 
 public class GetMusicsFromExt {
 
-    private final ArrayList<Song> musics = new ArrayList<>();
+    private final ArrayList<SongUtil> musics = new ArrayList<>();
 
     public GetMusicsFromExt populateSongs(Application app) {
         GetExternalContent(app);
         return null;
     }
 
-    public Song getMusicIndex(int index) {
+    public SongUtil getMusicIndex(int index) {
         return musics.get(index);
     }
 
-    public ArrayList<Song> getAll() {
+    public ArrayList<SongUtil> getAll() {
         return musics;
     }
 
@@ -52,7 +51,7 @@ public class GetMusicsFromExt {
                     Uri artWork = Uri.parse("content://media/external/audio/albumart");
                     Uri albumArt = ContentUris.withAppendedId(artWork, AlbumArt);
 
-                    Song song = new Song(title, author, path, duration, String.valueOf(albumArt));
+                    SongUtil song = new SongUtil(title, author, path, duration, String.valueOf(albumArt));
 
                    if (path.endsWith(".mp3")) {
                        if (duration != null) {

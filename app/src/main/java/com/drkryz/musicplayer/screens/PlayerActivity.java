@@ -5,21 +5,17 @@ import static android.media.audiofx.AudioEffect.EXTRA_AUDIO_SESSION;
 import static android.media.audiofx.AudioEffect.EXTRA_CONTENT_TYPE;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -30,7 +26,6 @@ import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Outline;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.audiofx.AudioEffect;
@@ -42,12 +37,11 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewOutlineProvider;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.functions.GetMusicsFromExt;
@@ -56,18 +50,20 @@ import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
 import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
-import com.drkryz.musicplayer.utils.BroadcastConstants;
-import com.drkryz.musicplayer.utils.BroadcastSenders;
-import com.drkryz.musicplayer.utils.GlobalVariables;
+import com.drkryz.musicplayer.constants.BroadcastConstants;
+import com.drkryz.musicplayer.utils.BroadcastUtils;
+import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.StorageUtil;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 
 public class PlayerActivity extends AppCompatActivity {
 
 
-    private GlobalVariables globalVariables;
-    private BroadcastSenders broadcastSenders;
+    private GlobalsUtil globalsUtil;
+    private BroadcastUtils broadcastUtils;
 
 
     private ImageButton PlayUiBtn;
@@ -77,6 +73,8 @@ public class PlayerActivity extends AppCompatActivity {
     private RecyclerView listView;
     private SeekBar seekBar;
 
+    private TextView currentPlayingText;
+
     @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,25 +82,25 @@ public class PlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         registerReceiver(receivePlaying,
-                new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
+                new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
         );
 
         registerReceiver(updateCover,
-                new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.UpdateCover)
+                new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.UpdateCover)
         );
 
         registerReceiver(updateProgress,
-                new BroadcastSenders(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestProgress)
+                new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestProgress)
         );
 
-        globalVariables = (GlobalVariables) getApplicationContext();
-        globalVariables.setServiceBound(false);
+        globalsUtil = (GlobalsUtil) getApplicationContext();
+        globalsUtil.setServiceBound(false);
 
         // loadMusics
         GetMusicsFromExt externalGet = new GetMusicsFromExt();
         externalGet.populateSongs(getApplication());
 
-        globalVariables.setMusicList(externalGet.getAll());
+        globalsUtil.setMusicList(externalGet.getAll());
         new StorageUtil(getBaseContext()).storePlayingState(false);
 
         motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
@@ -112,7 +110,7 @@ public class PlayerActivity extends AppCompatActivity {
         motionLayout.setOnTouchListener(new OnSwipeTouchListener() {
             @Override
             public boolean onSwipeLeft() {
-                if (globalVariables.isServiceBound()) {
+                if (globalsUtil.isServiceBound()) {
                     Skip();
                 }
                 return super.onSwipeLeft();
@@ -120,7 +118,7 @@ public class PlayerActivity extends AppCompatActivity {
 
             @Override
             public boolean onSwipeRight() {
-                if (globalVariables.isServiceBound()) {
+                if (globalsUtil.isServiceBound()) {
                     Previous();
                 }
                 return super.onSwipeRight();
@@ -134,8 +132,9 @@ public class PlayerActivity extends AppCompatActivity {
         listView = (RecyclerView) findViewById(R.id.musicList);
         bottomNav = (View) findViewById(R.id.bottomNavDrag);
         seekBar = (SeekBar) findViewById(R.id.progressBar);
+        currentPlayingText = (TextView) findViewById(R.id.currentSongTitle);
 
-        MusicRecyclerView musicRecyclerView = new MusicRecyclerView(globalVariables.getMusicList(), this);
+        MusicRecyclerView musicRecyclerView = new MusicRecyclerView(globalsUtil.getMusicList(), this);
 
         listView.setAdapter(musicRecyclerView);
         listView.setLayoutManager(new LinearLayoutManager(this));
@@ -192,8 +191,8 @@ public class PlayerActivity extends AppCompatActivity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
-                if (globalVariables.isServiceBound()) {
-                    if (fromUser) globalVariables.transportControls.seekTo(i);
+                if (globalsUtil.isServiceBound()) {
+                    if (fromUser) globalsUtil.transportControls.seekTo(i);
                 }
             }
 
@@ -210,7 +209,7 @@ public class PlayerActivity extends AppCompatActivity {
 
 
 
-        broadcastSenders = new BroadcastSenders(getApplicationContext());
+        broadcastUtils = new BroadcastUtils(getApplicationContext());
 
 
         EQButton.setOnClickListener(new View.OnClickListener() {
@@ -273,23 +272,23 @@ public class PlayerActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             Log.d(getPackageName(), "service connected");
             MusicService.LocalBinder binder = (MusicService.LocalBinder) iBinder;
-            globalVariables.musicService = binder.getService();
+            globalsUtil.musicService = binder.getService();
 
-            globalVariables.setServiceBound(true);
+            globalsUtil.setServiceBound(true);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             Log.d(getPackageName(), "service disconnected");
-            globalVariables.setServiceBound(false);
+            globalsUtil.setServiceBound(false);
         }
     };
 
     private void Play(int position) {
-        if (!globalVariables.isServiceBound()) {
+        if (!globalsUtil.isServiceBound()) {
             StorageUtil storage = new StorageUtil(getApplicationContext());
 
-            storage.storageAudio(globalVariables.getMusicList());
+            storage.storageAudio(globalsUtil.getMusicList());
             storage.storeAudioIndex(position);
 
             Intent player = new Intent(getBaseContext(), MusicService.class);
@@ -298,56 +297,56 @@ public class PlayerActivity extends AppCompatActivity {
         } else {
             StorageUtil storage = new StorageUtil(getApplicationContext());
             storage.storeAudioIndex(position);
-            broadcastSenders.playbackUIManager(BroadcastConstants.Play, false);
+            broadcastUtils.playbackUIManager(BroadcastConstants.Play, false);
         }
     }
 
     private boolean serviceState() {
-        return globalVariables.isServiceBound();
+        return globalsUtil.isServiceBound();
     }
 
     // controls ===============
     private void Pause() {
         if (!serviceState()) return;
-        globalVariables.transportControls.pause();
+        globalsUtil.transportControls.pause();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
         seekBar.setVisibility(View.INVISIBLE);
     }
 
     private void Resume() {
         if (!serviceState()) return;
-        globalVariables.transportControls.play();
+        globalsUtil.transportControls.play();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
         seekBar.setVisibility(View.VISIBLE);
     }
 
     private void Skip() {
         if (!serviceState()) return;
-        globalVariables.transportControls.skipToNext();
+        globalsUtil.transportControls.skipToNext();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
         seekBar.setVisibility(View.VISIBLE);
     };
 
     private void Previous() {
         if (!serviceState()) return;
-        globalVariables.transportControls.skipToPrevious();
+        globalsUtil.transportControls.skipToPrevious();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
         seekBar.setVisibility(View.VISIBLE);
     };
     // ===============================
 
     private void updateSeekBar() {
-        seekBar.setMax(globalVariables.musicService.getTotalDuration());
+        seekBar.setMax(globalsUtil.musicService.getTotalDuration());
     }
 
     private Handler mHandler = new Handler();
 
     private void startSeekBar() {
-        if (globalVariables.isServiceBound()) {
+        if (globalsUtil.isServiceBound()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    seekBar.setProgress(globalVariables.musicService.getCurrentPosition());
+                    seekBar.setProgress(globalsUtil.musicService.getCurrentPosition());
                     mHandler.postDelayed(this, 1000);
                 }
             });
@@ -361,7 +360,7 @@ public class PlayerActivity extends AppCompatActivity {
         try {
             cover = MediaStore.Images.Media.getBitmap(
                     getContentResolver(),
-                    Uri.parse(globalVariables.activeAudio.getAlbum())
+                    Uri.parse(globalsUtil.activeAudio.getAlbum())
             );
         } catch (IOException e) {
             e.printStackTrace();
@@ -373,9 +372,14 @@ public class PlayerActivity extends AppCompatActivity {
 
         coverImage.setImageBitmap(cover);
 
+
+        Palette palette = new Palette.Builder(cover).generate();
+
         // change background animated
-        final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();;
-        final int colorTo = getDominantColor(cover);
+        final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();
+        final int colorTo = palette.getDominantColor(
+                getDominantColor(cover)
+        );
 
         ObjectAnimator.ofObject(motionLayout, "backgroundColor",
                 new ArgbEvaluator(), colorFrom, colorTo
@@ -386,7 +390,9 @@ public class PlayerActivity extends AppCompatActivity {
 
         Drawable buttonPlay = PlayUiBtn.getBackground();
 
-        ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom, colorTo)
+        ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
+                palette.getVibrantColor(getDominantColor(cover))
+                )
                 .setDuration(1000)
                 .start();
 
@@ -396,6 +402,13 @@ public class PlayerActivity extends AppCompatActivity {
                 .setDuration(1000)
                 .start();
 
+
+        Drawable listViewMusic = listView.getBackground();
+        ObjectAnimator.ofObject(listViewMusic, "tint", new ArgbEvaluator(), colorFrom,
+                getDominantColor(cover)
+                )
+                .setDuration(1000)
+                .start();
 
         Window window = getWindow();
         
@@ -407,6 +420,8 @@ public class PlayerActivity extends AppCompatActivity {
                 .setDuration(1000)
                 .start();
 
+        currentPlayingText.setSelected(true);
+        currentPlayingText.setText(globalsUtil.activeAudio.getTitle());
     }
 
 
@@ -483,14 +498,14 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         Log.d("onDestroy():main", "called");
-        if (globalVariables.isServiceBound()) {
+        if (globalsUtil.isServiceBound()) {
             ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
 
             unregisterReceiver(receivePlaying);
             unregisterReceiver(updateCover);
 
             unbindService(serviceConnection);
-            globalVariables.musicService.stopSelf();
+            globalsUtil.musicService.stopSelf();
 
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -505,12 +520,12 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("serviceStatus", globalVariables.isServiceBound());
+        outState.putBoolean("serviceStatus", globalsUtil.isServiceBound());
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        globalVariables.setServiceBound(savedInstanceState.getBoolean("serviceStatus"));
+        globalsUtil.setServiceBound(savedInstanceState.getBoolean("serviceStatus"));
     }
 }

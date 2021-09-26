@@ -18,9 +18,9 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import com.drkryz.musicplayer.listeners.media.MusicListeners;
-import com.drkryz.musicplayer.utils.BroadcastConstants;
-import com.drkryz.musicplayer.utils.BroadcastSenders;
-import com.drkryz.musicplayer.utils.GlobalVariables;
+import com.drkryz.musicplayer.constants.BroadcastConstants;
+import com.drkryz.musicplayer.utils.BroadcastUtils;
+import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.StorageUtil;
 
 import java.io.IOException;
@@ -29,8 +29,8 @@ import java.io.IOException;
 public class MusicManager {
 
     private MediaPlayer mediaPlayer;
-    private final GlobalVariables globalVariables;
-    private final BroadcastSenders broadcastSenders;
+    private final GlobalsUtil globalsUtil;
+    private final BroadcastUtils broadcastUtils;
     private AudioManager audioManager;
 
     private final Context ctx;
@@ -44,8 +44,8 @@ public class MusicManager {
 
     public MusicManager(Context context) {
         this.ctx = context;
-        globalVariables = (GlobalVariables) ctx.getApplicationContext();
-        broadcastSenders = new BroadcastSenders(globalVariables.getContext());
+        globalsUtil = (GlobalsUtil) ctx.getApplicationContext();
+        broadcastUtils = new BroadcastUtils(globalsUtil.getContext());
     }
 
     private void initMediaPlayer() {
@@ -74,10 +74,10 @@ public class MusicManager {
         Log.e("activate:audiossid", "" + mediaPlayer.getAudioSessionId());
 
         try {
-            mediaPlayer.setDataSource(globalVariables.activeAudio.getPath());
+            mediaPlayer.setDataSource(globalsUtil.activeAudio.getPath());
         } catch (IOException e) {
             e.printStackTrace();
-            globalVariables.musicService.stopSelf();
+            globalsUtil.musicService.stopSelf();
         }
 
         mediaPlayer.prepareAsync();
@@ -100,7 +100,7 @@ public class MusicManager {
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::play", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+            Log.e("PlaybackState:::play", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
@@ -111,8 +111,8 @@ public class MusicManager {
 
             updateCurrentPosition(PlaybackState.STATE_PAUSED);
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            globalVariables.resumePosition = mediaPlayer.getCurrentPosition();
-            Log.e("PlaybackState:::pause", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+            globalsUtil.resumePosition = mediaPlayer.getCurrentPosition();
+            Log.e("PlaybackState:::pause", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
@@ -123,45 +123,45 @@ public class MusicManager {
 
 
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::stop", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+            Log.e("PlaybackState:::stop", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
     private void Skip() {
-        if (globalVariables.audioIndex == globalVariables.songList.size() -1) {
-            globalVariables.audioIndex = 0;
-            globalVariables.activeAudio = globalVariables.songList.get(globalVariables.audioIndex);
+        if (globalsUtil.audioIndex == globalsUtil.songList.size() -1) {
+            globalsUtil.audioIndex = 0;
+            globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
         } else {
-            globalVariables.activeAudio = globalVariables.songList.get(++globalVariables.audioIndex);
-            Log.d("new playing", "" + globalVariables.activeAudio.getTitle());
+            globalsUtil.activeAudio = globalsUtil.songList.get(++globalsUtil.audioIndex);
+            Log.d("new playing", "" + globalsUtil.activeAudio.getTitle());
         }
 
-        new StorageUtil(globalVariables.getContext()).storeAudioIndex(globalVariables.audioIndex);
+        new StorageUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
 
         Stop();
         mediaPlayer.reset();
         initMediaPlayer();
 
         new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-        new BroadcastSenders(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalVariables.Status.PLAYING);
-        Log.e("PlaybackState:::skip", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+        new BroadcastUtils(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
+        Log.e("PlaybackState:::skip", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
     }
 
     private void Previous() {
-        if (globalVariables.audioIndex == 0) {
-            globalVariables.audioIndex = globalVariables.songList.size() -1;
-            globalVariables.activeAudio = globalVariables.songList.get(globalVariables.audioIndex);
+        if (globalsUtil.audioIndex == 0) {
+            globalsUtil.audioIndex = globalsUtil.songList.size() -1;
+            globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
         } else {
-            globalVariables.activeAudio = globalVariables.songList.get(--globalVariables.audioIndex);
+            globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
         }
 
-        new StorageUtil(globalVariables.getContext()).storeAudioIndex(globalVariables.audioIndex);
+        new StorageUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
         new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-        Log.e("PlaybackState:::prev", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+        Log.e("PlaybackState:::prev", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
 
         mediaPlayer.reset();
         initMediaPlayer();
-        new BroadcastSenders(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalVariables.Status.PLAYING);
+        new BroadcastUtils(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
     }
 
     private void SeekTo(int seek) {
@@ -172,7 +172,7 @@ public class MusicManager {
 
     private void Resume() {
         if (!mediaPlayer.isPlaying()) {
-            mediaPlayer.seekTo(globalVariables.resumePosition);
+            mediaPlayer.seekTo(globalsUtil.resumePosition);
             mediaPlayer.start();
 
             bassBoost.setEnabled(false);
@@ -182,7 +182,7 @@ public class MusicManager {
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
 
             new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::resume", "" + new StorageUtil(globalVariables.getContext()).loadPlayingState());
+            Log.e("PlaybackState:::resume", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
@@ -220,7 +220,7 @@ public class MusicManager {
                                 .setActions(PlaybackState.ACTION_SEEK_TO)
                                 .build();
 
-                globalVariables.mediaSession.setPlaybackState(playbackState);
+                globalsUtil.mediaSession.setPlaybackState(playbackState);
 
                 new StorageUtil(ctx).storeTotalDuration(mediaPlayer.getDuration());
             }
@@ -318,56 +318,56 @@ public class MusicManager {
 
     private void RegisterInit() {
         ctx.registerReceiver(initAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestInit)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestInit)
         );
     }
 
     private void RegisterPlay() {
         ctx.registerReceiver(playAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestPlay)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestPlay)
         );
     }
     private void RegisterPause() {
         ctx.registerReceiver(pauseAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestPause)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestPause)
         );
     }
     private void RegisterStop() {
         ctx.registerReceiver(stopAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestStop)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestStop)
         );
     }
     private void RegisterSkip() {
         ctx.registerReceiver(skipAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestSkip)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestSkip)
         );
     }
     private void RegisterPrev() {
         ctx.registerReceiver(prevAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestPrev)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestPrev)
         );
     }
     private void RegisterResume() {
         ctx.registerReceiver(resumeAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestResume)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestResume)
         );
     }
 
     private void RegisterSeek() {
         ctx.registerReceiver(seekAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestSeek)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestSeek)
         );
     }
 
     private void RegisterReset() {
         ctx.registerReceiver(ResetAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestReset)
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestReset)
         );
     }
 
     private void RegisterDestroy() {
         ctx.registerReceiver(DestroyAction,
-                broadcastSenders.playbackFilter(BroadcastConstants.RequestDestroy));
+                broadcastUtils.playbackFilter(BroadcastConstants.RequestDestroy));
     }
 
     public void unregisterAll() {

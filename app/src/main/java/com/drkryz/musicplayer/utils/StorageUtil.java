@@ -2,14 +2,12 @@ package com.drkryz.musicplayer.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 public class StorageUtil {
 
@@ -23,7 +21,7 @@ public class StorageUtil {
         this.context = context;
     }
 
-    public void storageAudio(ArrayList<Song> arrayList) {
+    public void storageAudio(ArrayList<SongUtil> arrayList) {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = preferences.edit();
@@ -33,11 +31,11 @@ public class StorageUtil {
         editor.apply();
     }
 
-    public ArrayList<Song> loadAudio() {
+    public ArrayList<SongUtil> loadAudio() {
         preferences = context.getSharedPreferences(STORAGE, context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = preferences.getString("audioArrayList", null);
-        Type type = new TypeToken<ArrayList<Song>>() {}.getType();
+        Type type = new TypeToken<ArrayList<SongUtil>>() {}.getType();
 
         return gson.fromJson(json, type);
     }

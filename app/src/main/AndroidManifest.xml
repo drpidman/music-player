@@ -19,7 +19,7 @@
     <permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
 
     <application
-        android:name=".utils.GlobalVariables"
+        android:name=".utils.GlobalsUtil"
         android:appCategory="audio"
         android:icon="@mipmap/ic_headset"
         android:label="@string/app_name"

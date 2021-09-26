@@ -24,7 +24,7 @@
             android:textAlignment="center"
             android:layout_height="60dp"/>
 
-        <com.drkryz.musicplayer.utils.CustomImageView
+        <com.drkryz.musicplayer.custom.CustomImageView
             android:id="@+id/musicAlbumCover"
             android:layout_width="60dp"
             android:layout_height="60dp"

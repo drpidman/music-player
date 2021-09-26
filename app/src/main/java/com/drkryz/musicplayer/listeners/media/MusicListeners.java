@@ -1,27 +1,13 @@
 package com.drkryz.musicplayer.listeners.media;
 
-import android.app.NotificationManager;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.PlaybackParams;
-import android.media.audiofx.AudioEffect;
-import android.media.audiofx.BassBoost;
-import android.media.audiofx.Equalizer;
-import android.os.Handler;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
 import android.widget.Toast;
 
-import androidx.media.AudioManagerCompat;
-
-import com.drkryz.musicplayer.utils.BroadcastConstants;
-import com.drkryz.musicplayer.utils.BroadcastSenders;
-import com.drkryz.musicplayer.utils.GlobalVariables;
-import com.drkryz.musicplayer.utils.StorageUtil;
+import com.drkryz.musicplayer.constants.BroadcastConstants;
+import com.drkryz.musicplayer.utils.BroadcastUtils;
+import com.drkryz.musicplayer.utils.GlobalsUtil;
 
 public class MusicListeners implements
         MediaPlayer.OnBufferingUpdateListener,
@@ -32,12 +18,12 @@ public class MusicListeners implements
         MediaPlayer.OnSeekCompleteListener
 {
 
-    private final GlobalVariables globalVariables;
-    private final BroadcastSenders broadcastSenders;
+    private final GlobalsUtil globalsUtil;
+    private final BroadcastUtils broadcastUtils;
 
     public MusicListeners(Context context) {
-        globalVariables = (GlobalVariables) context.getApplicationContext();
-        broadcastSenders = new BroadcastSenders(context);
+        globalsUtil = (GlobalsUtil) context.getApplicationContext();
+        broadcastUtils = new BroadcastUtils(context);
     }
 
     @Override
@@ -50,16 +36,16 @@ public class MusicListeners implements
         switch (i) {
             case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
                 Log.d("MediaPlayer Error", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + i1);
-                Toast.makeText(globalVariables.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
+                Toast.makeText(globalsUtil.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
                 break;
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
                 Log.d("MediaPlayer Error", "MEDIA ERROR SERVER DIED " + i1);
-                Toast.makeText(globalVariables.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(globalsUtil.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
 
                 break;
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
                 Log.d("MediaPlayer Error", "MEDIA ERROR UNKNOWN " + i1);
-                Toast.makeText(globalVariables.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
+                Toast.makeText(globalsUtil.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
                 break;
         }
         return false;
@@ -74,13 +60,13 @@ public class MusicListeners implements
     public void onPrepared(MediaPlayer mediaPlayer) {
         // play
 
-        new BroadcastSenders(globalVariables.getContext())
+        new BroadcastUtils(globalsUtil.getContext())
                 .playbackManager(BroadcastConstants.RequestPlay, 0);
 
-        new BroadcastSenders(globalVariables.getContext())
+        new BroadcastUtils(globalsUtil.getContext())
                 .playbackUIManager(BroadcastConstants.UpdateCover, false);
 
-        new BroadcastSenders(globalVariables.getContext())
+        new BroadcastUtils(globalsUtil.getContext())
                 .playbackUIManager(BroadcastConstants.RequestProgress, false);
     }
 
@@ -95,7 +81,7 @@ public class MusicListeners implements
 
         // change: broadcastSenders.playbackManager(...) to transportControls.skipToNext();
         // fix auto playing
-        globalVariables.transportControls.skipToNext();
-        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+        globalsUtil.transportControls.skipToNext();
+        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
     }
 }

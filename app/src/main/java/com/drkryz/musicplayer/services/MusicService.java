@@ -1,10 +1,10 @@
 package com.drkryz.musicplayer.services;
 
-import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_PAUSE;
-import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_PLAY;
-import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_PREV;
-import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_SKIP;
-import static com.drkryz.musicplayer.utils.BroadcastConstants.ACTION_STOP;
+import static com.drkryz.musicplayer.constants.BroadcastConstants.ACTION_PAUSE;
+import static com.drkryz.musicplayer.constants.BroadcastConstants.ACTION_PLAY;
+import static com.drkryz.musicplayer.constants.BroadcastConstants.ACTION_PREV;
+import static com.drkryz.musicplayer.constants.BroadcastConstants.ACTION_SKIP;
+import static com.drkryz.musicplayer.constants.BroadcastConstants.ACTION_STOP;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -24,16 +24,16 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.drkryz.musicplayer.managers.MusicManager;
 import com.drkryz.musicplayer.managers.NotificationBuilderManager;
-import com.drkryz.musicplayer.utils.BroadcastConstants;
-import com.drkryz.musicplayer.utils.BroadcastSenders;
-import com.drkryz.musicplayer.utils.GlobalVariables;
+import com.drkryz.musicplayer.constants.BroadcastConstants;
+import com.drkryz.musicplayer.utils.BroadcastUtils;
+import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.StorageUtil;
 
 public class MusicService extends Service {
 
     private final IBinder iBinder = new LocalBinder();
-    private GlobalVariables globalVariables;
-    private BroadcastSenders broadcastSenders;
+    private GlobalsUtil globalsUtil;
+    private BroadcastUtils broadcastUtils;
     private NotificationBuilderManager notificationBuilderManager;
     private MusicManager musicManager;
 
@@ -59,7 +59,7 @@ public class MusicService extends Service {
             ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
         }
 
-        globalVariables.mediaSession.release();
+        globalsUtil.mediaSession.release();
         return super.onUnbind(intent);
     }
 
@@ -74,7 +74,7 @@ public class MusicService extends Service {
         Log.d("onDestroy()", "called");
         unregisterReceiver(nowPlaying);
 
-        broadcastSenders.playbackManager(BroadcastConstants.RequestDestroy, 0);
+        broadcastUtils.playbackManager(BroadcastConstants.RequestDestroy, 0);
         notificationBuilderManager.unregisterAll();
     }
 
@@ -96,8 +96,8 @@ public class MusicService extends Service {
     @SuppressLint("ResourceAsColor")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        globalVariables = (GlobalVariables) getApplicationContext();
-        broadcastSenders = (BroadcastSenders) new BroadcastSenders(getApplicationContext());
+        globalsUtil = (GlobalsUtil) getApplicationContext();
+        broadcastUtils = (BroadcastUtils) new BroadcastUtils(getApplicationContext());
 
 
         Log.d("started", "" + startId);
@@ -105,11 +105,11 @@ public class MusicService extends Service {
         try {
 
             StorageUtil storage = new StorageUtil(getApplicationContext());
-            globalVariables.songList = storage.loadAudio();
-            globalVariables.audioIndex = storage.loadAudioIndex();
+            globalsUtil.songList = storage.loadAudio();
+            globalsUtil.audioIndex = storage.loadAudioIndex();
 
-            if (globalVariables.audioIndex != -1 && globalVariables.audioIndex < globalVariables.songList.size()) {
-                globalVariables.activeAudio = globalVariables.songList.get(globalVariables.audioIndex);
+            if (globalsUtil.audioIndex != -1 && globalsUtil.audioIndex < globalsUtil.songList.size()) {
+                globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
             } else {
                 stopSelf();
             }
@@ -118,16 +118,16 @@ public class MusicService extends Service {
         }
 
 
-        if (globalVariables.mediaSessionManager == null) {
+        if (globalsUtil.mediaSessionManager == null) {
             try {
                 notificationBuilderManager.initMediaSession();
-                broadcastSenders.playbackManager(BroadcastConstants.RequestInit, 0);
+                broadcastUtils.playbackManager(BroadcastConstants.RequestInit, 0);
             } catch (RemoteException e) {
                 e.printStackTrace();
                 stopSelf();
             }
 
-            broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+            broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
         }
 
         startForeground(0, null);
@@ -145,21 +145,21 @@ public class MusicService extends Service {
 
 
     private void NowPlaying() {
-        int audioIndex = globalVariables.audioIndex = new StorageUtil(getApplicationContext()).loadAudioIndex();
+        int audioIndex = globalsUtil.audioIndex = new StorageUtil(getApplicationContext()).loadAudioIndex();
 
-        if (audioIndex != -1 && audioIndex < globalVariables.songList.size()) {
-            globalVariables.activeAudio = globalVariables.songList.get(audioIndex);
+        if (audioIndex != -1 && audioIndex < globalsUtil.songList.size()) {
+            globalsUtil.activeAudio = globalsUtil.songList.get(audioIndex);
         } else {
             stopSelf();
         }
 
 
-        broadcastSenders.playbackManager(BroadcastConstants.RequestStop, 0);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestReset, 0);
-        broadcastSenders.playbackManager(BroadcastConstants.RequestInit, 0);
+        broadcastUtils.playbackManager(BroadcastConstants.RequestStop, 0);
+        broadcastUtils.playbackManager(BroadcastConstants.RequestReset, 0);
+        broadcastUtils.playbackManager(BroadcastConstants.RequestInit, 0);
 
-        broadcastSenders.playbackNotification(BroadcastConstants.UpdateMetaData, null);
-        broadcastSenders.playbackNotification(BroadcastConstants.RequestNotification, GlobalVariables.Status.PLAYING);
+        broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, null);
+        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
     }
 
     private final BroadcastReceiver nowPlaying = new BroadcastReceiver() {
@@ -171,7 +171,7 @@ public class MusicService extends Service {
 
 
     private void registerNowPlaying() {
-        registerReceiver(nowPlaying, new BroadcastSenders(getBaseContext())
+        registerReceiver(nowPlaying, new BroadcastUtils(getBaseContext())
                 .playbackUIFilter(BroadcastConstants.Play));
     }
 
@@ -181,15 +181,15 @@ public class MusicService extends Service {
 
         String actionString = playbackAction.getAction();
         if (actionString.equalsIgnoreCase(ACTION_PLAY)) {
-            globalVariables.transportControls.play();
+            globalsUtil.transportControls.play();
         } else if (actionString.equalsIgnoreCase(ACTION_PAUSE)) {
-            globalVariables.transportControls.pause();
+            globalsUtil.transportControls.pause();
         } else if (actionString.equalsIgnoreCase(ACTION_SKIP)) {
-            globalVariables.transportControls.skipToNext();
+            globalsUtil.transportControls.skipToNext();
         } else if (actionString.equalsIgnoreCase(ACTION_PREV)) {
-            globalVariables.transportControls.skipToPrevious();
+            globalsUtil.transportControls.skipToPrevious();
         } else if (actionString.equalsIgnoreCase(ACTION_STOP)) {
-            globalVariables.transportControls.stop();
+            globalsUtil.transportControls.stop();
         }
     }
 

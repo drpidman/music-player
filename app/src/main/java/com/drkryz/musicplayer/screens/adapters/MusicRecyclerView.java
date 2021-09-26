@@ -16,18 +16,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.utils.Song;
+import com.drkryz.musicplayer.utils.SongUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class MusicRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final ArrayList<Song> songs;
+    private final ArrayList<SongUtil> songs;
     private final Activity MusicList;
 
 
-    public MusicRecyclerView(ArrayList<Song> songList, Activity activity) {
+    public MusicRecyclerView(ArrayList<SongUtil> songList, Activity activity) {
         this.songs = songList;
         this.MusicList = activity;
     }
@@ -53,7 +53,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Song musicIndex = songs.get(position);
+        SongUtil musicIndex = songs.get(position);
 
         TextView textTitle = holder.itemView.findViewById(R.id.musicTitle);
         textTitle.setText(musicIndex.getTitle());

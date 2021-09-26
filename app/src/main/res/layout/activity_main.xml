@@ -55,7 +55,7 @@
         app:tint="@color/text" />
 
 
-    <com.drkryz.musicplayer.utils.CustomImageView
+    <com.drkryz.musicplayer.custom.CustomImageView
         android:id="@+id/musicAlbum"
         android:layout_width="250dp"
         android:layout_height="250dp"
@@ -66,6 +66,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/textTitle" />
 
+    <TextView
+        android:id="@+id/currentSongTitle"
+        android:layout_width="250dp"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true"
+        android:textColor="#fff"
+        android:textAlignment="center"
+        android:layout_height="wrap_content"/>
 
     <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/progressBar"
