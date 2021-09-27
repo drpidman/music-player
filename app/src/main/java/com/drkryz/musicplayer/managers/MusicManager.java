@@ -21,7 +21,7 @@ import com.drkryz.musicplayer.listeners.media.MusicListeners;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
-import com.drkryz.musicplayer.utils.StorageUtil;
+import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 import java.io.IOException;
 
@@ -99,8 +99,8 @@ public class MusicManager {
             mediaPlayer.start();
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
-            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::play", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
+            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            Log.e("PlaybackState:::play", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
@@ -110,9 +110,9 @@ public class MusicManager {
 
 
             updateCurrentPosition(PlaybackState.STATE_PAUSED);
-            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
             globalsUtil.resumePosition = mediaPlayer.getCurrentPosition();
-            Log.e("PlaybackState:::pause", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
+            Log.e("PlaybackState:::pause", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
@@ -122,8 +122,8 @@ public class MusicManager {
             mediaPlayer.stop();
 
 
-            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::stop", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
+            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            Log.e("PlaybackState:::stop", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
@@ -136,15 +136,15 @@ public class MusicManager {
             Log.d("new playing", "" + globalsUtil.activeAudio.getTitle());
         }
 
-        new StorageUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
+        new PreferencesUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
 
         Stop();
         mediaPlayer.reset();
         initMediaPlayer();
 
-        new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+        new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
         new BroadcastUtils(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
-        Log.e("PlaybackState:::skip", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
+        Log.e("PlaybackState:::skip", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
     }
 
     private void Previous() {
@@ -155,9 +155,9 @@ public class MusicManager {
             globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
         }
 
-        new StorageUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
-        new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-        Log.e("PlaybackState:::prev", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
+        new PreferencesUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
+        new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+        Log.e("PlaybackState:::prev", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
 
         mediaPlayer.reset();
         initMediaPlayer();
@@ -181,15 +181,15 @@ public class MusicManager {
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
 
-            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::resume", "" + new StorageUtil(globalsUtil.getContext()).loadPlayingState());
+            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            Log.e("PlaybackState:::resume", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
     private void Reset() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.reset();
-            new StorageUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
         }
     }
 
@@ -222,7 +222,7 @@ public class MusicManager {
 
                 globalsUtil.mediaSession.setPlaybackState(playbackState);
 
-                new StorageUtil(ctx).storeTotalDuration(mediaPlayer.getDuration());
+                new PreferencesUtil(ctx).storeTotalDuration(mediaPlayer.getDuration());
             }
         }, 100);
     }

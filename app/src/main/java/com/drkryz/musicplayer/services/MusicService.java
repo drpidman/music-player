@@ -27,7 +27,7 @@ import com.drkryz.musicplayer.managers.NotificationBuilderManager;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
-import com.drkryz.musicplayer.utils.StorageUtil;
+import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 public class MusicService extends Service {
 
@@ -104,7 +104,7 @@ public class MusicService extends Service {
 
         try {
 
-            StorageUtil storage = new StorageUtil(getApplicationContext());
+            PreferencesUtil storage = new PreferencesUtil(getApplicationContext());
             globalsUtil.songList = storage.loadAudio();
             globalsUtil.audioIndex = storage.loadAudioIndex();
 
@@ -145,7 +145,7 @@ public class MusicService extends Service {
 
 
     private void NowPlaying() {
-        int audioIndex = globalsUtil.audioIndex = new StorageUtil(getApplicationContext()).loadAudioIndex();
+        int audioIndex = globalsUtil.audioIndex = new PreferencesUtil(getApplicationContext()).loadAudioIndex();
 
         if (audioIndex != -1 && audioIndex < globalsUtil.songList.size()) {
             globalsUtil.activeAudio = globalsUtil.songList.get(audioIndex);

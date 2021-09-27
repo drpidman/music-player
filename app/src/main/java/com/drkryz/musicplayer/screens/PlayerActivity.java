@@ -53,9 +53,7 @@ import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
-import com.drkryz.musicplayer.utils.StorageUtil;
-
-import org.w3c.dom.Text;
+import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 import java.io.IOException;
 
@@ -101,7 +99,7 @@ public class PlayerActivity extends AppCompatActivity {
         externalGet.populateSongs(getApplication());
 
         globalsUtil.setMusicList(externalGet.getAll());
-        new StorageUtil(getBaseContext()).storePlayingState(false);
+        new PreferencesUtil(getBaseContext()).storePlayingState(false);
 
         motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
         motionLayout.setTransitionListener(new TransitionListener(this));
@@ -173,7 +171,7 @@ public class PlayerActivity extends AppCompatActivity {
         PlayUiBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean state = new StorageUtil(getBaseContext()).loadPlayingState();
+                boolean state = new PreferencesUtil(getBaseContext()).loadPlayingState();
                 Log.d("PLAYBACK", "" + state);
                 if (state) {
                     Pause();
@@ -286,7 +284,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void Play(int position) {
         if (!globalsUtil.isServiceBound()) {
-            StorageUtil storage = new StorageUtil(getApplicationContext());
+            PreferencesUtil storage = new PreferencesUtil(getApplicationContext());
 
             storage.storageAudio(globalsUtil.getMusicList());
             storage.storeAudioIndex(position);
@@ -295,7 +293,7 @@ public class PlayerActivity extends AppCompatActivity {
             startService(player);
             bindService(player, serviceConnection, BIND_AUTO_CREATE);
         } else {
-            StorageUtil storage = new StorageUtil(getApplicationContext());
+            PreferencesUtil storage = new PreferencesUtil(getApplicationContext());
             storage.storeAudioIndex(position);
             broadcastUtils.playbackUIManager(BroadcastConstants.Play, false);
         }
