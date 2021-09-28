@@ -135,6 +135,8 @@ public class PlayerActivity extends AppCompatActivity {
         MusicRecyclerView musicRecyclerView = new MusicRecyclerView(globalsUtil.getMusicList(), this);
 
         listView.setAdapter(musicRecyclerView);
+        listView.setHasFixedSize(true);
+
         listView.setLayoutManager(new LinearLayoutManager(this));
 
 

@@ -35,10 +35,10 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ic_online_navigator"
         android:background="@null"
-        app:layout_constraintEnd_toEndOf="@id/textTitle"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/appSettings"
         app:layout_constraintBottom_toBottomOf="@id/textTitle"
         app:layout_constraintTop_toTopOf="@id/textTitle"
+        android:layout_margin="10dp"
         app:tint="@color/text" />
 
     <ImageButton
@@ -47,11 +47,10 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:src="@drawable/ic_appstgs"
-        app:layout_constraintBottom_toBottomOf="@id/textTitle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@id/textTitle"
+        app:layout_constraintBottom_toBottomOf="@id/textTitle"
         app:layout_constraintTop_toTopOf="@id/textTitle"
+        android:layout_margin="5dp"
         app:tint="@color/text" />
 
 
