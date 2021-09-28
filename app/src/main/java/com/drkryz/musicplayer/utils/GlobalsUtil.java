@@ -13,10 +13,7 @@ import java.util.ArrayList;
 
 public class GlobalsUtil extends Application {
 
-    // bool
-    private boolean isPlaying = false;
     private boolean serviceBound = false;
-
     // typed
     private ArrayList<SongUtil> musicList = new ArrayList<>();
 
@@ -25,7 +22,6 @@ public class GlobalsUtil extends Application {
     public MediaSession mediaSession;
     public MediaSessionManager mediaSessionManager;
     public TransportControls transportControls;
-
     public MusicService musicService;
 
 
@@ -36,17 +32,6 @@ public class GlobalsUtil extends Application {
     public ArrayList<SongUtil> songList = musicList;
 
     public PlaybackStateCompat.Builder playbackStateCompat;
-
-
-    private int startId;
-
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
-    public void setPlaying(boolean playing) {
-        isPlaying = playing;
-    }
 
     public boolean isServiceBound() {
         return serviceBound;

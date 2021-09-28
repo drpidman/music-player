@@ -13,6 +13,7 @@ import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -26,7 +27,9 @@ import com.drkryz.musicplayer.utils.PreferencesUtil;
 import java.io.IOException;
 
 
-public class MusicManager {
+public class MusicManager
+    implements AudioManager.OnAudioFocusChangeListener
+{
 
     private MediaPlayer mediaPlayer;
     private final GlobalsUtil globalsUtil;
@@ -236,6 +239,10 @@ public class MusicManager {
         return mediaPlayer.getDuration();
     }
 
+    public int getMediaSession() {
+        return mediaPlayer.getAudioSessionId();
+    }
+
     private final BroadcastReceiver initAction = new BroadcastReceiver() {
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
@@ -396,5 +403,68 @@ public class MusicManager {
         RegisterSeek();
         RegisterReset();
         RegisterDestroy();
+    }
+
+    /**
+     * controle de apps
+     * @param focusChange
+     */
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                /**
+                 * Resumir a reprodução
+                 */
+                if (mediaPlayer == null) initMediaPlayer();
+                else if(!mediaPlayer.isPlaying()) Resume();
+
+                mediaPlayer.setVolume(1.0f, 1.0f);
+                broadcastUtils
+                        .playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
+            break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                /**
+                 * Apps que reproduzem por um longo tempo..
+                 * Quando o usuario mudar de app.
+                 * Permitir que ele volte a reproduzir.
+                 */
+                if (mediaPlayer.isPlaying()) Pause();
+                broadcastUtils
+                        .playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
+
+                broadcastUtils
+                        .playbackUIManager(BroadcastConstants.RequestPlayChange, false);
+            break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                /**
+                 * Parar por um curto tempo (parar quando um status/stories com musica começar a tocar
+                 * e Resumir quando o status/stories encerrar/fechar)
+                 */
+                if (mediaPlayer.isPlaying()) Pause();
+                broadcastUtils
+                        .playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
+            break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                // Quando receber uma notificação, diminua o volume
+                if (mediaPlayer.isPlaying()) mediaPlayer.setVolume(0.1f, 0.1f);
+            break;
+        }
+    }
+
+    public boolean requestAudioFocus() {
+        audioManager = (AudioManager)
+                ctx.getSystemService(Context.AUDIO_SERVICE);
+
+        int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeAudioFocus() {
+        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
+                audioManager.abandonAudioFocus(this);
     }
 }

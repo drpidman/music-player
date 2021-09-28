@@ -74,6 +74,8 @@ public class MusicService extends Service {
         Log.d("onDestroy()", "called");
         unregisterReceiver(nowPlaying);
 
+        musicManager.removeAudioFocus();
+
         broadcastUtils.playbackManager(BroadcastConstants.RequestDestroy, 0);
         notificationBuilderManager.unregisterAll();
     }
@@ -117,6 +119,9 @@ public class MusicService extends Service {
             stopSelf();
         }
 
+        if (musicManager.requestAudioFocus() == false) {
+            stopSelf();
+        }
 
         if (globalsUtil.mediaSessionManager == null) {
             try {
