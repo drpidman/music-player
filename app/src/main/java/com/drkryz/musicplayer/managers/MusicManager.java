@@ -42,9 +42,6 @@ public class MusicManager
     Equalizer equalizer;
     LoudnessEnhancer loudnessEnhancer;
 
-
-
-
     public MusicManager(Context context) {
         this.ctx = context;
         globalsUtil = (GlobalsUtil) ctx.getApplicationContext();
@@ -151,11 +148,21 @@ public class MusicManager
     }
 
     private void Previous() {
-        if (globalsUtil.audioIndex == 0) {
-            globalsUtil.audioIndex = globalsUtil.songList.size() -1;
-            globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
-        } else {
-            globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
+
+        if (mediaPlayer.isPlaying()) {
+            if (mediaPlayer.getCurrentPosition() > 1000) {
+                mediaPlayer.seekTo(0);
+            } else if (mediaPlayer.getCurrentPosition() < 5000) {
+                if (globalsUtil.audioIndex == 0) {
+                    globalsUtil.audioIndex = globalsUtil.songList.size() -1;
+                    globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
+                } else {
+                    globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
+                }
+            }
+
+            mediaPlayer.reset();
+            initMediaPlayer();
         }
 
         new PreferencesUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);

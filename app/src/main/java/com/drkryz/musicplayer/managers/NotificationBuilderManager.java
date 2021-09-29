@@ -112,14 +112,14 @@ public class NotificationBuilderManager {
 
     @SuppressLint("ServiceCast")
     private void buildNotification(GlobalsUtil.Status status) {
-        int notificationAction = R.drawable.ic_baseline_pause;
+        int notificationAction = R.drawable.ui_pause;
         PendingIntent playAction_PauseAction = null;
 
         if (status == GlobalsUtil.Status.PLAYING) {
-            notificationAction = R.drawable.ic_baseline_pause;
+            notificationAction = R.drawable.ui_pause;
             playAction_PauseAction = playbackAction(1);
         } else if (status == GlobalsUtil.Status.PAUSED) {
-            notificationAction = R.drawable.ic_baseline_play;
+            notificationAction = R.drawable.ui_play;
             playAction_PauseAction = playbackAction(0);
         }
 
@@ -154,9 +154,9 @@ public class NotificationBuilderManager {
                             .setContentTitle(globalsUtil.activeAudio.getTitle())
                             .setContentInfo(globalsUtil.activeAudio.getTitle())
                             .setCategory(Notification.CATEGORY_SERVICE)
-                            .addAction(R.drawable.ic_baseline_previous, "previous", playbackAction(3))
+                            .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
-                            .addAction(R.drawable.ic_baseline_skip, "next", playbackAction(2));
+                            .addAction(R.drawable.ui_next, "next", playbackAction(2));
 
             ((NotificationManager) globalsUtil.getSystemService(Context.NOTIFICATION_SERVICE)).notify(145, mBuilder.build());
         } else {
@@ -182,9 +182,9 @@ public class NotificationBuilderManager {
                             .setContentTitle(globalsUtil.activeAudio.getTitle())
                             .setContentInfo(globalsUtil.activeAudio.getTitle())
                             .setCategory(Notification.CATEGORY_SERVICE)
-                            .addAction(R.drawable.ic_baseline_previous, "previous", playbackAction(3))
+                            .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
-                            .addAction(R.drawable.ic_baseline_skip, "next", playbackAction(2));
+                            .addAction(R.drawable.ui_next, "next", playbackAction(2));
 
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(ctx);
 

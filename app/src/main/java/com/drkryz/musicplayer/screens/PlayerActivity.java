@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,12 +29,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.media.audiofx.AudioEffect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -145,7 +148,7 @@ public class PlayerActivity extends AppCompatActivity {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                         Play(position);
-                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
                     }
                 });
 
@@ -177,11 +180,11 @@ public class PlayerActivity extends AppCompatActivity {
                 Log.d("PLAYBACK", "" + state);
                 if (state) {
                     Pause();
-                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
                     seekBar.setVisibility(View.INVISIBLE);
                 } else {
                     Resume();
-                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
                     seekBar.setVisibility(View.VISIBLE);
                 }
             }
@@ -309,28 +312,28 @@ public class PlayerActivity extends AppCompatActivity {
     private void Pause() {
         if (!serviceState()) return;
         globalsUtil.transportControls.pause();
-        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
         seekBar.setVisibility(View.INVISIBLE);
     }
 
     private void Resume() {
         if (!serviceState()) return;
         globalsUtil.transportControls.play();
-        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
         seekBar.setVisibility(View.VISIBLE);
     }
 
     private void Skip() {
         if (!serviceState()) return;
         globalsUtil.transportControls.skipToNext();
-        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
         seekBar.setVisibility(View.VISIBLE);
     };
 
     private void Previous() {
         if (!serviceState()) return;
         globalsUtil.transportControls.skipToPrevious();
-        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
         seekBar.setVisibility(View.VISIBLE);
     };
     // ===============================
@@ -470,10 +473,10 @@ public class PlayerActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getBooleanExtra("playingState", false)) {
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pausebtn));
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
                 seekBar.setVisibility(View.VISIBLE);
             } else {
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_playbtn));
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
                 seekBar.setVisibility(View.INVISIBLE);
             }
         }
