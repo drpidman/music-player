@@ -23,6 +23,7 @@
         <entry key="app/src/main/res/drawable/playback_control_background.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/drawable/playback_controol_background.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/drawable/skip_prev_bg.xml" value="0.1355263157894737" />
+        <entry key="app/src/main/res/drawable/splash_roundedicon.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/ui_dragbar.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ui_next.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/ui_pause.xml" value="0.152991452991453" />
@@ -33,7 +34,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="app/src/main/res/layout/activity_permission.xml" value="0.2" />
         <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
-        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.14" />
+        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_ytmusic.xml" value="0.12532894736842104" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.17239583333333333" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.17239583333333333" />
