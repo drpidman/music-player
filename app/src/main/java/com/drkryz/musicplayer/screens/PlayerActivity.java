@@ -47,6 +47,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.drkryz.musicplayer.R;
+import com.drkryz.musicplayer.functions.DominantColor;
 import com.drkryz.musicplayer.functions.GetMusicsFromExt;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
@@ -57,6 +58,8 @@ import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
+import com.gauravk.audiovisualizer.model.AnimSpeed;
+import com.gauravk.audiovisualizer.visualizer.WaveVisualizer;
 
 import java.io.IOException;
 
@@ -66,21 +69,20 @@ public class PlayerActivity extends AppCompatActivity {
     private GlobalsUtil globalsUtil;
     private BroadcastUtils broadcastUtils;
 
-
-    private ImageButton PlayUiBtn;
-    private View bottomNav;
-    private ImageView coverImage;
     private MotionLayout motionLayout;
     private RecyclerView listView;
-    private SeekBar seekBar;
-
+    private ImageButton PlayUiBtn;
+    private ImageView coverImage;
     private TextView currentPlayingText;
+    private SeekBar seekBar;
+    private View bottomNav;
 
     @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         registerReceiver(receivePlaying,
                 new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
@@ -97,17 +99,17 @@ public class PlayerActivity extends AppCompatActivity {
         globalsUtil = (GlobalsUtil) getApplicationContext();
         globalsUtil.setServiceBound(false);
 
+
         // loadMusics
         GetMusicsFromExt externalGet = new GetMusicsFromExt();
         externalGet.populateSongs(getApplication());
-
         globalsUtil.setMusicList(externalGet.getAll());
-        new PreferencesUtil(getBaseContext()).storePlayingState(false);
+
+
+
 
         motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
         motionLayout.setTransitionListener(new TransitionListener(this));
-
-
         motionLayout.setOnTouchListener(new OnSwipeTouchListener() {
             @Override
             public boolean onSwipeLeft() {
@@ -128,21 +130,23 @@ public class PlayerActivity extends AppCompatActivity {
 
 
         ImageButton EQButton = (ImageButton) findViewById(R.id.appSettings);
+        ImageButton UiPrevious = (ImageButton) findViewById(R.id.uiPrevious);
+        ImageButton openWebPlayer = (ImageButton) findViewById(R.id.webPlayer);
+        ImageButton UiSkip = (ImageButton) findViewById(R.id.uiSkip);
 
-
+        currentPlayingText = (TextView) findViewById(R.id.currentSongTitle);
         listView = (RecyclerView) findViewById(R.id.musicList);
         bottomNav = (View) findViewById(R.id.bottomNavDrag);
         seekBar = (SeekBar) findViewById(R.id.progressBar);
-        currentPlayingText = (TextView) findViewById(R.id.currentSongTitle);
+        PlayUiBtn = (ImageButton) findViewById(R.id.uiPlay);
+        coverImage = (ImageView) findViewById(R.id.musicAlbum);
 
+        // list view adapter
         MusicRecyclerView musicRecyclerView = new MusicRecyclerView(globalsUtil.getMusicList(), this);
-
         listView.setAdapter(musicRecyclerView);
         listView.setHasFixedSize(true);
-
         listView.setLayoutManager(new LinearLayoutManager(this));
-
-
+        // list view click listener
         ItemClickSupport.addTo(listView)
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
@@ -152,19 +156,12 @@ public class PlayerActivity extends AppCompatActivity {
                     }
                 });
 
-        PlayUiBtn = (ImageButton) findViewById(R.id.uiPlay);
-        coverImage = (ImageView) findViewById(R.id.musicAlbum);
-
-        ImageButton UiPrevious = (ImageButton) findViewById(R.id.uiPrevious);
-
         UiPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Previous();
             }
         });
-
-        ImageButton UiSkip = (ImageButton) findViewById(R.id.uiSkip);
 
         UiSkip.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,7 +173,9 @@ public class PlayerActivity extends AppCompatActivity {
         PlayUiBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean state = new PreferencesUtil(getBaseContext()).loadPlayingState();
+
+                boolean state = globalsUtil.musicService.getPlayingState();
+
                 Log.d("PLAYBACK", "" + state);
                 if (state) {
                     Pause();
@@ -190,6 +189,27 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
+
+        EQButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent audioEQ = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+                audioEQ.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE_MUSIC);
+                audioEQ.putExtra(EXTRA_AUDIO_SESSION, CONTENT_TYPE_MUSIC);
+
+                if ((audioEQ.resolveActivity(getPackageManager()) != null)) {
+                    startActivityForResult(audioEQ, 0);
+                }
+            }
+        });
+
+        openWebPlayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent webViewPlayer = new Intent(getApplicationContext(), YTMusicActivity.class);
+                startActivity(webViewPlayer);
+            }
+        });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -210,34 +230,7 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
-
-
         broadcastUtils = new BroadcastUtils(getApplicationContext());
-
-
-        EQButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent audioEQ = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
-                audioEQ.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE_MUSIC);
-                audioEQ.putExtra(EXTRA_AUDIO_SESSION, CONTENT_TYPE_MUSIC);
-
-                if ((audioEQ.resolveActivity(getPackageManager()) != null)) {
-                    startActivityForResult(audioEQ, 0);
-                }
-            }
-        });
-
-        ImageButton openWebPlayer = (ImageButton) findViewById(R.id.webPlayer);
-
-        openWebPlayer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent webViewPlayer = new Intent(getApplicationContext(), YTMusicActivity.class);
-                startActivity(webViewPlayer);
-            }
-        });
-
 
         NotificationChannel channel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -270,6 +263,99 @@ public class PlayerActivity extends AppCompatActivity {
 
     }
 
+    private boolean serviceState() {
+        return globalsUtil.isServiceBound();
+    }
+    private void updateSeekBar() {
+        seekBar.setMax(globalsUtil.musicService.getTotalDuration());
+    }
+
+    private Handler mHandler = new Handler();
+
+    private void startSeekBar() {
+        if (globalsUtil.isServiceBound()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    seekBar.setProgress(globalsUtil.musicService.getCurrentPosition());
+                    mHandler.postDelayed(this, 1000);
+                }
+            });
+        }
+    }
+
+
+    private void updateCoverImage() throws IOException {
+        if (!serviceState()) return;
+        Bitmap cover = null;
+
+        try {
+            cover = MediaStore.Images.Media.getBitmap(
+                    getContentResolver(),
+                    Uri.parse(globalsUtil.activeAudio.getAlbum())
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+            cover = BitmapFactory.decodeResource(
+                    getResources(),
+                    R.drawable.default_music
+            );
+        }
+
+        coverImage.setImageBitmap(cover);
+
+
+        Palette palette = new Palette.Builder(cover).generate();
+
+        // change background animated
+        final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();
+        final int colorTo = palette.getDominantColor(
+                DominantColor.GetDominantColor(cover)
+        );
+
+        ObjectAnimator.ofObject(motionLayout, "backgroundColor",
+                new ArgbEvaluator(), colorFrom, colorTo
+        )
+                .setDuration(1000)
+                .start();
+
+
+        Drawable buttonPlay = PlayUiBtn.getBackground();
+
+        ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
+                palette.getVibrantColor(DominantColor.GetDominantColor(cover))
+        )
+                .setDuration(1000)
+                .start();
+
+        Drawable bottomListMusic = bottomNav.getBackground();
+
+        ObjectAnimator.ofObject(bottomListMusic, "tint", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
+
+
+        Drawable listViewMusic = listView.getBackground();
+        ObjectAnimator.ofObject(listViewMusic, "tint", new ArgbEvaluator(), colorFrom,
+                DominantColor.GetDominantColor(cover)
+        )
+                .setDuration(1000)
+                .start();
+
+        Window window = getWindow();
+
+        ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
+
+        ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
+
+        currentPlayingText.setSelected(true);
+        currentPlayingText.setText(globalsUtil.activeAudio.getTitle());
+    }
+
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -291,10 +377,12 @@ public class PlayerActivity extends AppCompatActivity {
         if (!globalsUtil.isServiceBound()) {
             PreferencesUtil storage = new PreferencesUtil(getApplicationContext());
 
-            storage.storageAudio(globalsUtil.getMusicList());
+            storage.storeAudio(globalsUtil.getMusicList());
             storage.storeAudioIndex(position);
 
             Intent player = new Intent(getBaseContext(), MusicService.class);
+            player.putExtra("firstPlaying", 1);
+
             startService(player);
             bindService(player, serviceConnection, BIND_AUTO_CREATE);
         } else {
@@ -302,10 +390,6 @@ public class PlayerActivity extends AppCompatActivity {
             storage.storeAudioIndex(position);
             broadcastUtils.playbackUIManager(BroadcastConstants.Play, false);
         }
-    }
-
-    private boolean serviceState() {
-        return globalsUtil.isServiceBound();
     }
 
     // controls ===============
@@ -338,137 +422,6 @@ public class PlayerActivity extends AppCompatActivity {
     };
     // ===============================
 
-    private void updateSeekBar() {
-        seekBar.setMax(globalsUtil.musicService.getTotalDuration());
-    }
-
-    private Handler mHandler = new Handler();
-
-    private void startSeekBar() {
-        if (globalsUtil.isServiceBound()) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    seekBar.setProgress(globalsUtil.musicService.getCurrentPosition());
-                    mHandler.postDelayed(this, 1000);
-                }
-            });
-        }
-    }
-
-
-    private void updateCoverImage() {
-        Bitmap cover = null;
-
-        try {
-            cover = MediaStore.Images.Media.getBitmap(
-                    getContentResolver(),
-                    Uri.parse(globalsUtil.activeAudio.getAlbum())
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-            cover = BitmapFactory.decodeResource(
-                    getResources(),
-                    R.drawable.default_music
-            );
-        }
-
-        coverImage.setImageBitmap(cover);
-
-
-        Palette palette = new Palette.Builder(cover).generate();
-
-        // change background animated
-        final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();
-        final int colorTo = palette.getDominantColor(
-                getDominantColor(cover)
-        );
-
-        ObjectAnimator.ofObject(motionLayout, "backgroundColor",
-                new ArgbEvaluator(), colorFrom, colorTo
-        )
-                .setDuration(1000)
-                .start();
-
-
-        Drawable buttonPlay = PlayUiBtn.getBackground();
-
-        ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
-                palette.getVibrantColor(getDominantColor(cover))
-                )
-                .setDuration(1000)
-                .start();
-
-        Drawable bottomListMusic = bottomNav.getBackground();
-
-        ObjectAnimator.ofObject(bottomListMusic, "tint", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
-
-
-        Drawable listViewMusic = listView.getBackground();
-        ObjectAnimator.ofObject(listViewMusic, "tint", new ArgbEvaluator(), colorFrom,
-                getDominantColor(cover)
-                )
-                .setDuration(1000)
-                .start();
-
-        Window window = getWindow();
-        
-        ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
-
-        ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
-
-        currentPlayingText.setSelected(true);
-        currentPlayingText.setText(globalsUtil.activeAudio.getTitle());
-    }
-
-
-    // get color from bitmap cover
-    private static int getDominantColor(Bitmap bitmap) {
-        if (bitmap == null) return Color.TRANSPARENT;
-
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int size = width * height;
-        int pixels[] = new int[size];
-
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        int color;
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int a;
-
-        int count = 0;
-
-        for(int i = 0; i < pixels.length; i++) {
-            color = pixels[i];
-            a = Color.alpha(color);
-            if (a > 0) {
-                r += Color.red(color);
-                g += Color.green(color);
-                b += Color.blue(color);
-                count++;
-            }
-        }
-
-        r /= count;
-        g /= count;
-        b /= count;
-        r = (r << 16) & 0x00FF0000;
-        g = (g << 8) & 0x0000FF00;
-        b = b & 0x000000FF;
-        color = 0xFF000000 | r | g | b;
-
-        return color;
-    }
-
-
     private final BroadcastReceiver receivePlaying = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -485,7 +438,11 @@ public class PlayerActivity extends AppCompatActivity {
     private final BroadcastReceiver updateCover = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateCoverImage();
+            try {
+                updateCoverImage();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             updateSeekBar();
             startSeekBar();
         }
@@ -494,41 +451,68 @@ public class PlayerActivity extends AppCompatActivity {
     private final BroadcastReceiver updateProgress = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            // remove in last commit
         }
     };
 
-
     @Override
-    protected void onDestroy() {
-        Log.d("onDestroy():main", "called");
+    protected void onStart() {
+        super.onStart();
         if (globalsUtil.isServiceBound()) {
-            ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
-
-            unregisterReceiver(receivePlaying);
-            unregisterReceiver(updateCover);
-
-            unbindService(serviceConnection);
-            globalsUtil.musicService.stopSelf();
-
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                stopService(new Intent(this, MusicService.class));
+            if (globalsUtil.musicService.getPlayingState()) {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                try {
+                    updateCoverImage();
+                    startSeekBar();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
             }
-
         }
-        super.onDestroy();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (globalsUtil.isServiceBound()) {
+            if (globalsUtil.musicService.getPlayingState()) {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+            } else {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (globalsUtil.isServiceBound()) {
+            if (globalsUtil.musicService.getPlayingState()) {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                try {
+                    updateCoverImage();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+            }
+        }
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
+        Log.e("savingInstance", "saved");
         outState.putBoolean("serviceStatus", globalsUtil.isServiceBound());
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+        Log.e("onRestoreInstance", "called");
         globalsUtil.setServiceBound(savedInstanceState.getBoolean("serviceStatus"));
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Music Player</string>
+    <string name="app_name">Drkryz Player</string>
     <string name="error_info">
         A permissão para o acesso ao armazenamento foi negada.
         Para que o nosso aplicativo funcione corretamente, essa permissão é necessária!

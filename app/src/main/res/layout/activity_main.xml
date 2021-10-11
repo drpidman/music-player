@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:elegantTextHeight="true"
         android:padding="5sp"
+        android:elevation="1dp"
         android:text="player"
         android:textAlignment="center"
         android:textAllCaps="true"
@@ -35,6 +36,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/ui_online_navigator"
         android:background="@null"
+        android:elevation="1dp"
         app:layout_constraintEnd_toStartOf="@id/appSettings"
         app:layout_constraintBottom_toBottomOf="@id/textTitle"
         app:layout_constraintTop_toTopOf="@id/textTitle"
@@ -46,6 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@null"
+        android:elevation="1dp"
         android:src="@drawable/ui_gear"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/textTitle"
@@ -58,6 +61,7 @@
         android:id="@+id/musicAlbum"
         android:layout_width="250dp"
         android:layout_height="250dp"
+        android:elevation="1dp"
         android:scaleType="centerCrop"
         android:src="@drawable/default_music"
         app:layout_constraintBottom_toBottomOf="@id/bottomNavDrag"
@@ -74,6 +78,7 @@
         android:focusable="true"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:elevation="1dp"
         android:focusableInTouchMode="true"
         android:scrollHorizontally="true"
         android:textColor="#fff"
@@ -82,12 +87,13 @@
 
     <androidx.appcompat.widget.AppCompatSeekBar
         android:id="@+id/progressBar"
-        android:visibility="visible"
-        android:progressTint="#fff"
-        android:thumbTint="#fff"
-        android:progressBackgroundTint="#fff"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:elevation="1dp"
+        android:progressBackgroundTint="#fff"
+        android:progressTint="#fff"
+        android:thumbTint="#fff"
+        android:visibility="visible"
         tools:layout_editor_absoluteY="18dp" />
 
     <ImageButton
@@ -107,6 +113,7 @@
         android:id="@+id/uiSkip"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:elevation="1dp"
         android:background="@null"
         android:src="@drawable/ui_next"
         app:tint="@color/text" />
@@ -115,6 +122,7 @@
         android:id="@+id/uiPrevious"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:elevation="1dp"
         android:background="@null"
         android:src="@drawable/ui_prev"
         app:tint="@color/text" />
@@ -133,13 +141,13 @@
         android:id="@+id/drawer"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:elevation="20dp"
         android:background="@null"
+        android:elevation="20dp"
         android:src="@drawable/ui_dragbar"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="@id/bottomNavDrag"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/bottomNavDrag"
         app:tint="@color/text" />
 
     <androidx.recyclerview.widget.RecyclerView

@@ -27,6 +27,7 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.listeners.media.MediaSessionCallbacks;
+import com.drkryz.musicplayer.screens.PlayerActivity;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
@@ -39,6 +40,8 @@ public class NotificationBuilderManager {
     private final GlobalsUtil globalsUtil;
     private final BroadcastUtils broadcastUtils;
     private final Context ctx;
+
+    static int FLAGS = 0;
 
     public NotificationBuilderManager(Context context) {
         this.ctx = context;
@@ -70,17 +73,6 @@ public class NotificationBuilderManager {
                         .build();
 
         globalsUtil.mediaSession.setPlaybackState(playbackState);
-    }
-
-    private Bitmap createBitmap(String image) {
-        try {
-            byte[] encodeByte= Base64.decode(image, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
-            return bitmap;
-        } catch (Exception e) {
-            e.getMessage();
-            return null;
-        }
     }
 
     private void updateMetaData() {
@@ -136,6 +128,7 @@ public class NotificationBuilderManager {
         }
 
 
+
         Notification.Builder mBuilder = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mBuilder = (Notification.Builder)
@@ -149,7 +142,6 @@ public class NotificationBuilderManager {
                             .setVisibility(Notification.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
                             .setSmallIcon(R.mipmap.ic_launcher)
-                            .setColor(globalsUtil.getResources().getColor(android.R.color.holo_purple))
                             .setContentText(globalsUtil.activeAudio.getAuthor())
                             .setContentTitle(globalsUtil.activeAudio.getTitle())
                             .setContentInfo(globalsUtil.activeAudio.getTitle())
@@ -185,7 +177,6 @@ public class NotificationBuilderManager {
                             .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
                             .addAction(R.drawable.ui_next, "next", playbackAction(2));
-
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(ctx);
 
             notificationManagerCompat.notify(145, notificationCompat.build());
@@ -205,21 +196,24 @@ public class NotificationBuilderManager {
             case 0:
                 // Play
                 playbackAction.setAction(BroadcastConstants.ACTION_PLAY);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, FLAGS);
             case 1:
                 // Pause
                 playbackAction.setAction(BroadcastConstants.ACTION_PAUSE);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, FLAGS);
             case 2:
                 // Next track
                 playbackAction.setAction(BroadcastConstants.ACTION_SKIP);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, FLAGS);
             case 3:
                 // Previous track
                 playbackAction.setAction(BroadcastConstants.ACTION_PREV);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, FLAGS);
             default:
                 break;
+            case 4:
+                playbackAction.setAction(BroadcastConstants.ACTION_CLOSE);
+                return PendingIntent.getService(context, actionNumber, playbackAction, FLAGS);
         }
         return null;
     }

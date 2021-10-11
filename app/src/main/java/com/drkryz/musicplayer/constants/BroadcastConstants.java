@@ -44,4 +44,5 @@ public class BroadcastConstants {
     public static final String ACTION_STOP = packageName + ".ACTION_STOP";
     public static final String ACTION_SKIP = packageName + ".ACTION_SKIP";
     public static final String ACTION_PREV = packageName + ".ACTION_PREVIOUS";
+    public static final String ACTION_CLOSE = packageName + ".ACTION_CLOSE";
 }

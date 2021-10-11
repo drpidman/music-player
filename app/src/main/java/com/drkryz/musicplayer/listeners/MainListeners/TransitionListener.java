@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.drkryz.musicplayer.R;
+import com.drkryz.musicplayer.custom.CustomImageView;
 
 public class TransitionListener implements MotionLayout.TransitionListener {
 
@@ -38,7 +39,7 @@ public class TransitionListener implements MotionLayout.TransitionListener {
         TextView playerWindow = context.findViewById(R.id.textTitle);
         ImageButton drawer = context.findViewById(R.id.drawer);
         RecyclerView listView = context.findViewById(R.id.musicList);
-
+        CustomImageView imageView = context.findViewById(R.id.musicAlbum);
 
         ConstraintSet currentConstraint =  motionLayout.getConstraintSet(currentId);
         ConstraintSet constraintEnd = motionLayout.getConstraintSet(R.id.end);
@@ -47,12 +48,10 @@ public class TransitionListener implements MotionLayout.TransitionListener {
 
         if (constraintStart == currentConstraint) {
             playerWindow.setText("PLAYER");
-            drawer.animate().rotation(360);
-            listView.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.VISIBLE);
         } else if (constraintEnd == currentConstraint) {
             playerWindow.setText("MUSICAS");
-            listView.setVisibility(View.VISIBLE);
-            drawer.animate().rotation(180);
+            imageView.setVisibility(View.INVISIBLE);
         }
     }
 

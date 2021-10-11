@@ -21,10 +21,6 @@ import com.drkryz.musicplayer.R;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static int SPLASH_TIME = 3000;
-    private static boolean PERMISSION_STATE;
-    private Intent errorActivity;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,24 +35,15 @@ public class SplashActivity extends AppCompatActivity {
 
 
     private void loadMain() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        }, SPLASH_TIME);
+        Intent intent = new Intent(SplashActivity.this, PlayerActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void loadPermission() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(SplashActivity.this, PermissionActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        }, SPLASH_TIME);
+        Intent intent = new Intent(SplashActivity.this, PermissionActivity.class);
+        startActivity(intent);
+        finish();
     }
+
 }

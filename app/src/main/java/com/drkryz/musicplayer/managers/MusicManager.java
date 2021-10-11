@@ -20,6 +20,8 @@ import androidx.annotation.RequiresApi;
 
 import com.drkryz.musicplayer.listeners.media.MusicListeners;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
+import com.drkryz.musicplayer.screens.PlayerActivity;
+import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
@@ -48,7 +50,7 @@ public class MusicManager
         broadcastUtils = new BroadcastUtils(globalsUtil.getContext());
     }
 
-    private void initMediaPlayer() {
+    public void initMediaPlayer() {
         Log.d("initMediaPlayer()", "init");
         if (mediaPlayer == null) mediaPlayer = new MediaPlayer();
 
@@ -99,8 +101,7 @@ public class MusicManager
             mediaPlayer.start();
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
-            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::play", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
+            new PreferencesUtil(ctx).StorePlayingState(true);
         }
     }
 
@@ -110,20 +111,15 @@ public class MusicManager
 
 
             updateCurrentPosition(PlaybackState.STATE_PAUSED);
-            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+
             globalsUtil.resumePosition = mediaPlayer.getCurrentPosition();
-            Log.e("PlaybackState:::pause", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
-    private void Stop() {
+    public void Stop() {
         if (mediaPlayer == null) return;
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
-
-
-            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::stop", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
@@ -141,10 +137,7 @@ public class MusicManager
         Stop();
         mediaPlayer.reset();
         initMediaPlayer();
-
-        new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
         new BroadcastUtils(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
-        Log.e("PlaybackState:::skip", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
     }
 
     private void Previous() {
@@ -166,8 +159,6 @@ public class MusicManager
         }
 
         new PreferencesUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
-        new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-        Log.e("PlaybackState:::prev", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
 
         mediaPlayer.reset();
         initMediaPlayer();
@@ -180,7 +171,7 @@ public class MusicManager
         updateCurrentPosition(PlaybackState.STATE_PLAYING);
     }
 
-    private void Resume() {
+    public void Resume() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(globalsUtil.resumePosition);
             mediaPlayer.start();
@@ -190,64 +181,72 @@ public class MusicManager
             equalizer.setEnabled(false);
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
-
-            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
-            Log.e("PlaybackState:::resume", "" + new PreferencesUtil(globalsUtil.getContext()).loadPlayingState());
         }
     }
 
-    private void Reset() {
-        if (!mediaPlayer.isPlaying()) {
-            mediaPlayer.reset();
-            new PreferencesUtil(ctx).storePlayingState(mediaPlayer.isPlaying());
+    public void Reset() {
+        if(globalsUtil.isServiceBound()) {
+            if (!mediaPlayer.isPlaying()) {
+                mediaPlayer.reset();
+            }
         }
     }
 
-    private void Destroy() {
+    public void Destroy() {
         Log.d("Destroy()", "called");
         if (mediaPlayer != null) {
-            Stop();
+            mediaPlayer.stop();
             mediaPlayer.release();
-
             mediaPlayer = null;
-            unregisterAll();
         }
     }
 
 
     private void updateCurrentPosition(int state) {
         Log.e("called", "media update called");
-        if (mediaPlayer == null) return;
+        if (mediaPlayer != null) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.e("called", "media update called");
+                    int currentPosition = 0;
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.e("called", "media update called");
-                int currentPosition = mediaPlayer.getCurrentPosition();
-                PlaybackState playbackState =
-                        new PlaybackState.Builder()
-                                .setState(state, currentPosition, 1)
-                                .setActions(PlaybackState.ACTION_SEEK_TO)
-                                .build();
+                    if (globalsUtil.isServiceBound()) {
+                        if (mediaPlayer == null) return;
+                        currentPosition = mediaPlayer.getCurrentPosition();
+                    }
 
-                globalsUtil.mediaSession.setPlaybackState(playbackState);
+                    PlaybackState playbackState =
+                            new PlaybackState.Builder()
+                                    .setState(state, currentPosition, 1)
+                                    .setActions(PlaybackState.ACTION_SEEK_TO)
+                                    .build();
 
-                new PreferencesUtil(ctx).storeTotalDuration(mediaPlayer.getDuration());
-            }
-        }, 100);
+                    globalsUtil.mediaSession.setPlaybackState(playbackState);
+                }
+            }, 100);
+        }
     }
 
 
     public int getCurrentPosition() {
-        return mediaPlayer.getCurrentPosition();
+        if (mediaPlayer != null) return mediaPlayer.getCurrentPosition();
+        return 0;
     }
 
     public int getTotalDuration() {
-        return mediaPlayer.getDuration();
+        if (mediaPlayer != null) return mediaPlayer.getDuration();
+        return 0;
+    }
+
+    public boolean getPlayingState() {
+        if (mediaPlayer != null) return mediaPlayer.isPlaying();
+        return false;
     }
 
     public int getMediaSession() {
-        return mediaPlayer.getAudioSessionId();
+        if (mediaPlayer != null) return mediaPlayer.getAudioSessionId();
+        return -1;
     }
 
     private final BroadcastReceiver initAction = new BroadcastReceiver() {
@@ -471,7 +470,10 @@ public class MusicManager
     }
 
     public boolean removeAudioFocus() {
-        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
-                audioManager.abandonAudioFocus(this);
+        if (globalsUtil.isServiceBound()) {
+            return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
+                    audioManager.abandonAudioFocus(this);
+        }
+        return false;
     }
 }

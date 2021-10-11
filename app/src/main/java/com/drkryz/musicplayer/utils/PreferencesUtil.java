@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class PreferencesUtil {
 
     private final String STORAGE = "com.drkryz.musicplayer.STORAGE";
-    private final String STATE = "com.drkryz.musicplayer.STATES";
+    private final String STORAGE_STATES = "com.drkryz.musicplayer.STORAGE_STATES";
 
     private SharedPreferences preferences;
     private Context context;
@@ -21,7 +21,7 @@ public class PreferencesUtil {
         this.context = context;
     }
 
-    public void storageAudio(ArrayList<SongUtil> arrayList) {
+    public void storeAudio(ArrayList<SongUtil> arrayList) {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = preferences.edit();
@@ -61,38 +61,23 @@ public class PreferencesUtil {
         editor.apply();
     }
 
-    public void storeTotalDuration(int total) {
-        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
+
+    /**
+     * guardar valores para salvar as visualizações
+     */
+
+
+    public void StorePlayingState(boolean playingState) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
-        editor.putInt("totalDuration", total);
+        editor.putBoolean("playingState", playingState);
         editor.apply();
-    }
+    };
 
-    public int loadTotalDuration() {
-        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
-        return preferences.getInt("totalDuration", 0);
-    }
-
-    public void storePlayingState(boolean state) {
-        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.putBoolean("isPlaying", state);
-        editor.apply();
-    }
-
-    public boolean loadPlayingState() {
-        preferences = context.getSharedPreferences(STATE, context.MODE_PRIVATE);
-        return preferences.getBoolean("isPlaying", false);
-    }
-
-    public void clearCachedPlayingStatus() {
-        preferences = context.getSharedPreferences(STATE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.clear();
-        editor.apply();
-    }
+    public boolean GetPlayingState() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getBoolean("playingState", false);
+    };
 
 }

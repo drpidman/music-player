@@ -2,6 +2,10 @@ package com.drkryz.musicplayer.utils;
 
 import android.net.Uri;
 
+/**
+ * The class for songs variables
+ * Insert to array
+ */
 public class SongUtil {
 
     private String Title;
