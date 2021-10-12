@@ -52,6 +52,8 @@ public class MusicService extends Service {
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         Log.e(getPackageName(), "Removing task");
+
+        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
     }
 
     @Override
@@ -179,6 +181,7 @@ public class MusicService extends Service {
             preferencesUtil.StorePlayingState(this.getPlayingState());
             preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
             preferencesUtil.SetLastPosition(musicManager.getCurrentPosition());
+            preferencesUtil.StoreCurrentTotalDuration(globalsUtil.activeAudio.getDuration());
 
             return musicManager.getCurrentPosition();
         }

@@ -273,7 +273,12 @@ public class PlayerActivity extends AppCompatActivity {
         return globalsUtil.isServiceBound();
     }
     private void updateSeekBar() {
-        seekBar.setMax(globalsUtil.musicService.getTotalDuration());
+
+        if (globalsUtil.musicService != null) {
+            seekBar.setMax(globalsUtil.musicService.getTotalDuration());
+        } else {
+            seekBar.setMax(Integer.parseInt(new PreferencesUtil(getBaseContext()).LoadTotalDuration()));
+        }
     }
 
     private Handler mHandler = new Handler();
@@ -291,10 +296,10 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
 
+    private static Bitmap cover = null;
+
     private void updateCoverImage() throws IOException {
         if (!serviceState()) return;
-
-        Bitmap cover = null;
 
         globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).loadAudioIndex();
         globalsUtil.setMusicList(externalGet.getAll());
@@ -327,44 +332,49 @@ public class PlayerActivity extends AppCompatActivity {
                 DominantColor.GetDominantColor(cover)
         );
 
-        ObjectAnimator.ofObject(motionLayout, "backgroundColor",
-                new ArgbEvaluator(), colorFrom, colorTo
-        )
-                .setDuration(1000)
-                .start();
-
 
         Drawable buttonPlay = PlayUiBtn.getBackground();
-
-        ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
-                palette.getVibrantColor(DominantColor.GetDominantColor(cover))
-        )
-                .setDuration(1000)
-                .start();
-
         Drawable bottomListMusic = bottomNav.getBackground();
-
-        ObjectAnimator.ofObject(bottomListMusic, "tint", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
-
-
         Drawable listViewMusic = listView.getBackground();
-        ObjectAnimator.ofObject(listViewMusic, "tint", new ArgbEvaluator(), colorFrom,
-                DominantColor.GetDominantColor(cover)
-        )
-                .setDuration(1000)
-                .start();
 
         Window window = getWindow();
 
-        ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ObjectAnimator.ofObject(motionLayout, "backgroundColor",
+                        new ArgbEvaluator(), colorFrom, colorTo
+                )
+                        .setDuration(1000)
+                        .start();
 
-        ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
+                ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
+                        palette.getVibrantColor(DominantColor.GetDominantColor(cover))
+                )
+                        .setDuration(1000)
+                        .start();
+
+                ObjectAnimator.ofObject(bottomListMusic, "tint", new ArgbEvaluator(), colorFrom, colorTo)
+                        .setDuration(1000)
+                        .start();
+
+
+                ObjectAnimator.ofObject(listViewMusic, "tint", new ArgbEvaluator(), colorFrom,
+                        DominantColor.GetDominantColor(cover)
+                )
+                        .setDuration(1000)
+                        .start();
+
+                ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
+                        .setDuration(1000)
+                        .start();
+
+                ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(), colorFrom, colorTo)
+                        .setDuration(1000)
+                        .start();
+
+            }
+        });
 
         currentPlayingText.setSelected(true);
         currentPlayingText.setText(globalsUtil.activeAudio.getTitle());
@@ -514,6 +524,8 @@ public class PlayerActivity extends AppCompatActivity {
 
 
             if (storage.GetFirstInit()) {
+                Log.e(getPackageName(), "retomando a musica anterior");
+
                 boolean playingState = new PreferencesUtil(getBaseContext()).GetPlayingState();
 
                 globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).GetLastIndex();

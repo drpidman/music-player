@@ -133,6 +133,20 @@ public class PreferencesUtil {
         return  preferences.getInt("lastPosition", 0);
     }
 
+    public void StoreCurrentTotalDuration(String total) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString("totalDuration", total);
+
+        editor.apply();
+    }
+
+    public String LoadTotalDuration() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return  preferences.getString("totalDuration", "0");
+    }
+
     public void clearCover() {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();

@@ -12,6 +12,6 @@
     </string>
     <string name="battery_perm_title">Gerenciamento de bateria</string>
     <string name="battery_perm_desc">Continue reproduzindo suas musicas mesmo com a tela desligada.
-         Na barra de pesquisa procure pelo nome do app e desative a otimização.
+         Apertando no botão abaixo você sera redirecionado para a tela de aplicativos com otimização(ou sem otimização), procure \"Mostrar todos os apps\" ou \"Todos\" e procure pelo app \"Drkryz Player\" ou \"Music Player\".
     </string>
 </resources>
