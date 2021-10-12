@@ -77,12 +77,17 @@ public class PlayerActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private View bottomNav;
 
+
+    private GetMusicsFromExt externalGet;
+
     @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        Log.e(getBaseContext().getPackageName(), "onCreate()");
 
         registerReceiver(receivePlaying,
                 new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
@@ -100,8 +105,9 @@ public class PlayerActivity extends AppCompatActivity {
         globalsUtil.setServiceBound(false);
 
 
+        externalGet = new GetMusicsFromExt();
+
         // loadMusics
-        GetMusicsFromExt externalGet = new GetMusicsFromExt();
         externalGet.populateSongs(getApplication());
         globalsUtil.setMusicList(externalGet.getAll());
 
@@ -174,7 +180,7 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                boolean state = globalsUtil.musicService.getPlayingState();
+                boolean state = new PreferencesUtil(getBaseContext()).GetPlayingState();
 
                 Log.d("PLAYBACK", "" + state);
                 if (state) {
@@ -287,12 +293,20 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void updateCoverImage() throws IOException {
         if (!serviceState()) return;
+
         Bitmap cover = null;
+
+        globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).loadAudioIndex();
+        globalsUtil.setMusicList(externalGet.getAll());
+
+        globalsUtil.activeAudio = globalsUtil.getMusicList().get(globalsUtil.audioIndex);
+
+        String albumUri = globalsUtil.activeAudio.getAlbum();
 
         try {
             cover = MediaStore.Images.Media.getBitmap(
                     getContentResolver(),
-                    Uri.parse(globalsUtil.activeAudio.getAlbum())
+                    Uri.parse(albumUri)
             );
         } catch (IOException e) {
             e.printStackTrace();
@@ -381,7 +395,6 @@ public class PlayerActivity extends AppCompatActivity {
             storage.storeAudioIndex(position);
 
             Intent player = new Intent(getBaseContext(), MusicService.class);
-            player.putExtra("firstPlaying", 1);
 
             startService(player);
             bindService(player, serviceConnection, BIND_AUTO_CREATE);
@@ -456,40 +469,35 @@ public class PlayerActivity extends AppCompatActivity {
     };
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (globalsUtil.isServiceBound()) {
-            if (globalsUtil.musicService.getPlayingState()) {
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
-                try {
-                    updateCoverImage();
-                    startSeekBar();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
-            }
-        }
+    protected void onStop() {
+        super.onStop();
+        Log.e(getBaseContext().getPackageName(), "onStop()");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Log.e(getBaseContext().getPackageName(), "onPause()");
         if (globalsUtil.isServiceBound()) {
             if (globalsUtil.musicService.getPlayingState()) {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                new PreferencesUtil(getBaseContext()).SetLastCover(
+                        globalsUtil.activeAudio.getAlbum()
+                );
             } else {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
             }
         }
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
+        Log.e(getBaseContext().getPackageName(), "onResume()");
         if (globalsUtil.isServiceBound()) {
             if (globalsUtil.musicService.getPlayingState()) {
+                Log.e(getBaseContext().getPackageName(), "service running");
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
                 try {
                     updateCoverImage();
@@ -499,7 +507,60 @@ public class PlayerActivity extends AppCompatActivity {
             } else {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
             }
+        } else {
+
+
+            PreferencesUtil storage = new PreferencesUtil(getBaseContext());
+
+
+            if (storage.GetFirstInit()) {
+                boolean playingState = new PreferencesUtil(getBaseContext()).GetPlayingState();
+
+                globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).GetLastIndex();
+                globalsUtil.activeAudio = globalsUtil.getMusicList().get(globalsUtil.audioIndex);
+
+                Bitmap cover = null;
+
+                try {
+                    cover = MediaStore.Images.Media.getBitmap(
+                            getContentResolver(),
+                            Uri.parse(globalsUtil.activeAudio.getAlbum())
+                    );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    cover = BitmapFactory.decodeResource(
+                            getResources(),
+                            R.drawable.default_music
+                    );
+                }
+                coverImage.setImageBitmap(cover);
+                /**
+                 * RESUMIR ESTADO ANTERIOR DA VIEW.
+                 * SE APLICA QUANDO O USUARIO FECHAR O APLICATIVO PELO BOTÃO "voltar" fisico ou virtual.
+                 * SE APLICA QUANDO O USUARIO FECHAR O APLICATIVO COMPLETAMENTE E RECUPERAR
+                 * A ULTIMA MUSICA TOCADA.
+                 */
+
+                if (playingState) {
+                    new PreferencesUtil(getBaseContext()).storeAudioIndex(globalsUtil.audioIndex);
+                    bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+
+                    broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                } else {
+                    bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+                    broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+                }
+            }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(getPackageName(), "activity destroyed");
     }
 
     @Override

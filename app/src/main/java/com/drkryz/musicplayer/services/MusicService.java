@@ -43,26 +43,15 @@ public class MusicService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.e("onBind()", "bind()");
         return iBinder;
     }
 
+
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d("onDestroy():Service", "called");
-        unregisterReceiver(nowPlaying);
-
-        musicManager.removeAudioFocus();
-        notificationBuilderManager.unregisterAll();
-        musicManager.unregisterAll();
-
-        musicManager.Destroy();
-
-        notificationBuilderManager = null;
-        musicManager = null;
-
-        globalsUtil.setServiceBound(false);
-
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        Log.e(getPackageName(), "Removing task");
     }
 
     @Override
@@ -125,20 +114,28 @@ public class MusicService extends Service {
     }
 
     private void NowPlaying() {
-        int audioIndex = globalsUtil.audioIndex = new PreferencesUtil(getApplicationContext()).loadAudioIndex();
 
-        if (audioIndex != -1 && audioIndex < globalsUtil.songList.size()) {
-            globalsUtil.activeAudio = globalsUtil.songList.get(audioIndex);
+
+        int audioIndex = 0;
+
+        if (globalsUtil != null) {
+            audioIndex = globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).loadAudioIndex();
+
+            if (audioIndex != -1 && audioIndex < globalsUtil.songList.size()) {
+                globalsUtil.activeAudio = globalsUtil.songList.get(audioIndex);
+            } else {
+                stopSelf();
+            }
+
+            musicManager.Stop();
+            musicManager.Reset();
+            musicManager.initMediaPlayer();
+
+            broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, null);
+            broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
         } else {
-            stopSelf();
+
         }
-
-        musicManager.Stop();
-        musicManager.Reset();
-        musicManager.initMediaPlayer();
-
-        broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, null);
-        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
     }
 
     private final BroadcastReceiver nowPlaying = new BroadcastReceiver() {
@@ -176,7 +173,15 @@ public class MusicService extends Service {
 
 
     public int getCurrentPosition() {
-        if (musicManager != null) return musicManager.getCurrentPosition();
+        if (musicManager != null) {
+            PreferencesUtil preferencesUtil = new PreferencesUtil(getBaseContext());
+
+            preferencesUtil.StorePlayingState(this.getPlayingState());
+            preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+            preferencesUtil.SetLastPosition(musicManager.getCurrentPosition());
+
+            return musicManager.getCurrentPosition();
+        }
         return 0;
     }
 

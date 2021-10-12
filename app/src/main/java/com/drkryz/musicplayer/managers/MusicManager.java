@@ -10,6 +10,7 @@ import android.media.audiofx.BassBoost;
 import android.media.audiofx.Equalizer;
 import android.media.audiofx.LoudnessEnhancer;
 import android.media.session.PlaybackState;
+import android.net.wifi.aware.PeerHandle;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
@@ -70,6 +71,8 @@ public class MusicManager
                 .build()
         );
 
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
         mediaPlayer.setWakeMode(ctx, PowerManager.PARTIAL_WAKE_LOCK);
 
 
@@ -80,6 +83,13 @@ public class MusicManager
         } catch (IOException e) {
             e.printStackTrace();
             globalsUtil.musicService.stopSelf();
+        }
+
+
+        PreferencesUtil initStatus = new PreferencesUtil(ctx);
+
+        if (!initStatus.GetFirstInit()) {
+            initStatus.firstInit(true);
         }
 
         mediaPlayer.prepareAsync();
@@ -101,7 +111,6 @@ public class MusicManager
             mediaPlayer.start();
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
-            new PreferencesUtil(ctx).StorePlayingState(true);
         }
     }
 

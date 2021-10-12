@@ -62,6 +62,19 @@ public class PreferencesUtil {
     }
 
 
+    public void firstInit(boolean firstPlaying) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("FirstPlaying", firstPlaying);
+        editor.apply();
+    }
+
+    public boolean GetFirstInit() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getBoolean("FirstPlaying", false);
+    }
+
     /**
      * guardar valores para salvar as visualizações
      */
@@ -78,6 +91,53 @@ public class PreferencesUtil {
     public boolean GetPlayingState() {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         return preferences.getBoolean("playingState", false);
+
     };
 
+    public void SetLastCover(String cover) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString("LastCover", cover);
+        editor.apply();
+    }
+
+
+    public String GetLastCover() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getString("LastCover", "");
+    }
+
+    public void SetLastIndex(int index) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt("lastIndex", index);
+        editor.apply();
+    }
+
+    public int GetLastIndex() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getInt("lastIndex", -1);
+    }
+
+    public void SetLastPosition(int position) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putInt("lastPosition", position);
+    }
+
+    public int GetLastPosition() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return  preferences.getInt("lastPosition", 0);
+    }
+
+    public void clearCover() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.clear();
+        editor.apply();
+    }
 }
