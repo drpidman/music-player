@@ -32,6 +32,7 @@ import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
+import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 import java.io.IOException;
 
@@ -134,6 +135,7 @@ public class NotificationBuilderManager {
             mBuilder = (Notification.Builder)
                     new Notification.Builder(ctx, "Music Player")
                             .setShowWhen(true)
+                            .setOngoing(new PreferencesUtil(ctx).GetPlayingState())
                             .setOnlyAlertOnce(true)
                             .setStyle(new Notification.MediaStyle()
                                     .setShowActionsInCompactView(0, 1, 2)
@@ -166,6 +168,7 @@ public class NotificationBuilderManager {
                             )
                             .setShowWhen(true)
                             .setOnlyAlertOnce(true)
+                            .setOngoing(new PreferencesUtil(ctx).GetPlayingState())
                             .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
                             .setSmallIcon(R.mipmap.ic_launcher)

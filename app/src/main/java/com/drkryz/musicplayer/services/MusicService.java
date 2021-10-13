@@ -53,7 +53,7 @@ public class MusicService extends Service {
         super.onTaskRemoved(rootIntent);
         Log.e(getPackageName(), "Removing task");
 
-        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
+        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
     }
 
     @Override
@@ -176,12 +176,20 @@ public class MusicService extends Service {
 
     public int getCurrentPosition() {
         if (musicManager != null) {
+
             PreferencesUtil preferencesUtil = new PreferencesUtil(getBaseContext());
 
-            preferencesUtil.StorePlayingState(this.getPlayingState());
-            preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
-            preferencesUtil.SetLastPosition(musicManager.getCurrentPosition());
-            preferencesUtil.StoreCurrentTotalDuration(globalsUtil.activeAudio.getDuration());
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    preferencesUtil.StorePlayingState(globalsUtil.musicService.getPlayingState());
+                    preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+                }
+            });
+
+            thread.setPriority(Thread.MAX_PRIORITY);
+            thread.start();
+
 
             return musicManager.getCurrentPosition();
         }

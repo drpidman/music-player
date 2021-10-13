@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
+import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 public class MusicListeners implements
         MediaPlayer.OnBufferingUpdateListener,
@@ -60,14 +61,15 @@ public class MusicListeners implements
     public void onPrepared(MediaPlayer mediaPlayer) {
         // play
 
-        new BroadcastUtils(globalsUtil.getContext())
+        broadcastUtils
                 .playbackManager(BroadcastConstants.RequestPlay, 0);
 
-        new BroadcastUtils(globalsUtil.getContext())
+        broadcastUtils
                 .playbackUIManager(BroadcastConstants.UpdateCover, false);
 
-        new BroadcastUtils(globalsUtil.getContext())
+        broadcastUtils
                 .playbackUIManager(BroadcastConstants.RequestProgress, false);
+
     }
 
     @Override

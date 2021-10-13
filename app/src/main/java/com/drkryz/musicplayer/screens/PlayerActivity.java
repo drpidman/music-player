@@ -112,6 +112,9 @@ public class PlayerActivity extends AppCompatActivity {
         globalsUtil.setMusicList(externalGet.getAll());
 
 
+        if (globalsUtil.musicService != null) {
+            Log.e("not a null", "true");
+        }
 
 
         motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
@@ -479,6 +482,12 @@ public class PlayerActivity extends AppCompatActivity {
     };
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         Log.e(getBaseContext().getPackageName(), "onStop()");
@@ -491,9 +500,16 @@ public class PlayerActivity extends AppCompatActivity {
         if (globalsUtil.isServiceBound()) {
             if (globalsUtil.musicService.getPlayingState()) {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+
+                PreferencesUtil preferencesUtil = new PreferencesUtil(getBaseContext());
+                preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+                preferencesUtil.SetLastPosition(globalsUtil.musicService.getCurrentPosition());
+                preferencesUtil.StoreCurrentTotalDuration(globalsUtil.activeAudio.getDuration());
+
                 new PreferencesUtil(getBaseContext()).SetLastCover(
                         globalsUtil.activeAudio.getAlbum()
                 );
+
             } else {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
             }
@@ -509,11 +525,8 @@ public class PlayerActivity extends AppCompatActivity {
             if (globalsUtil.musicService.getPlayingState()) {
                 Log.e(getBaseContext().getPackageName(), "service running");
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
-                try {
-                    updateCoverImage();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+
             } else {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
             }
@@ -553,17 +566,36 @@ public class PlayerActivity extends AppCompatActivity {
                  * A ULTIMA MUSICA TOCADA.
                  */
 
+                broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+
                 if (playingState) {
+                    Log.e(getPackageName() + ":playback", "playing");
+
+
+
                     new PreferencesUtil(getBaseContext()).storeAudioIndex(globalsUtil.audioIndex);
                     bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
 
-                    broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
-                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                    if (globalsUtil.transportControls == null) {
+                        startService(new Intent(this, MusicService.class));
+                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                    } else {
+                        broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                    }
                 } else {
+                    Log.e(getPackageName() + ":playback", "paused");
                     bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
-                    broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
 
-                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+                    if (globalsUtil.transportControls == null) {
+                        Log.e(getPackageName(), "transport controls null");
+                        startService(new Intent(this, MusicService.class));
+                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                    } else {
+                        Log.e(getPackageName(), "transport controls not a null");
+                        broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+                    }
                 }
             }
         }

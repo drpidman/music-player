@@ -6,15 +6,20 @@ import android.media.session.MediaSession;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
+import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 public class MediaSessionCallbacks extends MediaSession.Callback {
 
     private final GlobalsUtil globalsUtil;
     private final BroadcastUtils broadcastUtils;
 
+    private final PreferencesUtil preferencesUtil;
+
     public MediaSessionCallbacks(Context context) {
         globalsUtil = (GlobalsUtil) context.getApplicationContext();
         broadcastUtils = new BroadcastUtils(context);
+
+        preferencesUtil = new PreferencesUtil(context);
     }
 
     @Override
@@ -22,8 +27,9 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         super.onPlay();
         broadcastUtils.playbackManager(BroadcastConstants.RequestResume, 0);
         broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
-
         broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
+
+        preferencesUtil.StorePlayingState(true);
     }
 
     @Override
@@ -32,9 +38,9 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         broadcastUtils.playbackManager(BroadcastConstants.RequestPause, 0);
         broadcastUtils.playbackManager(BroadcastConstants.RequestNotification, 0);
         broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
-
         // send to user interface
         broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, false);
+        preferencesUtil.StorePlayingState(false);
     }
 
     @Override
@@ -42,6 +48,10 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         super.onSkipToNext();
         broadcastUtils.playbackManager(BroadcastConstants.RequestSkip, 0);
         broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
+
+        broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
+        preferencesUtil.StorePlayingState(true);
+        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
     }
 
     @Override
@@ -49,6 +59,11 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         super.onSkipToPrevious();
         broadcastUtils.playbackManager(BroadcastConstants.RequestPrev, 0);
         broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
+
+        broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
+
+        preferencesUtil.StorePlayingState(true);
+        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
     }
 
     @Override
@@ -62,5 +77,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     public void onSeekTo(long pos) {
         super.onSeekTo(pos);
         broadcastUtils.playbackManager(BroadcastConstants.RequestSeek, pos);
+
+        broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
     }
 }
