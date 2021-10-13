@@ -14,14 +14,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.drkryz.musicplayer.managers.MusicManager;
 import com.drkryz.musicplayer.managers.NotificationBuilderManager;
@@ -38,6 +38,8 @@ public class MusicService extends Service {
     private NotificationBuilderManager notificationBuilderManager;
     private MusicManager musicManager;
 
+    private PreferencesUtil preferencesUtil;
+
 
     @SuppressLint("ResourceAsColor")
     @Nullable
@@ -47,13 +49,41 @@ public class MusicService extends Service {
         return iBinder;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.e(getPackageName(), "onUnbind():Service");
+        preferencesUtil.clearCover();
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        super.onRebind(intent);
+        Log.e(getPackageName(), "onRebind():Service");
+    }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
         Log.e(getPackageName(), "Removing task");
 
+        musicManager.unregisterAll();
+        notificationBuilderManager.unregisterAll();
+
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        broadcastUtils.playbackManager(BroadcastConstants.RequestDestroy, 0);
+
+        musicManager.unregisterAll();
+        notificationBuilderManager.unregisterAll();
+        unregisterReceiver(nowPlaying);
+
+        musicManager.removeAudioFocus();
     }
 
     @Override
@@ -61,12 +91,21 @@ public class MusicService extends Service {
         super.onCreate();
         musicManager = new MusicManager(getBaseContext());
         notificationBuilderManager = new NotificationBuilderManager(getBaseContext());
+        preferencesUtil = new PreferencesUtil(getBaseContext());
 
 
         registerNowPlaying();
 
         musicManager.registerAll();
         notificationBuilderManager.registerAll();
+
+        HandlerThread handlerThread = new HandlerThread("MusicPlayer",
+                Process.THREAD_PRIORITY_BACKGROUND
+                );
+
+        handlerThread.start();
+
+
     }
 
 
@@ -121,7 +160,7 @@ public class MusicService extends Service {
         int audioIndex = 0;
 
         if (globalsUtil != null) {
-            audioIndex = globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).loadAudioIndex();
+            audioIndex = globalsUtil.audioIndex = preferencesUtil.loadAudioIndex();
 
             if (audioIndex != -1 && audioIndex < globalsUtil.songList.size()) {
                 globalsUtil.activeAudio = globalsUtil.songList.get(audioIndex);
@@ -175,25 +214,8 @@ public class MusicService extends Service {
 
 
     public int getCurrentPosition() {
-        if (musicManager != null) {
 
-            PreferencesUtil preferencesUtil = new PreferencesUtil(getBaseContext());
-
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    preferencesUtil.StorePlayingState(globalsUtil.musicService.getPlayingState());
-                    preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
-                }
-            });
-
-            thread.setPriority(Thread.MAX_PRIORITY);
-            thread.start();
-
-
-            return musicManager.getCurrentPosition();
-        }
-        return 0;
+        return musicManager.getCurrentPosition();
     }
 
     public int getTotalDuration() {

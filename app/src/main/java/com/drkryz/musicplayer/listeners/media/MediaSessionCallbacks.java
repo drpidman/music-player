@@ -18,7 +18,6 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     public MediaSessionCallbacks(Context context) {
         globalsUtil = (GlobalsUtil) context.getApplicationContext();
         broadcastUtils = new BroadcastUtils(context);
-
         preferencesUtil = new PreferencesUtil(context);
     }
 
@@ -51,7 +50,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
 
         broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
         preferencesUtil.StorePlayingState(true);
-        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+        preferencesUtil.clearCover();
     }
 
     @Override
@@ -63,7 +62,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
 
         preferencesUtil.StorePlayingState(true);
-        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+        preferencesUtil.clearCover();
     }
 
     @Override

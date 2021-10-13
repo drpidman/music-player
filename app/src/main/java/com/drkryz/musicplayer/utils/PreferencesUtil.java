@@ -53,14 +53,6 @@ public class PreferencesUtil {
         return preferences.getInt("audioIndex", -1);
     }
 
-    public void clearCachedAudioPlaylist() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.clear();
-        editor.apply();
-    }
-
 
     public void firstInit(boolean firstPlaying) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
@@ -102,12 +94,6 @@ public class PreferencesUtil {
         editor.apply();
     }
 
-
-    public String GetLastCover() {
-        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
-        return preferences.getString("LastCover", "");
-    }
-
     public void SetLastIndex(int index) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -121,24 +107,11 @@ public class PreferencesUtil {
         return preferences.getInt("lastIndex", -1);
     }
 
-    public void SetLastPosition(int position) {
-        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.putInt("lastPosition", position);
-    }
-
-    public int GetLastPosition() {
-        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
-        return  preferences.getInt("lastPosition", 0);
-    }
-
     public void StoreCurrentTotalDuration(String total) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.putString("totalDuration", total);
-
         editor.apply();
     }
 

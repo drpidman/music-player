@@ -60,7 +60,6 @@ public class MusicListeners implements
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         // play
-
         broadcastUtils
                 .playbackManager(BroadcastConstants.RequestPlay, 0);
 

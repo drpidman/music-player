@@ -37,22 +37,19 @@ public class MusicManager
     private MediaPlayer mediaPlayer;
     private final GlobalsUtil globalsUtil;
     private final BroadcastUtils broadcastUtils;
+    private final PreferencesUtil preferencesUtil;
     private AudioManager audioManager;
-
     private final Context ctx;
 
-    BassBoost bassBoost;
-    Equalizer equalizer;
-    LoudnessEnhancer loudnessEnhancer;
 
     public MusicManager(Context context) {
         this.ctx = context;
         globalsUtil = (GlobalsUtil) ctx.getApplicationContext();
         broadcastUtils = new BroadcastUtils(globalsUtil.getContext());
+        preferencesUtil = new PreferencesUtil(globalsUtil.getContext());
     }
 
     public void initMediaPlayer() {
-        Log.d("initMediaPlayer()", "init");
         if (mediaPlayer == null) mediaPlayer = new MediaPlayer();
 
         mediaPlayer.setOnInfoListener(new MusicListeners(ctx));
@@ -72,11 +69,7 @@ public class MusicManager
         );
 
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
         mediaPlayer.setWakeMode(ctx, PowerManager.PARTIAL_WAKE_LOCK);
-
-
-        Log.e("activate:audiossid", "" + mediaPlayer.getAudioSessionId());
 
         try {
             mediaPlayer.setDataSource(globalsUtil.activeAudio.getPath());
@@ -85,7 +78,6 @@ public class MusicManager
             globalsUtil.musicService.stopSelf();
         }
 
-
         PreferencesUtil initStatus = new PreferencesUtil(ctx);
 
         if (!initStatus.GetFirstInit()) {
@@ -93,32 +85,21 @@ public class MusicManager
         }
 
         mediaPlayer.prepareAsync();
-
-        bassBoost = new BassBoost(0, mediaPlayer.getAudioSessionId());
-        bassBoost.setEnabled(false);
-
-        equalizer = new Equalizer(0, mediaPlayer.getAudioSessionId());
-        equalizer.setEnabled(false);
-
-        loudnessEnhancer = new LoudnessEnhancer(mediaPlayer.getAudioSessionId());
-        equalizer.setEnabled(false);
-
     }
 
 
     private void Play() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
-
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
         }
     }
 
     private void Pause() {
+        if (mediaPlayer == null) return;
+
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-
-
             updateCurrentPosition(PlaybackState.STATE_PAUSED);
 
             globalsUtil.resumePosition = mediaPlayer.getCurrentPosition();
@@ -141,12 +122,13 @@ public class MusicManager
             Log.d("new playing", "" + globalsUtil.activeAudio.getTitle());
         }
 
-        new PreferencesUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
+        preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);
+        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
 
         Stop();
         mediaPlayer.reset();
         initMediaPlayer();
-        new BroadcastUtils(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
+        broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
     }
 
     private void Previous() {
@@ -167,11 +149,12 @@ public class MusicManager
             initMediaPlayer();
         }
 
-        new PreferencesUtil(globalsUtil.getContext()).storeAudioIndex(globalsUtil.audioIndex);
+        preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);
+        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
 
         mediaPlayer.reset();
         initMediaPlayer();
-        new BroadcastUtils(ctx).playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
+        broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
     }
 
     private void SeekTo(int seek) {
@@ -184,10 +167,6 @@ public class MusicManager
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(globalsUtil.resumePosition);
             mediaPlayer.start();
-
-            bassBoost.setEnabled(false);
-            equalizer.setEnabled(false);
-            equalizer.setEnabled(false);
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
         }
@@ -219,7 +198,6 @@ public class MusicManager
                 public void run() {
                     Log.e("called", "media update called");
                     int currentPosition = 0;
-
                     if (globalsUtil.isServiceBound()) {
                         if (mediaPlayer == null) return;
                         currentPosition = mediaPlayer.getCurrentPosition();
@@ -233,13 +211,13 @@ public class MusicManager
 
                     globalsUtil.mediaSession.setPlaybackState(playbackState);
                 }
-            }, 100);
+            }, 50);
         }
     }
 
 
     public int getCurrentPosition() {
-        if (mediaPlayer != null) return mediaPlayer.getCurrentPosition();
+        if (mediaPlayer != null)return mediaPlayer.getCurrentPosition();
         return 0;
     }
 

@@ -39,7 +39,12 @@ public class MusicRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHol
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        View musicListView = inflater.inflate(R.layout.listview_item, parent, false);
+        View musicListView = null;
+
+        if (musicListView == null) {
+            musicListView = inflater.inflate(R.layout.listview_item, parent, false);
+        }
+
 
         RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(musicListView) {
             @Override
@@ -47,7 +52,6 @@ public class MusicRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return super.toString();
             }
         };
-
         return viewHolder;
     }
 

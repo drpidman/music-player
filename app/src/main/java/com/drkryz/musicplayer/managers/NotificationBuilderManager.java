@@ -103,6 +103,8 @@ public class NotificationBuilderManager {
 
     }
 
+    private static Bitmap largeIcon = null;
+
     @SuppressLint("ServiceCast")
     private void buildNotification(GlobalsUtil.Status status) {
         int notificationAction = R.drawable.ui_pause;
@@ -118,7 +120,6 @@ public class NotificationBuilderManager {
 
         Uri url = Uri.parse(globalsUtil.activeAudio.getAlbum());
 
-        Bitmap largeIcon = null;
         try {
             largeIcon = MediaStore.Images.Media.getBitmap(
                     ctx.getContentResolver(),
@@ -128,13 +129,17 @@ public class NotificationBuilderManager {
             e.printStackTrace();
         }
 
-
-
         Notification.Builder mBuilder = null;
+
+        Intent mainIntent = new Intent(ctx, PlayerActivity.class);
+        PendingIntent mainPending = PendingIntent.getActivity(ctx, 1006, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mBuilder = (Notification.Builder)
                     new Notification.Builder(ctx, "Music Player")
                             .setShowWhen(true)
+                            .setContentIntent(mainPending)
                             .setOngoing(new PreferencesUtil(ctx).GetPlayingState())
                             .setOnlyAlertOnce(true)
                             .setStyle(new Notification.MediaStyle()
@@ -166,6 +171,7 @@ public class NotificationBuilderManager {
                                     .setMediaSession(MediaSessionCompat.Token.fromToken(token))
                                     .setShowActionsInCompactView(0,1,2)
                             )
+                            .setContentIntent(mainPending)
                             .setShowWhen(true)
                             .setOnlyAlertOnce(true)
                             .setOngoing(new PreferencesUtil(ctx).GetPlayingState())

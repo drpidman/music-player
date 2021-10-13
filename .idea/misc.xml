@@ -30,6 +30,7 @@
         <entry key="app/src/main/res/drawable/ui_pause.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/ui_pausebtn.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ui_play.xml" value="0.152991452991453" />
+        <entry key="app/src/main/res/drawable/ui_playback_bg.xml" value="0.16880341880341881" />
         <entry key="app/src/main/res/drawable/ui_playbtn.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ui_prev.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2" />

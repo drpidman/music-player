@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.graphics.drawable.IconCompat;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,17 +25,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.media.audiofx.AudioEffect;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Parcelable;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -52,14 +48,14 @@ import com.drkryz.musicplayer.functions.GetMusicsFromExt;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
 import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
+import com.drkryz.musicplayer.managers.MusicManager;
+import com.drkryz.musicplayer.managers.NotificationBuilderManager;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
-import com.gauravk.audiovisualizer.model.AnimSpeed;
-import com.gauravk.audiovisualizer.visualizer.WaveVisualizer;
 
 import java.io.IOException;
 
@@ -68,6 +64,8 @@ public class PlayerActivity extends AppCompatActivity {
 
     private GlobalsUtil globalsUtil;
     private BroadcastUtils broadcastUtils;
+    private GetMusicsFromExt externalGet;
+    private PreferencesUtil preferencesUtil;
 
     private MotionLayout motionLayout;
     private RecyclerView listView;
@@ -77,8 +75,6 @@ public class PlayerActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private View bottomNav;
 
-
-    private GetMusicsFromExt externalGet;
 
     @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
     @Override
@@ -97,12 +93,7 @@ public class PlayerActivity extends AppCompatActivity {
                 new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.UpdateCover)
         );
 
-        registerReceiver(updateProgress,
-                new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestProgress)
-        );
-
         globalsUtil = (GlobalsUtil) getApplicationContext();
-        globalsUtil.setServiceBound(false);
 
 
         externalGet = new GetMusicsFromExt();
@@ -155,6 +146,8 @@ public class PlayerActivity extends AppCompatActivity {
         listView.setAdapter(musicRecyclerView);
         listView.setHasFixedSize(true);
         listView.setLayoutManager(new LinearLayoutManager(this));
+        listView.setItemViewCacheSize(1);
+
         // list view click listener
         ItemClickSupport.addTo(listView)
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
@@ -183,7 +176,15 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                boolean state = new PreferencesUtil(getBaseContext()).GetPlayingState();
+                boolean state = false;
+
+                if (globalsUtil.musicService == null) {
+                    state = preferencesUtil.GetPlayingState();
+                } else {
+                    state = globalsUtil.musicService.getPlayingState();
+                }
+
+
 
                 Log.d("PLAYBACK", "" + state);
                 if (state) {
@@ -240,6 +241,7 @@ public class PlayerActivity extends AppCompatActivity {
         });
 
         broadcastUtils = new BroadcastUtils(getApplicationContext());
+        preferencesUtil = new PreferencesUtil(getBaseContext());
 
         NotificationChannel channel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -269,18 +271,18 @@ public class PlayerActivity extends AppCompatActivity {
 
             notificationManager.createNotificationChannel(notificationChannel.build());
         }
-
     }
 
     private boolean serviceState() {
         return globalsUtil.isServiceBound();
     }
+
     private void updateSeekBar() {
 
         if (globalsUtil.musicService != null) {
             seekBar.setMax(globalsUtil.musicService.getTotalDuration());
         } else {
-            seekBar.setMax(Integer.parseInt(new PreferencesUtil(getBaseContext()).LoadTotalDuration()));
+            seekBar.setMax(Integer.parseInt(preferencesUtil.LoadTotalDuration()));
         }
     }
 
@@ -300,15 +302,11 @@ public class PlayerActivity extends AppCompatActivity {
 
 
     private static Bitmap cover = null;
-
     private void updateCoverImage() throws IOException {
         if (!serviceState()) return;
 
-        globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).loadAudioIndex();
-        globalsUtil.setMusicList(externalGet.getAll());
-
+        globalsUtil.audioIndex = preferencesUtil.loadAudioIndex();
         globalsUtil.activeAudio = globalsUtil.getMusicList().get(globalsUtil.audioIndex);
-
         String albumUri = globalsUtil.activeAudio.getAlbum();
 
         try {
@@ -338,46 +336,33 @@ public class PlayerActivity extends AppCompatActivity {
 
         Drawable buttonPlay = PlayUiBtn.getBackground();
         Drawable bottomListMusic = bottomNav.getBackground();
-        Drawable listViewMusic = listView.getBackground();
 
         Window window = getWindow();
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ObjectAnimator.ofObject(motionLayout, "backgroundColor",
-                        new ArgbEvaluator(), colorFrom, colorTo
-                )
-                        .setDuration(1000)
-                        .start();
+        ObjectAnimator.ofObject(motionLayout, "backgroundColor",
+                new ArgbEvaluator(), colorFrom, colorTo
+        )
+                .setDuration(1000)
+                .start();
 
-                ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
-                        palette.getVibrantColor(DominantColor.GetDominantColor(cover))
-                )
-                        .setDuration(1000)
-                        .start();
+        ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
+                palette.getVibrantColor(DominantColor.GetDominantColor(cover))
+        )
+                .setDuration(1000)
+                .start();
 
-                ObjectAnimator.ofObject(bottomListMusic, "tint", new ArgbEvaluator(), colorFrom, colorTo)
-                        .setDuration(1000)
-                        .start();
+        ObjectAnimator.ofObject(bottomListMusic, "tint", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
 
+        ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
 
-                ObjectAnimator.ofObject(listViewMusic, "tint", new ArgbEvaluator(), colorFrom,
-                        DominantColor.GetDominantColor(cover)
-                )
-                        .setDuration(1000)
-                        .start();
+        ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(), colorFrom, colorTo)
+                .setDuration(1000)
+                .start();
 
-                ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                        .setDuration(1000)
-                        .start();
-
-                ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                        .setDuration(1000)
-                        .start();
-
-            }
-        });
 
         currentPlayingText.setSelected(true);
         currentPlayingText.setText(globalsUtil.activeAudio.getTitle());
@@ -402,18 +387,16 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void Play(int position) {
         if (!globalsUtil.isServiceBound()) {
-            PreferencesUtil storage = new PreferencesUtil(getApplicationContext());
 
-            storage.storeAudio(globalsUtil.getMusicList());
-            storage.storeAudioIndex(position);
+            preferencesUtil.storeAudio(globalsUtil.getMusicList());
+            preferencesUtil.storeAudioIndex(position);
 
             Intent player = new Intent(getBaseContext(), MusicService.class);
 
             startService(player);
             bindService(player, serviceConnection, BIND_AUTO_CREATE);
         } else {
-            PreferencesUtil storage = new PreferencesUtil(getApplicationContext());
-            storage.storeAudioIndex(position);
+            preferencesUtil.storeAudioIndex(position);
             broadcastUtils.playbackUIManager(BroadcastConstants.Play, false);
         }
     }
@@ -474,24 +457,54 @@ public class PlayerActivity extends AppCompatActivity {
         }
     };
 
-    private final BroadcastReceiver updateProgress = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // remove in last commit
-        }
-    };
-
     @Override
     protected void onStart() {
         super.onStart();
+        Log.e(getPackageName(), "onStart()");
 
+        Log.e(getPackageName(), "" + preferencesUtil.GetFirstInit());
+        if (preferencesUtil.GetFirstInit()) {
+            Log.e(getPackageName(), "retomando a musica anterior");
+
+            boolean playingState = preferencesUtil.GetPlayingState();
+
+            /**
+             * RESUMIR ESTADO ANTERIOR DA VIEW.
+             * SE APLICA QUANDO O USUARIO FECHAR O APLICATIVO PELO BOTÃO "voltar" fisico ou virtual.
+             * SE APLICA QUANDO O USUARIO FECHAR O APLICATIVO COMPLETAMENTE E RECUPERAR
+             * A ULTIMA MUSICA TOCADA.
+             */
+            if (playingState) {
+                Log.e(getPackageName() + ":playback", "playing");
+
+                preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);
+                bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+
+                if (globalsUtil.transportControls == null) {
+                    startService(new Intent(this, MusicService.class));
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                } else {
+                    broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                }
+            } else {
+                Log.e(getPackageName() + ":playback", "paused");
+                bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+
+                if (globalsUtil.transportControls == null) {
+                    Log.e(getPackageName(), "transport controls null");
+                    startService(new Intent(this, MusicService.class));
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                } else {
+                    Log.e(getPackageName(), "transport controls not a null");
+                    broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
+                    PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+                }
+            }
+        }
+        preferencesUtil.clearCover();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.e(getBaseContext().getPackageName(), "onStop()");
-    }
 
     @Override
     protected void onPause() {
@@ -499,19 +512,12 @@ public class PlayerActivity extends AppCompatActivity {
         Log.e(getBaseContext().getPackageName(), "onPause()");
         if (globalsUtil.isServiceBound()) {
             if (globalsUtil.musicService.getPlayingState()) {
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
-
-                PreferencesUtil preferencesUtil = new PreferencesUtil(getBaseContext());
                 preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
-                preferencesUtil.SetLastPosition(globalsUtil.musicService.getCurrentPosition());
                 preferencesUtil.StoreCurrentTotalDuration(globalsUtil.activeAudio.getDuration());
 
-                new PreferencesUtil(getBaseContext()).SetLastCover(
+                preferencesUtil.SetLastCover(
                         globalsUtil.activeAudio.getAlbum()
                 );
-
-            } else {
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
             }
         }
     }
@@ -525,77 +531,21 @@ public class PlayerActivity extends AppCompatActivity {
             if (globalsUtil.musicService.getPlayingState()) {
                 Log.e(getBaseContext().getPackageName(), "service running");
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
-                broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
-
-            } else {
-                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
-            }
-        } else {
-
-
-            PreferencesUtil storage = new PreferencesUtil(getBaseContext());
-
-
-            if (storage.GetFirstInit()) {
-                Log.e(getPackageName(), "retomando a musica anterior");
-
-                boolean playingState = new PreferencesUtil(getBaseContext()).GetPlayingState();
-
-                globalsUtil.audioIndex = new PreferencesUtil(getBaseContext()).GetLastIndex();
-                globalsUtil.activeAudio = globalsUtil.getMusicList().get(globalsUtil.audioIndex);
-
-                Bitmap cover = null;
-
                 try {
-                    cover = MediaStore.Images.Media.getBitmap(
-                            getContentResolver(),
-                            Uri.parse(globalsUtil.activeAudio.getAlbum())
-                    );
+                    updateCoverImage();
+                    updateSeekBar();
+                    startSeekBar();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    cover = BitmapFactory.decodeResource(
-                            getResources(),
-                            R.drawable.default_music
-                    );
                 }
-                coverImage.setImageBitmap(cover);
-                /**
-                 * RESUMIR ESTADO ANTERIOR DA VIEW.
-                 * SE APLICA QUANDO O USUARIO FECHAR O APLICATIVO PELO BOTÃO "voltar" fisico ou virtual.
-                 * SE APLICA QUANDO O USUARIO FECHAR O APLICATIVO COMPLETAMENTE E RECUPERAR
-                 * A ULTIMA MUSICA TOCADA.
-                 */
-
-                broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
-
-                if (playingState) {
-                    Log.e(getPackageName() + ":playback", "playing");
-
-
-
-                    new PreferencesUtil(getBaseContext()).storeAudioIndex(globalsUtil.audioIndex);
-                    bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
-
-                    if (globalsUtil.transportControls == null) {
-                        startService(new Intent(this, MusicService.class));
-                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
-                    } else {
-                        broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
-                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
-                    }
-                } else {
-                    Log.e(getPackageName() + ":playback", "paused");
-                    bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
-
-                    if (globalsUtil.transportControls == null) {
-                        Log.e(getPackageName(), "transport controls null");
-                        startService(new Intent(this, MusicService.class));
-                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
-                    } else {
-                        Log.e(getPackageName(), "transport controls not a null");
-                        broadcastUtils.playbackUIManager(BroadcastConstants.UpdateCover, false);
-                        PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
-                    }
+            } else {
+                PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+                try {
+                    updateCoverImage();
+                    updateSeekBar();
+                    startSeekBar();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -604,6 +554,7 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
         Log.e(getPackageName(), "activity destroyed");
     }
 
