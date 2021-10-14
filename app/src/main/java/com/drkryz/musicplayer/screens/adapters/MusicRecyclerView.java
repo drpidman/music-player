@@ -16,76 +16,64 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.drkryz.musicplayer.R;
+import com.drkryz.musicplayer.functions.PlaybackAlbum;
 import com.drkryz.musicplayer.utils.SongUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class MusicRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.ViewHolder> {
 
-    private final ArrayList<SongUtil> songs;
-    private final Activity MusicList;
+    private ArrayList<SongUtil> musicList;
+    private Context context;
 
-
-    public MusicRecyclerView(ArrayList<SongUtil> songList, Activity activity) {
-        this.songs = songList;
-        this.MusicList = activity;
-    }
-
-    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
+    public MusicRecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
-        View musicListView = null;
+        View musicView = inflater.inflate(R.layout.listview_item, parent, false);
 
-        if (musicListView == null) {
-            musicListView = inflater.inflate(R.layout.listview_item, parent, false);
-        }
-
-
-        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(musicListView) {
-            @Override
-            public String toString() {
-                return super.toString();
-            }
-        };
+        ViewHolder viewHolder = new ViewHolder(musicView);
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        SongUtil musicIndex = songs.get(position);
+    public void onBindViewHolder(MusicRecyclerView.ViewHolder holder, int position) {
+        SongUtil song = musicList.get(position);
 
-        TextView textTitle = holder.itemView.findViewById(R.id.musicTitle);
-        textTitle.setText(musicIndex.getTitle());
+        TextView musicTitle = holder.musicTitle;
+        ImageView cover = holder.musicAlbumCover;
 
-        Bitmap cover = null;
 
-        try {
-            cover = MediaStore.Images.Media.getBitmap(
-                    MusicList.getContentResolver(),
-                    Uri.parse(musicIndex.getAlbum())
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-            cover = BitmapFactory.decodeResource(
-                    MusicList.getResources(),
-                    R.drawable.default_music
-            );
+        cover.setImageBitmap(PlaybackAlbum.getCover(context, position, musicList));
+        musicTitle.setText(song.getTitle());
+
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        public TextView musicTitle;
+        public ImageView musicAlbumCover;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            musicTitle = itemView.findViewById(R.id.musicTitle);
+            musicAlbumCover = itemView.findViewById(R.id.musicAlbumCover);
         }
-
-
-
-        ImageView coverImage = (ImageView) holder.itemView.findViewById(R.id.musicAlbumCover);
-        coverImage.setImageBitmap(cover);
-
     }
 
     @Override
     public int getItemCount() {
-        return songs.size();
+        return musicList.size();
+    }
+
+
+    public MusicRecyclerView(ArrayList<SongUtil> music, Context ctx) {
+        musicList = music;
+        context = ctx;
     }
 }

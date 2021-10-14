@@ -6,7 +6,8 @@
     <Transition
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@+id/start"
-        motion:duration="500">
+        motion:duration="200">
+
         <OnSwipe
             motion:touchAnchorSide="top"
             motion:touchAnchorId="@id/bottomNavDrag"
@@ -69,7 +70,7 @@
         <Constraint motion:layout_constraintVertical_bias="0.336"
         android:layout_height="250dp"
         motion:layout_constraintStart_toStartOf="parent"
-        motion:layout_constraintTop_toTopOf="@id/textTitle"
+        motion:layout_constraintTop_toTopOf="parent"
         motion:layout_constraintBottom_toBottomOf="@id/bottomNavDrag"
         motion:layout_constraintHorizontal_bias="0.496"
         motion:layout_constraintEnd_toEndOf="parent"
@@ -103,7 +104,7 @@
             android:id="@id/bottomNavDrag"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintBottom_toBottomOf="@id/musicAlbum"
             >
         </Constraint>
 
@@ -111,16 +112,15 @@
             android:id="@+id/drawer"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            motion:layout_constraintTop_toBottomOf="@+id/textTitle"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintBottom_toTopOf="@+id/bottomNavDrag">
+            motion:layout_constraintTop_toTopOf="parent">
         </Constraint>
 
         <Constraint
             android:id="@+id/musicList"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
+            android:layout_height="500dp"
             motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintTop_toBottomOf="@id/drawer"
             >
@@ -128,51 +128,41 @@
         </Constraint>
 
         <Constraint
-            android:layout_height="0dp"
-            android:layout_width="0dp"
-            motion:layout_constraintBottom_toBottomOf="parent"
-            android:id="@+id/currentSongTitle"
-            motion:layout_constraintEnd_toEndOf="@+id/musicAlbum"
-            motion:layout_constraintStart_toStartOf="@+id/musicAlbum"
-            motion:layout_constraintBottom_toTopOf="@+id/progressBar"
-            motion:layout_constraintTop_toBottomOf="@+id/musicAlbum" />
-        <Constraint
-            android:layout_height="90dp"
-            motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintBottom_toBottomOf="parent"
-            motion:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="90dp"
-            motion:layout_constraintTop_toBottomOf="@+id/musicAlbum"
-            android:id="@+id/uiPlay" />
-        <Constraint
-            android:layout_height="50dp"
-            motion:layout_editor_absoluteX="82dp"
-            motion:layout_constraintBottom_toBottomOf="@+id/uiPlay"
-            android:layout_width="50dp"
-            android:id="@+id/uiPrevious"
-            motion:layout_constraintTop_toTopOf="@+id/uiPlay" />
-        <Constraint
-            android:layout_height="50dp"
-            motion:layout_editor_absoluteX="259dp"
-            motion:layout_constraintBottom_toBottomOf="@+id/uiPlay"
-            android:layout_width="50dp"
-            android:id="@+id/uiSkip"
-            motion:layout_constraintTop_toTopOf="@+id/uiPlay" />
-        <Constraint
-            android:elevation="1dp"
-            motion:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            motion:layout_constraintTop_toTopOf="@id/textTitle"
-            motion:layout_constraintStart_toStartOf="parent"
             android:id="@+id/musicAlbum"
-            motion:layout_constraintBottom_toBottomOf="@+id/uiPlay" />
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:elevation="20dp"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintEnd_toEndOf="@id/drawer"
+            motion:layout_constraintStart_toEndOf="parent"
+            motion:layout_constraintBottom_toTopOf="@+id/musicList"
+            motion:layout_constraintTop_toTopOf="parent"/>
+
         <Constraint
-            android:layout_height="wrap_content"
-            motion:layout_constraintBottom_toTopOf="@+id/uiPlay"
-            android:layout_width="match_parent"
-            android:id="@+id/progressBar"
-            motion:layout_constraintTop_toTopOf="@+id/uiPlay" />
+            android:id="@+id/uiPlay"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:elevation="20dp"
+
+            motion:layout_constraintStart_toEndOf="@+id/musicAlbum"
+            motion:layout_constraintTop_toTopOf="@+id/musicAlbum"
+            motion:layout_constraintBottom_toBottomOf="@+id/musicAlbum"
+            motion:layout_constraintEnd_toStartOf="@+id/uiSkip" />
+
+
+        <Constraint
+            android:id="@+id/uiSkip"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:elevation="20dp"
+            motion:layout_constraintStart_toEndOf="@+id/drawer"
+            motion:layout_constraintTop_toTopOf="@id/uiPlay"
+            motion:layout_constraintBottom_toBottomOf="@id/uiPlay"
+            motion:layout_constraintEnd_toEndOf="@id/drawer"
+            />
+
+
 
     </ConstraintSet>
 </MotionScene>

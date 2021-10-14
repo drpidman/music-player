@@ -83,6 +83,6 @@ public class MusicListeners implements
         // change: broadcastSenders.playbackManager(...) to transportControls.skipToNext();
         // fix auto playing
         globalsUtil.transportControls.skipToNext();
-        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
+        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
     }
 }

@@ -26,6 +26,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 
 import com.drkryz.musicplayer.R;
+import com.drkryz.musicplayer.functions.PlaybackAlbum;
 import com.drkryz.musicplayer.listeners.media.MediaSessionCallbacks;
 import com.drkryz.musicplayer.screens.PlayerActivity;
 import com.drkryz.musicplayer.services.MusicService;
@@ -34,6 +35,8 @@ import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class NotificationBuilderManager {
@@ -118,16 +121,12 @@ public class NotificationBuilderManager {
             playAction_PauseAction = playbackAction(0);
         }
 
-        Uri url = Uri.parse(globalsUtil.activeAudio.getAlbum());
 
-        try {
-            largeIcon = MediaStore.Images.Media.getBitmap(
-                    ctx.getContentResolver(),
-                    url
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Bitmap cover = PlaybackAlbum.getCover(ctx, globalsUtil.audioIndex, globalsUtil.songList);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        cover.compress(Bitmap.CompressFormat.JPEG, 50, out);
+        Bitmap largeIcon = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
 
         Notification.Builder mBuilder = null;
 

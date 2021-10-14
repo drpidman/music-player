@@ -9,12 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -25,31 +22,24 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.audiofx.AudioEffect;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.functions.DominantColor;
+import com.drkryz.musicplayer.custom.CustomItemAnimator;
 import com.drkryz.musicplayer.functions.GetMusicsFromExt;
+import com.drkryz.musicplayer.functions.PlaybackAlbum;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
 import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
-import com.drkryz.musicplayer.managers.MusicManager;
-import com.drkryz.musicplayer.managers.NotificationBuilderManager;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
@@ -57,7 +47,12 @@ import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -129,9 +124,7 @@ public class PlayerActivity extends AppCompatActivity {
         });
 
 
-        ImageButton EQButton = (ImageButton) findViewById(R.id.appSettings);
         ImageButton UiPrevious = (ImageButton) findViewById(R.id.uiPrevious);
-        ImageButton openWebPlayer = (ImageButton) findViewById(R.id.webPlayer);
         ImageButton UiSkip = (ImageButton) findViewById(R.id.uiSkip);
 
         currentPlayingText = (TextView) findViewById(R.id.currentSongTitle);
@@ -142,11 +135,12 @@ public class PlayerActivity extends AppCompatActivity {
         coverImage = (ImageView) findViewById(R.id.musicAlbum);
 
         // list view adapter
-        MusicRecyclerView musicRecyclerView = new MusicRecyclerView(globalsUtil.getMusicList(), this);
-        listView.setAdapter(musicRecyclerView);
-        listView.setHasFixedSize(true);
+
+        MusicRecyclerView adapter = new MusicRecyclerView(globalsUtil.getMusicList(), getBaseContext());
+        listView.setAdapter(adapter);
         listView.setLayoutManager(new LinearLayoutManager(this));
-        listView.setItemViewCacheSize(1);
+        listView.setHasFixedSize(true);
+        listView.setItemAnimator(new CustomItemAnimator());
 
         // list view click listener
         ItemClickSupport.addTo(listView)
@@ -199,28 +193,6 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
-
-        EQButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent audioEQ = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
-                audioEQ.putExtra(EXTRA_CONTENT_TYPE, CONTENT_TYPE_MUSIC);
-                audioEQ.putExtra(EXTRA_AUDIO_SESSION, CONTENT_TYPE_MUSIC);
-
-                if ((audioEQ.resolveActivity(getPackageManager()) != null)) {
-                    startActivityForResult(audioEQ, 0);
-                }
-            }
-        });
-
-        openWebPlayer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent webViewPlayer = new Intent(getApplicationContext(), YTMusicActivity.class);
-                startActivity(webViewPlayer);
-            }
-        });
-
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
@@ -242,6 +214,8 @@ public class PlayerActivity extends AppCompatActivity {
 
         broadcastUtils = new BroadcastUtils(getApplicationContext());
         preferencesUtil = new PreferencesUtil(getBaseContext());
+
+        preferencesUtil.StoreUserInApp(true);
 
         NotificationChannel channel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -293,6 +267,7 @@ public class PlayerActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (!preferencesUtil.LoadUserInApp()) return;
                     seekBar.setProgress(globalsUtil.musicService.getCurrentPosition());
                     mHandler.postDelayed(this, 1000);
                 }
@@ -301,69 +276,18 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
 
-    private static Bitmap cover = null;
     private void updateCoverImage() throws IOException {
         if (!serviceState()) return;
 
-        globalsUtil.audioIndex = preferencesUtil.loadAudioIndex();
-        globalsUtil.activeAudio = globalsUtil.getMusicList().get(globalsUtil.audioIndex);
-        String albumUri = globalsUtil.activeAudio.getAlbum();
 
-        try {
-            cover = MediaStore.Images.Media.getBitmap(
-                    getContentResolver(),
-                    Uri.parse(albumUri)
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-            cover = BitmapFactory.decodeResource(
-                    getResources(),
-                    R.drawable.default_music
-            );
-        }
-
-        coverImage.setImageBitmap(cover);
+        Bitmap cover = PlaybackAlbum.getCover(getBaseContext(), globalsUtil.audioIndex, preferencesUtil.loadAudio());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        cover.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        Bitmap decode = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
 
 
-        Palette palette = new Palette.Builder(cover).generate();
-
-        // change background animated
-        final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();
-        final int colorTo = palette.getDominantColor(
-                DominantColor.GetDominantColor(cover)
-        );
-
-
-        Drawable buttonPlay = PlayUiBtn.getBackground();
-        Drawable bottomListMusic = bottomNav.getBackground();
-
-        Window window = getWindow();
-
-        ObjectAnimator.ofObject(motionLayout, "backgroundColor",
-                new ArgbEvaluator(), colorFrom, colorTo
-        )
-                .setDuration(1000)
-                .start();
-
-        ObjectAnimator.ofObject(buttonPlay, "tint", new ArgbEvaluator(), colorFrom,
-                palette.getVibrantColor(DominantColor.GetDominantColor(cover))
-        )
-                .setDuration(1000)
-                .start();
-
-        ObjectAnimator.ofObject(bottomListMusic, "tint", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
-
-        ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
-
-        ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(), colorFrom, colorTo)
-                .setDuration(1000)
-                .start();
-
-
+        if (!preferencesUtil.LoadUserInApp()) return;
+        coverImage.setImageBitmap(decode);
         currentPlayingText.setSelected(true);
         currentPlayingText.setText(globalsUtil.activeAudio.getTitle());
     }
@@ -518,6 +442,8 @@ public class PlayerActivity extends AppCompatActivity {
                 preferencesUtil.SetLastCover(
                         globalsUtil.activeAudio.getAlbum()
                 );
+
+                preferencesUtil.StoreUserInApp(false);
             }
         }
     }
@@ -527,6 +453,8 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.e(getBaseContext().getPackageName(), "onResume()");
+        preferencesUtil.StoreUserInApp(true);
+
         if (globalsUtil.isServiceBound()) {
             if (globalsUtil.musicService.getPlayingState()) {
                 Log.e(getBaseContext().getPackageName(), "service running");

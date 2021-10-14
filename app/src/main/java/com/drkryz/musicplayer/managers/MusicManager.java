@@ -133,20 +133,11 @@ public class MusicManager
 
     private void Previous() {
 
-        if (mediaPlayer.isPlaying()) {
-            if (mediaPlayer.getCurrentPosition() > 1000) {
-                mediaPlayer.seekTo(0);
-            } else if (mediaPlayer.getCurrentPosition() < 5000) {
-                if (globalsUtil.audioIndex == 0) {
+        if (globalsUtil.audioIndex == 0) {
                     globalsUtil.audioIndex = globalsUtil.songList.size() -1;
                     globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
-                } else {
+        } else {
                     globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
-                }
-            }
-
-            mediaPlayer.reset();
-            initMediaPlayer();
         }
 
         preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);

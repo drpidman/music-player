@@ -37,7 +37,6 @@ public class MusicService extends Service {
     private BroadcastUtils broadcastUtils;
     private NotificationBuilderManager notificationBuilderManager;
     private MusicManager musicManager;
-
     private PreferencesUtil preferencesUtil;
 
 

@@ -13,6 +13,7 @@ public class PreferencesUtil {
 
     private final String STORAGE = "com.drkryz.musicplayer.STORAGE";
     private final String STORAGE_STATES = "com.drkryz.musicplayer.STORAGE_STATES";
+    private final String STORAGE_USER = "COM.drkryz.musicplayer.STORAGE_USER";
 
     private SharedPreferences preferences;
     private Context context;
@@ -118,6 +119,19 @@ public class PreferencesUtil {
     public String LoadTotalDuration() {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         return  preferences.getString("totalDuration", "0");
+    }
+
+    public void StoreUserInApp(boolean inactive) {
+        preferences = context.getSharedPreferences(STORAGE_USER, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("inApp", inactive);
+        editor.apply();
+    }
+
+    public boolean LoadUserInApp() {
+        preferences = context.getSharedPreferences(STORAGE_USER, Context.MODE_PRIVATE);
+        return preferences.getBoolean("inApp", false);
     }
 
     public void clearCover() {
