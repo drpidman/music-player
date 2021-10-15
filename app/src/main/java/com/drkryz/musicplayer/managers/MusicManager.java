@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.media.session.PlaybackState;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.os.Process;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -187,15 +188,11 @@ public class MusicManager
             new PreferencesUtil(ctx).StorePlayingState(false);
             new PreferencesUtil(ctx).StoreUserInApp(false);
 
-            globalsUtil.mediaSession.release();
 
-            globalsUtil.musicService = null;
-            globalsUtil.setServiceBound(false);
             globalsUtil.stopService(new Intent(ctx, MusicService.class));
-            notificationBuilderManager.removeNotification();
+            globalsUtil.musicService.stopForeground(true);
 
-            android.os.Process.killProcess(android.os.Process.myPid());
-
+            android.os.Process.killProcess(Process.myPid());
         }
     }
 
@@ -260,6 +257,9 @@ public class MusicManager
         // play
 
         Play();
+
+        if (!preferencesUtil.LoadUserInApp()) return;
+
         broadcastUtils
                 .playbackUIManager(BroadcastConstants.UpdateCover, mediaPlayer.isPlaying());
 
@@ -277,7 +277,7 @@ public class MusicManager
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d("onCompletion()", "media completed");
         Skip();
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
     }
 
 
@@ -315,7 +315,7 @@ public class MusicManager
                 else if(!mediaPlayer.isPlaying()) Resume();
 
                 mediaPlayer.setVolume(1.0f, 1.0f);
-                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
                 /**
@@ -324,7 +324,7 @@ public class MusicManager
                  * Permitir que ele volte a reproduzir.
                  */
                 if (mediaPlayer.isPlaying()) Pause();
-                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED);
+                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED, globalsUtil.musicService);
 
                 broadcastUtils
                         .playbackUIManager(BroadcastConstants.RequestPlayChange, false);
@@ -335,7 +335,7 @@ public class MusicManager
                  * e Resumir quando o status/stories encerrar/fechar)
                  */
                 if (mediaPlayer.isPlaying()) Pause();
-                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED);
+                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED, globalsUtil.musicService);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 // Quando receber uma notificação, diminua o volume

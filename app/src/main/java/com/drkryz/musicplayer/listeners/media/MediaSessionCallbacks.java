@@ -30,7 +30,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         super.onPlay();
         globalsUtil.musicService.getMusicManager().Resume();
 
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
 
         if (!preferencesUtil.LoadUserInApp()) return;
         broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
@@ -42,7 +42,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
         super.onPause();
         globalsUtil.musicService.getMusicManager().Pause();
 
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED, globalsUtil.musicService);
 
         if (!preferencesUtil.LoadUserInApp()) return;
         broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, false);
@@ -53,13 +53,13 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     public void onSkipToNext() {
         super.onSkipToNext();
         globalsUtil.musicService.getMusicManager().Skip();
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
 
         preferencesUtil.StorePlayingState(true);
         preferencesUtil.clearCover();
 
         if (!preferencesUtil.LoadUserInApp()) return;
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
         broadcastUtils.playbackUIManager(BroadcastConstants.RequestPlayChange, true);
     }
 
@@ -67,7 +67,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     public void onSkipToPrevious() {
         super.onSkipToPrevious();
         globalsUtil.musicService.getMusicManager().Previous();
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
 
         preferencesUtil.StorePlayingState(true);
         preferencesUtil.clearCover();
@@ -79,7 +79,7 @@ public class MediaSessionCallbacks extends MediaSession.Callback {
     @Override
     public void onStop() {
         super.onStop();
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED, globalsUtil.musicService);
         globalsUtil.musicService.getMusicManager().Stop();
     }
 

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -107,7 +108,7 @@ public class NotificationBuilderManager {
     private static Bitmap largeIcon = null;
 
     @SuppressLint("ServiceCast")
-    public void buildNotification(GlobalsUtil.Status status) {
+    public void buildNotification(GlobalsUtil.Status status, Service service) {
         int notificationAction = R.drawable.ui_pause;
         PendingIntent playAction_PauseAction = null;
 
@@ -155,7 +156,7 @@ public class NotificationBuilderManager {
                             .addAction(R.drawable.ui_next, "next", playbackAction(2))
                             .addAction(R.drawable.ic_baseline_close_24, "close", playbackAction(4));
 
-            ((NotificationManager) globalsUtil.getSystemService(Context.NOTIFICATION_SERVICE)).notify(145, mBuilder.build());
+            service.startForeground(145, mBuilder.build());
         } else {
 
             MediaSession.Token token = globalsUtil.mediaSession.getSessionToken();
@@ -187,7 +188,7 @@ public class NotificationBuilderManager {
                             .addAction(R.drawable.ic_baseline_close_24, "close", playbackAction(4));
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(ctx);
 
-            notificationManagerCompat.notify(145, notificationCompat.build());
+            service.startForeground(145, notificationCompat.build());
         }
     }
 

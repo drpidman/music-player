@@ -14,6 +14,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.drm.DrmStore;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -48,6 +50,24 @@ public class MusicService extends Service {
     public IBinder onBind(Intent intent) {
         Log.e("onBind()", "bind()");
         return iBinder;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.e(getPackageName(), "onConfigurationChanged()");
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        Log.e(getPackageName(), "onTrimMemory():" + level);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        Log.e(getPackageName(), "onLowMemory()");
     }
 
     @Override
@@ -104,10 +124,8 @@ public class MusicService extends Service {
             int action = intent.getIntExtra("user.state", 0);
 
             if (action == 0) {
-                startForeground(0, null);
             } else if (action == 1) {
                 registerNowPlaying();
-                stopForeground(true);
             }
         }
     }
@@ -144,9 +162,7 @@ public class MusicService extends Service {
             }
         }
 
-
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
-
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, this);
         handleActions(intent);
         return START_NOT_STICKY;
     }
@@ -173,7 +189,7 @@ public class MusicService extends Service {
 
 
         notificationBuilderManager.updateMetaData();
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, this);
     }
 
     private final BroadcastReceiver nowPlaying = new BroadcastReceiver() {

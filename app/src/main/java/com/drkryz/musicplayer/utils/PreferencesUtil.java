@@ -73,6 +73,20 @@ public class PreferencesUtil {
      */
 
 
+    public void StoreStartedPlayback(boolean started) {
+        preferences = context.getSharedPreferences("com.drkryz.musicplayer.playbackstarted", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("playback.started", started);
+        editor.apply();
+    }
+
+    public boolean LoadStartedPlayback() {
+        preferences = context.getSharedPreferences("com.drkryz.musicplayer.playbackstarted", Context.MODE_PRIVATE);
+
+        return preferences.getBoolean("playback.started", false);
+    }
+
     public void StorePlayingState(boolean playingState) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();

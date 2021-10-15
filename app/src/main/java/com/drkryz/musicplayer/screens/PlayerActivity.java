@@ -414,9 +414,6 @@ public class PlayerActivity extends AppCompatActivity {
                     );
         }
 
-        if (globalsUtil.isServiceBound()) {
-            bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
-        }
 
         if (preferencesUtil.GetFirstInit()) {
             Log.e(getPackageName(), "retomando a musica anterior");
@@ -486,6 +483,7 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             } else {
                 PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
+                bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
                 try {
                     updateCoverImage();
                     updateSeekBar();
