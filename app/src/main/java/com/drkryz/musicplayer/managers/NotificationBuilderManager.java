@@ -42,7 +42,6 @@ import java.io.IOException;
 public class NotificationBuilderManager {
 
     private final GlobalsUtil globalsUtil;
-    private final BroadcastUtils broadcastUtils;
     private final Context ctx;
 
     static int FLAGS = 0;
@@ -50,7 +49,6 @@ public class NotificationBuilderManager {
     public NotificationBuilderManager(Context context) {
         this.ctx = context;
         globalsUtil = (GlobalsUtil) context.getApplicationContext();
-        broadcastUtils = new BroadcastUtils(context);
     }
 
     public void initMediaSession() throws RemoteException {
@@ -79,7 +77,7 @@ public class NotificationBuilderManager {
         globalsUtil.mediaSession.setPlaybackState(playbackState);
     }
 
-    private void updateMetaData() {
+    public void updateMetaData() {
         Log.d("updateMetaData", "" + globalsUtil.activeAudio);
 
         Uri url = Uri.parse(globalsUtil.activeAudio.getAlbum());
@@ -109,7 +107,7 @@ public class NotificationBuilderManager {
     private static Bitmap largeIcon = null;
 
     @SuppressLint("ServiceCast")
-    private void buildNotification(GlobalsUtil.Status status) {
+    public void buildNotification(GlobalsUtil.Status status) {
         int notificationAction = R.drawable.ui_pause;
         PendingIntent playAction_PauseAction = null;
 
@@ -154,7 +152,8 @@ public class NotificationBuilderManager {
                             .setCategory(Notification.CATEGORY_SERVICE)
                             .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
-                            .addAction(R.drawable.ui_next, "next", playbackAction(2));
+                            .addAction(R.drawable.ui_next, "next", playbackAction(2))
+                            .addAction(R.drawable.ic_baseline_close_24, "close", playbackAction(4));
 
             ((NotificationManager) globalsUtil.getSystemService(Context.NOTIFICATION_SERVICE)).notify(145, mBuilder.build());
         } else {
@@ -184,7 +183,8 @@ public class NotificationBuilderManager {
                             .setCategory(Notification.CATEGORY_SERVICE)
                             .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
-                            .addAction(R.drawable.ui_next, "next", playbackAction(2));
+                            .addAction(R.drawable.ui_next, "next", playbackAction(2))
+                            .addAction(R.drawable.ic_baseline_close_24, "close", playbackAction(4));
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(ctx);
 
             notificationManagerCompat.notify(145, notificationCompat.build());
@@ -224,73 +224,5 @@ public class NotificationBuilderManager {
                 return PendingIntent.getService(context, actionNumber, playbackAction, FLAGS);
         }
         return null;
-    }
-
-    private void resolveNotificationStatus(Intent intent) {
-        GlobalsUtil.Status status =
-                (GlobalsUtil.Status) intent.getSerializableExtra("status");
-
-        if (status == GlobalsUtil.Status.PLAYING) {
-            buildNotification(GlobalsUtil.Status.PLAYING);
-        } else {
-            buildNotification(GlobalsUtil.Status.PAUSED);
-        }
-    }
-
-
-    private final BroadcastReceiver buildNotificationAction = new BroadcastReceiver() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            resolveNotificationStatus(intent);
-        }
-    };
-
-    private final BroadcastReceiver notificationUpdateAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateMetaData();
-        }
-    };
-
-    private final BroadcastReceiver removeNotificationAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            removeNotification();
-        }
-    };
-
-    private void RegisterNotification() {
-        ctx.registerReceiver(buildNotificationAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestNotification)
-        );
-    }
-
-    private void RegisterUpdater() {
-        ctx.registerReceiver(notificationUpdateAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.UpdateMetaData)
-        );
-    }
-
-    private void RegisterRemove() {
-        ctx.registerReceiver(removeNotificationAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RemoveNotification)
-        );
-    }
-
-    public void registerAll() {
-        Log.d(globalsUtil.getPackageName(), "All senders registered");
-        RegisterNotification();
-        RegisterUpdater();
-        RegisterRemove();
-    }
-
-    public void unregisterAll() {
-        Log.d(globalsUtil.getPackageName(), "All senders canceled");
-        ctx.unregisterReceiver(buildNotificationAction);
-        ctx.unregisterReceiver(notificationUpdateAction);
-        ctx.unregisterReceiver(removeNotificationAction);
-
-        removeNotification();
     }
 }

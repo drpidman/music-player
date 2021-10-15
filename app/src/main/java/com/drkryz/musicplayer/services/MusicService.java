@@ -13,6 +13,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -22,6 +23,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.drkryz.musicplayer.managers.MusicManager;
 import com.drkryz.musicplayer.managers.NotificationBuilderManager;
@@ -52,6 +54,7 @@ public class MusicService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.e(getPackageName(), "onUnbind():Service");
         preferencesUtil.clearCover();
+
         return super.onUnbind(intent);
     }
 
@@ -64,60 +67,56 @@ public class MusicService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
+
         Log.e(getPackageName(), "Removing task");
-
-        musicManager.unregisterAll();
-        notificationBuilderManager.unregisterAll();
-
-        ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).cancelAll();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        broadcastUtils.playbackManager(BroadcastConstants.RequestDestroy, 0);
-
-        musicManager.unregisterAll();
-        notificationBuilderManager.unregisterAll();
+        Log.e(getPackageName(), "onDestroy()");
         unregisterReceiver(nowPlaying);
-
-        musicManager.removeAudioFocus();
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
         musicManager = new MusicManager(getBaseContext());
         notificationBuilderManager = new NotificationBuilderManager(getBaseContext());
         preferencesUtil = new PreferencesUtil(getBaseContext());
 
+        globalsUtil = (GlobalsUtil) getApplicationContext();
+        broadcastUtils = (BroadcastUtils) new BroadcastUtils(getApplicationContext());
+
 
         registerNowPlaying();
 
-        musicManager.registerAll();
-        notificationBuilderManager.registerAll();
-
-        HandlerThread handlerThread = new HandlerThread("MusicPlayer",
-                Process.THREAD_PRIORITY_BACKGROUND
-                );
-
-        handlerThread.start();
-
+        LocalBroadcastManager
+                .getInstance(this)
+                .registerReceiver(new ChangeReceiverState(), new IntentFilter("user.state.view"));
 
     }
 
+    private class ChangeReceiverState extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int action = intent.getIntExtra("user.state", 0);
 
+            if (action == 0) {
+                startForeground(0, null);
+            } else if (action == 1) {
+                registerNowPlaying();
+                stopForeground(true);
+            }
+        }
+    }
 
-    @SuppressLint("ResourceAsColor")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        globalsUtil = (GlobalsUtil) getApplicationContext();
-        broadcastUtils = (BroadcastUtils) new BroadcastUtils(getApplicationContext());
+
         Log.d("started", "" + startId);
-
         try {
-
             PreferencesUtil storage = new PreferencesUtil(getApplicationContext());
             globalsUtil.songList = storage.loadAudio();
             globalsUtil.audioIndex = storage.loadAudioIndex();
@@ -143,39 +142,38 @@ public class MusicService extends Service {
                 e.printStackTrace();
                 stopSelf();
             }
-
-            broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
         }
 
-        startForeground(0, null);
+
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
 
         handleActions(intent);
         return START_NOT_STICKY;
     }
 
+
+    public MusicManager getMusicManager() {
+        return musicManager;
+    }
+
     private void NowPlaying() {
+        int audioIndex = -1;
 
+        audioIndex = globalsUtil.audioIndex = preferencesUtil.loadAudioIndex();
 
-        int audioIndex = 0;
-
-        if (globalsUtil != null) {
-            audioIndex = globalsUtil.audioIndex = preferencesUtil.loadAudioIndex();
-
-            if (audioIndex != -1 && audioIndex < globalsUtil.songList.size()) {
-                globalsUtil.activeAudio = globalsUtil.songList.get(audioIndex);
-            } else {
-                stopSelf();
-            }
-
-            musicManager.Stop();
-            musicManager.Reset();
-            musicManager.initMediaPlayer();
-
-            broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, null);
-            broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
+        if (audioIndex != -1 && audioIndex < globalsUtil.songList.size()) {
+            globalsUtil.activeAudio = globalsUtil.songList.get(audioIndex);
         } else {
-
+            stopSelf();
         }
+
+        musicManager.Stop();
+        musicManager.Reset();
+        musicManager.initMediaPlayer();
+
+
+        notificationBuilderManager.updateMetaData();
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
     }
 
     private final BroadcastReceiver nowPlaying = new BroadcastReceiver() {
@@ -197,15 +195,15 @@ public class MusicService extends Service {
 
         String actionString = playbackAction.getAction();
         if (actionString.equalsIgnoreCase(ACTION_PLAY)) {
-            globalsUtil.transportControls.play();
+            globalsUtil.mediaSession.getController().getTransportControls().play();
         } else if (actionString.equalsIgnoreCase(ACTION_PAUSE)) {
-            globalsUtil.transportControls.pause();
+            globalsUtil.mediaSession.getController().getTransportControls().pause();
         } else if (actionString.equalsIgnoreCase(ACTION_SKIP)) {
-            globalsUtil.transportControls.skipToNext();
+            globalsUtil.mediaSession.getController().getTransportControls().skipToNext();
         } else if (actionString.equalsIgnoreCase(ACTION_PREV)) {
-            globalsUtil.transportControls.skipToPrevious();
+            globalsUtil.mediaSession.getController().getTransportControls().skipToPrevious();
         } else if (actionString.equalsIgnoreCase(ACTION_STOP)) {
-            globalsUtil.transportControls.stop();
+            globalsUtil.mediaSession.getController().getTransportControls().stop();
         } else if (actionString.equalsIgnoreCase(ACTION_CLOSE)) {
             musicManager.Destroy();
         }
@@ -213,7 +211,6 @@ public class MusicService extends Service {
 
 
     public int getCurrentPosition() {
-
         return musicManager.getCurrentPosition();
     }
 

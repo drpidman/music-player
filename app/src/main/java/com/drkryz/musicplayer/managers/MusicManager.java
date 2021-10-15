@@ -1,27 +1,17 @@
 package com.drkryz.musicplayer.managers;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.audiofx.BassBoost;
-import android.media.audiofx.Equalizer;
-import android.media.audiofx.LoudnessEnhancer;
 import android.media.session.PlaybackState;
-import android.net.wifi.aware.PeerHandle;
-import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
-
-import com.drkryz.musicplayer.listeners.media.MusicListeners;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
-import com.drkryz.musicplayer.screens.PlayerActivity;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.GlobalsUtil;
@@ -31,7 +21,13 @@ import java.io.IOException;
 
 
 public class MusicManager
-    implements AudioManager.OnAudioFocusChangeListener
+        implements AudioManager.OnAudioFocusChangeListener,
+        MediaPlayer.OnBufferingUpdateListener,
+        MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnInfoListener,
+        MediaPlayer.OnErrorListener,
+        MediaPlayer.OnCompletionListener,
+        MediaPlayer.OnSeekCompleteListener
 {
 
     private MediaPlayer mediaPlayer;
@@ -41,27 +37,28 @@ public class MusicManager
     private AudioManager audioManager;
     private final Context ctx;
 
+    private NotificationBuilderManager notificationBuilderManager;
+
 
     public MusicManager(Context context) {
         this.ctx = context;
         globalsUtil = (GlobalsUtil) ctx.getApplicationContext();
         broadcastUtils = new BroadcastUtils(globalsUtil.getContext());
         preferencesUtil = new PreferencesUtil(globalsUtil.getContext());
+        notificationBuilderManager = new NotificationBuilderManager(globalsUtil.getContext());
     }
 
     public void initMediaPlayer() {
         if (mediaPlayer == null) mediaPlayer = new MediaPlayer();
 
-        mediaPlayer.setOnInfoListener(new MusicListeners(ctx));
-        mediaPlayer.setOnErrorListener(new MusicListeners(ctx));
-        mediaPlayer.setOnPreparedListener(new MusicListeners(ctx));
-        mediaPlayer.setOnCompletionListener(new MusicListeners(ctx));
-        mediaPlayer.setOnSeekCompleteListener(new MusicListeners(ctx));
-        mediaPlayer.setOnBufferingUpdateListener(new MusicListeners(ctx));
-
+        mediaPlayer.setOnInfoListener(this);
+        mediaPlayer.setOnErrorListener(this);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnCompletionListener(this);
+        mediaPlayer.setOnSeekCompleteListener(this);
+        mediaPlayer.setOnBufferingUpdateListener(this);
 
         mediaPlayer.reset();
-
         mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -69,13 +66,20 @@ public class MusicManager
         );
 
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.setWakeMode(ctx, PowerManager.PARTIAL_WAKE_LOCK);
+
+
+        PowerManager powerManager = (PowerManager) ctx.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                ctx.getPackageName() + ":" + "wakelock"
+                );
+
+        wakeLock.acquire(10*60*1000L /*10 minutes*/);
 
         try {
             mediaPlayer.setDataSource(globalsUtil.activeAudio.getPath());
         } catch (IOException e) {
             e.printStackTrace();
-            globalsUtil.musicService.stopSelf();
+            globalsUtil.stopService(new Intent(globalsUtil.getContext(), MusicService.class));
         }
 
         PreferencesUtil initStatus = new PreferencesUtil(ctx);
@@ -88,14 +92,14 @@ public class MusicManager
     }
 
 
-    private void Play() {
+    public void Play() {
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
         }
     }
 
-    private void Pause() {
+    public void Pause() {
         if (mediaPlayer == null) return;
 
         if (mediaPlayer.isPlaying()) {
@@ -113,7 +117,7 @@ public class MusicManager
         }
     }
 
-    private void Skip() {
+    public void Skip() {
         if (globalsUtil.audioIndex == globalsUtil.songList.size() -1) {
             globalsUtil.audioIndex = 0;
             globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
@@ -128,16 +132,16 @@ public class MusicManager
         Stop();
         mediaPlayer.reset();
         initMediaPlayer();
-        broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.updateMetaData();
     }
 
-    private void Previous() {
+    public void Previous() {
 
         if (globalsUtil.audioIndex == 0) {
-                    globalsUtil.audioIndex = globalsUtil.songList.size() -1;
-                    globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
+            globalsUtil.audioIndex = globalsUtil.songList.size() -1;
+            globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
         } else {
-                    globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
+            globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
         }
 
         preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);
@@ -145,16 +149,17 @@ public class MusicManager
 
         mediaPlayer.reset();
         initMediaPlayer();
-        broadcastUtils.playbackNotification(BroadcastConstants.UpdateMetaData, GlobalsUtil.Status.PLAYING);
+        notificationBuilderManager.updateMetaData();
     }
 
-    private void SeekTo(int seek) {
+    public void SeekTo(int seek) {
         if (mediaPlayer == null) return;
         mediaPlayer.seekTo(seek);
         updateCurrentPosition(PlaybackState.STATE_PLAYING);
     }
 
     public void Resume() {
+        if (mediaPlayer == null) return;
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(globalsUtil.resumePosition);
             mediaPlayer.start();
@@ -165,6 +170,7 @@ public class MusicManager
 
     public void Reset() {
         if(globalsUtil.isServiceBound()) {
+            if (mediaPlayer == null) return;
             if (!mediaPlayer.isPlaying()) {
                 mediaPlayer.reset();
             }
@@ -177,9 +183,21 @@ public class MusicManager
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
+
+            new PreferencesUtil(ctx).StorePlayingState(false);
+            new PreferencesUtil(ctx).StoreUserInApp(false);
+
+            globalsUtil.mediaSession.release();
+
+            globalsUtil.musicService = null;
+            globalsUtil.setServiceBound(false);
+            globalsUtil.stopService(new Intent(ctx, MusicService.class));
+            notificationBuilderManager.removeNotification();
+
+            android.os.Process.killProcess(android.os.Process.myPid());
+
         }
     }
-
 
     private void updateCurrentPosition(int state) {
         Log.e("called", "media update called");
@@ -207,8 +225,64 @@ public class MusicManager
     }
 
 
+    @Override
+    public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
+
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+        switch (i) {
+            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                Log.d("MediaPlayer Error", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + i1);
+                Toast.makeText(globalsUtil.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
+                break;
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                Log.d("MediaPlayer Error", "MEDIA ERROR SERVER DIED " + i1);
+                Toast.makeText(globalsUtil.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
+
+                break;
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                Log.d("MediaPlayer Error", "MEDIA ERROR UNKNOWN " + i1);
+                Toast.makeText(globalsUtil.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onInfo(MediaPlayer mediaPlayer, int i, int i1) {
+        return false;
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mediaPlayer) {
+        // play
+
+        Play();
+        broadcastUtils
+                .playbackUIManager(BroadcastConstants.UpdateCover, mediaPlayer.isPlaying());
+
+        broadcastUtils
+                .playbackUIManager(BroadcastConstants.RequestProgress, false);
+
+    }
+
+    @Override
+    public void onSeekComplete(MediaPlayer mediaPlayer) {
+
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        Log.d("onCompletion()", "media completed");
+        Skip();
+        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+    }
+
+
     public int getCurrentPosition() {
-        if (mediaPlayer != null)return mediaPlayer.getCurrentPosition();
+        if (mediaPlayer != null) return mediaPlayer.getCurrentPosition();
         return 0;
     }
 
@@ -226,169 +300,6 @@ public class MusicManager
         if (mediaPlayer != null) return mediaPlayer.getAudioSessionId();
         return -1;
     }
-
-    private final BroadcastReceiver initAction = new BroadcastReceiver() {
-        @RequiresApi(api = Build.VERSION_CODES.M)
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            initMediaPlayer();
-        }
-    };
-
-    private final BroadcastReceiver playAction = new BroadcastReceiver() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Play();
-        }
-    };
-
-    private final BroadcastReceiver pauseAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Pause();
-        }
-    };
-
-    private final BroadcastReceiver stopAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Stop();
-        }
-    };
-
-
-    private final BroadcastReceiver skipAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Skip();
-        }
-    };
-
-    private final BroadcastReceiver prevAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Previous();
-        }
-    };
-
-    private final BroadcastReceiver resumeAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Resume();
-        }
-    };
-
-    private final BroadcastReceiver seekAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            long seek = intent.getLongExtra("seekTo", 0);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                SeekTo(Math.toIntExact(seek));
-            } else {
-                String seekString = String.valueOf(seek);
-                SeekTo(Integer.parseInt(seekString));
-            }
-        }
-    };
-
-    private final BroadcastReceiver ResetAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Reset();
-        }
-    };
-
-    private final BroadcastReceiver DestroyAction = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Destroy();
-        }
-    };
-
-
-    private void RegisterInit() {
-        ctx.registerReceiver(initAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestInit)
-        );
-    }
-
-    private void RegisterPlay() {
-        ctx.registerReceiver(playAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestPlay)
-        );
-    }
-    private void RegisterPause() {
-        ctx.registerReceiver(pauseAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestPause)
-        );
-    }
-    private void RegisterStop() {
-        ctx.registerReceiver(stopAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestStop)
-        );
-    }
-    private void RegisterSkip() {
-        ctx.registerReceiver(skipAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestSkip)
-        );
-    }
-    private void RegisterPrev() {
-        ctx.registerReceiver(prevAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestPrev)
-        );
-    }
-    private void RegisterResume() {
-        ctx.registerReceiver(resumeAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestResume)
-        );
-    }
-
-    private void RegisterSeek() {
-        ctx.registerReceiver(seekAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestSeek)
-        );
-    }
-
-    private void RegisterReset() {
-        ctx.registerReceiver(ResetAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestReset)
-        );
-    }
-
-    private void RegisterDestroy() {
-        ctx.registerReceiver(DestroyAction,
-                broadcastUtils.playbackFilter(BroadcastConstants.RequestDestroy));
-    }
-
-    public void unregisterAll() {
-        Log.d("unregisterAll", "unregistered receivers");
-        ctx.unregisterReceiver(initAction);
-        ctx.unregisterReceiver(playAction);
-        ctx.unregisterReceiver(pauseAction);
-        ctx.unregisterReceiver(stopAction);
-        ctx.unregisterReceiver(skipAction);
-        ctx.unregisterReceiver(prevAction);
-        ctx.unregisterReceiver(resumeAction);
-        ctx.unregisterReceiver(seekAction);
-        ctx.unregisterReceiver(ResetAction);
-        ctx.unregisterReceiver(DestroyAction);
-    }
-
-    public void registerAll() {
-        Log.d("registerAll", "all listeners registered");
-        RegisterInit();
-        RegisterPlay();
-        RegisterPause();
-        RegisterSkip();
-        RegisterPrev();
-        RegisterStop();
-        RegisterResume();
-        RegisterSeek();
-        RegisterReset();
-        RegisterDestroy();
-    }
-
     /**
      * controle de apps
      * @param focusChange
@@ -404,9 +315,8 @@ public class MusicManager
                 else if(!mediaPlayer.isPlaying()) Resume();
 
                 mediaPlayer.setVolume(1.0f, 1.0f);
-                broadcastUtils
-                        .playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PLAYING);
-            break;
+                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING);
+                break;
             case AudioManager.AUDIOFOCUS_LOSS:
                 /**
                  * Apps que reproduzem por um longo tempo..
@@ -414,25 +324,23 @@ public class MusicManager
                  * Permitir que ele volte a reproduzir.
                  */
                 if (mediaPlayer.isPlaying()) Pause();
-                broadcastUtils
-                        .playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
+                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED);
 
                 broadcastUtils
                         .playbackUIManager(BroadcastConstants.RequestPlayChange, false);
-            break;
+                break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 /**
                  * Parar por um curto tempo (parar quando um status/stories com musica começar a tocar
                  * e Resumir quando o status/stories encerrar/fechar)
                  */
                 if (mediaPlayer.isPlaying()) Pause();
-                broadcastUtils
-                        .playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
-            break;
+                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED);
+                break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 // Quando receber uma notificação, diminua o volume
                 if (mediaPlayer.isPlaying()) mediaPlayer.setVolume(0.1f, 0.1f);
-            break;
+                break;
         }
     }
 

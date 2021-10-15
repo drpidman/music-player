@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -83,14 +85,11 @@ public class PlayerActivity extends AppCompatActivity {
         registerReceiver(receivePlaying,
                 new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.RequestPlayChange)
         );
-
         registerReceiver(updateCover,
                 new BroadcastUtils(getBaseContext()).playbackUIFilter(BroadcastConstants.UpdateCover)
         );
 
         globalsUtil = (GlobalsUtil) getApplicationContext();
-
-
         externalGet = new GetMusicsFromExt();
 
         // loadMusics
@@ -247,6 +246,7 @@ public class PlayerActivity extends AppCompatActivity {
         }
     }
 
+
     private boolean serviceState() {
         return globalsUtil.isServiceBound();
     }
@@ -328,28 +328,28 @@ public class PlayerActivity extends AppCompatActivity {
     // controls ===============
     private void Pause() {
         if (!serviceState()) return;
-        globalsUtil.transportControls.pause();
+        globalsUtil.mediaSession.getController().getTransportControls().pause();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_play));
         seekBar.setVisibility(View.INVISIBLE);
     }
 
     private void Resume() {
         if (!serviceState()) return;
-        globalsUtil.transportControls.play();
+        globalsUtil.mediaSession.getController().getTransportControls().play();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
         seekBar.setVisibility(View.VISIBLE);
     }
 
     private void Skip() {
         if (!serviceState()) return;
-        globalsUtil.transportControls.skipToNext();
+        globalsUtil.mediaSession.getController().getTransportControls().skipToNext();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
         seekBar.setVisibility(View.VISIBLE);
     };
 
     private void Previous() {
         if (!serviceState()) return;
-        globalsUtil.transportControls.skipToPrevious();
+        globalsUtil.mediaSession.getController().getTransportControls().skipToPrevious();
         PlayUiBtn.setImageDrawable(getDrawable(R.drawable.ui_pause));
         seekBar.setVisibility(View.VISIBLE);
     };
@@ -385,13 +385,44 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.e(getPackageName(), "onStart()");
-
         Log.e(getPackageName(), "" + preferencesUtil.GetFirstInit());
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        Log.e(getBaseContext().getPackageName(), "onPause()");
+        if (globalsUtil.isServiceBound()) {
+            if (globalsUtil.musicService.getPlayingState()) {
+                preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+                preferencesUtil.StoreCurrentTotalDuration(globalsUtil.activeAudio.getDuration());
+
+                preferencesUtil.SetLastCover(
+                        globalsUtil.activeAudio.getAlbum()
+                );
+
+                preferencesUtil.StoreUserInApp(false);
+
+            }
+
+            LocalBroadcastManager
+                    .getInstance(this)
+                    .sendBroadcastSync(new Intent("user.state.view")
+                    .putExtra("user.state", 0)
+                    );
+        }
+
+        if (globalsUtil.isServiceBound()) {
+            bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+        }
+
         if (preferencesUtil.GetFirstInit()) {
             Log.e(getPackageName(), "retomando a musica anterior");
 
             boolean playingState = preferencesUtil.GetPlayingState();
-
+            bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
             /**
              * RESUMIR ESTADO ANTERIOR DA VIEW.
              * SE APLICA QUANDO O USUARIO FECHAR O APLICATIVO PELO BOTÃO "voltar" fisico ou virtual.
@@ -402,7 +433,6 @@ public class PlayerActivity extends AppCompatActivity {
                 Log.e(getPackageName() + ":playback", "playing");
 
                 preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);
-                bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
 
                 if (globalsUtil.transportControls == null) {
                     startService(new Intent(this, MusicService.class));
@@ -431,29 +461,17 @@ public class PlayerActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        Log.e(getBaseContext().getPackageName(), "onPause()");
-        if (globalsUtil.isServiceBound()) {
-            if (globalsUtil.musicService.getPlayingState()) {
-                preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
-                preferencesUtil.StoreCurrentTotalDuration(globalsUtil.activeAudio.getDuration());
-
-                preferencesUtil.SetLastCover(
-                        globalsUtil.activeAudio.getAlbum()
-                );
-
-                preferencesUtil.StoreUserInApp(false);
-            }
-        }
-    }
-
-
-    @Override
     protected void onResume() {
         super.onResume();
         Log.e(getBaseContext().getPackageName(), "onResume()");
         preferencesUtil.StoreUserInApp(true);
+
+        LocalBroadcastManager
+                .getInstance(this)
+                .sendBroadcastSync(new Intent("user.state.view")
+                .putExtra("user.state", 1)
+                );
+
 
         if (globalsUtil.isServiceBound()) {
             if (globalsUtil.musicService.getPlayingState()) {
@@ -483,6 +501,10 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+
+        unregisterReceiver(receivePlaying);
+        unregisterReceiver(updateCover);
+
         Log.e(getPackageName(), "activity destroyed");
     }
 
