@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
-import com.drkryz.musicplayer.utils.GlobalsUtil;
+import com.drkryz.musicplayer.utils.ApplicationUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class MusicManager
 {
 
     private MediaPlayer mediaPlayer;
-    private final GlobalsUtil globalsUtil;
+    private final ApplicationUtil applicationUtil;
     private final BroadcastUtils broadcastUtils;
     private final PreferencesUtil preferencesUtil;
     private AudioManager audioManager;
@@ -43,10 +43,10 @@ public class MusicManager
 
     public MusicManager(Context context) {
         this.ctx = context;
-        globalsUtil = (GlobalsUtil) ctx.getApplicationContext();
-        broadcastUtils = new BroadcastUtils(globalsUtil.getContext());
-        preferencesUtil = new PreferencesUtil(globalsUtil.getContext());
-        notificationBuilderManager = new NotificationBuilderManager(globalsUtil.getContext());
+        applicationUtil = (ApplicationUtil) ctx.getApplicationContext();
+        broadcastUtils = new BroadcastUtils(applicationUtil.getContext());
+        preferencesUtil = new PreferencesUtil(applicationUtil.getContext());
+        notificationBuilderManager = new NotificationBuilderManager(applicationUtil.getContext());
     }
 
     public void initMediaPlayer() {
@@ -77,10 +77,10 @@ public class MusicManager
         wakeLock.acquire(10*60*1000L /*10 minutes*/);
 
         try {
-            mediaPlayer.setDataSource(globalsUtil.activeAudio.getPath());
+            mediaPlayer.setDataSource(applicationUtil.activeAudio.getPath());
         } catch (IOException e) {
             e.printStackTrace();
-            globalsUtil.stopService(new Intent(globalsUtil.getContext(), MusicService.class));
+            applicationUtil.stopService(new Intent(applicationUtil.getContext(), MusicService.class));
         }
 
         PreferencesUtil initStatus = new PreferencesUtil(ctx);
@@ -107,7 +107,7 @@ public class MusicManager
             mediaPlayer.pause();
             updateCurrentPosition(PlaybackState.STATE_PAUSED);
 
-            globalsUtil.resumePosition = mediaPlayer.getCurrentPosition();
+            applicationUtil.resumePosition = mediaPlayer.getCurrentPosition();
         }
     }
 
@@ -119,16 +119,16 @@ public class MusicManager
     }
 
     public void Skip() {
-        if (globalsUtil.audioIndex == globalsUtil.songList.size() -1) {
-            globalsUtil.audioIndex = 0;
-            globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
+        if (applicationUtil.audioIndex == applicationUtil.songList.size() -1) {
+            applicationUtil.audioIndex = 0;
+            applicationUtil.activeAudio = applicationUtil.songList.get(applicationUtil.audioIndex);
         } else {
-            globalsUtil.activeAudio = globalsUtil.songList.get(++globalsUtil.audioIndex);
-            Log.d("new playing", "" + globalsUtil.activeAudio.getTitle());
+            applicationUtil.activeAudio = applicationUtil.songList.get(++applicationUtil.audioIndex);
+            Log.d("new playing", "" + applicationUtil.activeAudio.getTitle());
         }
 
-        preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);
-        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+        preferencesUtil.storeAudioIndex(applicationUtil.audioIndex);
+        preferencesUtil.SetLastIndex(applicationUtil.audioIndex);
 
         Stop();
         mediaPlayer.reset();
@@ -138,15 +138,15 @@ public class MusicManager
 
     public void Previous() {
 
-        if (globalsUtil.audioIndex == 0) {
-            globalsUtil.audioIndex = globalsUtil.songList.size() -1;
-            globalsUtil.activeAudio = globalsUtil.songList.get(globalsUtil.audioIndex);
+        if (applicationUtil.audioIndex == 0) {
+            applicationUtil.audioIndex = applicationUtil.songList.size() -1;
+            applicationUtil.activeAudio = applicationUtil.songList.get(applicationUtil.audioIndex);
         } else {
-            globalsUtil.activeAudio = globalsUtil.songList.get(--globalsUtil.audioIndex);
+            applicationUtil.activeAudio = applicationUtil.songList.get(--applicationUtil.audioIndex);
         }
 
-        preferencesUtil.storeAudioIndex(globalsUtil.audioIndex);
-        preferencesUtil.SetLastIndex(globalsUtil.audioIndex);
+        preferencesUtil.storeAudioIndex(applicationUtil.audioIndex);
+        preferencesUtil.SetLastIndex(applicationUtil.audioIndex);
 
         mediaPlayer.reset();
         initMediaPlayer();
@@ -162,7 +162,7 @@ public class MusicManager
     public void Resume() {
         if (mediaPlayer == null) return;
         if (!mediaPlayer.isPlaying()) {
-            mediaPlayer.seekTo(globalsUtil.resumePosition);
+            mediaPlayer.seekTo(applicationUtil.resumePosition);
             mediaPlayer.start();
 
             updateCurrentPosition(PlaybackState.STATE_PLAYING);
@@ -170,7 +170,7 @@ public class MusicManager
     }
 
     public void Reset() {
-        if(globalsUtil.isServiceBound()) {
+        if(applicationUtil.isServiceBound()) {
             if (mediaPlayer == null) return;
             if (!mediaPlayer.isPlaying()) {
                 mediaPlayer.reset();
@@ -181,18 +181,22 @@ public class MusicManager
     public void Destroy() {
         Log.d("Destroy()", "called");
         if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
 
-            new PreferencesUtil(ctx).StorePlayingState(false);
-            new PreferencesUtil(ctx).StoreUserInApp(false);
+            if (preferencesUtil.LoadUserInApp()) {
+                Pause();
+                notificationBuilderManager
+                        .buildNotification(ApplicationUtil.Status.PAUSED, applicationUtil.musicService);
 
+                broadcastUtils
+                        .playbackUIManager(BroadcastConstants.UI_UPDATE_MEDIA_METADATA, false);
 
-            globalsUtil.stopService(new Intent(ctx, MusicService.class));
-            globalsUtil.musicService.stopForeground(true);
+                applicationUtil
+                        .musicService.stopSelf();
 
-            android.os.Process.killProcess(Process.myPid());
+            } else {
+                applicationUtil.stopService(new Intent(ctx, MusicService.class));
+                Process.killProcess(Process.myPid());
+            }
         }
     }
 
@@ -204,7 +208,7 @@ public class MusicManager
                 public void run() {
                     Log.e("called", "media update called");
                     int currentPosition = 0;
-                    if (globalsUtil.isServiceBound()) {
+                    if (applicationUtil.isServiceBound()) {
                         if (mediaPlayer == null) return;
                         currentPosition = mediaPlayer.getCurrentPosition();
                     }
@@ -215,7 +219,7 @@ public class MusicManager
                                     .setActions(PlaybackState.ACTION_SEEK_TO)
                                     .build();
 
-                    globalsUtil.mediaSession.setPlaybackState(playbackState);
+                    applicationUtil.mediaSession.setPlaybackState(playbackState);
                 }
             }, 50);
         }
@@ -232,16 +236,16 @@ public class MusicManager
         switch (i) {
             case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
                 Log.d("MediaPlayer Error", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + i1);
-                Toast.makeText(globalsUtil.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
+                Toast.makeText(applicationUtil.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
                 break;
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
                 Log.d("MediaPlayer Error", "MEDIA ERROR SERVER DIED " + i1);
-                Toast.makeText(globalsUtil.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(applicationUtil.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
 
                 break;
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
                 Log.d("MediaPlayer Error", "MEDIA ERROR UNKNOWN " + i1);
-                Toast.makeText(globalsUtil.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
+                Toast.makeText(applicationUtil.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
                 break;
         }
         return false;
@@ -261,10 +265,10 @@ public class MusicManager
         if (!preferencesUtil.LoadUserInApp()) return;
 
         broadcastUtils
-                .playbackUIManager(BroadcastConstants.UpdateCover, mediaPlayer.isPlaying());
+                .playbackUIManager(BroadcastConstants.NOTIFICATION_UPDATE_METADATA, mediaPlayer.isPlaying());
 
         broadcastUtils
-                .playbackUIManager(BroadcastConstants.RequestProgress, false);
+                .playbackUIManager(BroadcastConstants.UI_UPDATE_MEDIA_PROGRESS, false);
 
     }
 
@@ -277,7 +281,7 @@ public class MusicManager
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d("onCompletion()", "media completed");
         Skip();
-        notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
+        notificationBuilderManager.buildNotification(ApplicationUtil.Status.PLAYING, applicationUtil.musicService);
     }
 
 
@@ -315,7 +319,7 @@ public class MusicManager
                 else if(!mediaPlayer.isPlaying()) Resume();
 
                 mediaPlayer.setVolume(1.0f, 1.0f);
-                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PLAYING, globalsUtil.musicService);
+                notificationBuilderManager.buildNotification(ApplicationUtil.Status.PLAYING, applicationUtil.musicService);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
                 /**
@@ -323,11 +327,12 @@ public class MusicManager
                  * Quando o usuario mudar de app.
                  * Permitir que ele volte a reproduzir.
                  */
+                if (mediaPlayer == null) return;
                 if (mediaPlayer.isPlaying()) Pause();
-                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED, globalsUtil.musicService);
+                notificationBuilderManager.buildNotification(ApplicationUtil.Status.PAUSED, applicationUtil.musicService);
 
                 broadcastUtils
-                        .playbackUIManager(BroadcastConstants.RequestPlayChange, false);
+                        .playbackUIManager(BroadcastConstants.UI_UPDATE_MEDIA_CONTROL_BUTTON, false);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 /**
@@ -335,7 +340,7 @@ public class MusicManager
                  * e Resumir quando o status/stories encerrar/fechar)
                  */
                 if (mediaPlayer.isPlaying()) Pause();
-                notificationBuilderManager.buildNotification(GlobalsUtil.Status.PAUSED, globalsUtil.musicService);
+                notificationBuilderManager.buildNotification(ApplicationUtil.Status.PAUSED, applicationUtil.musicService);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 // Quando receber uma notificação, diminua o volume
@@ -356,7 +361,7 @@ public class MusicManager
     }
 
     public boolean removeAudioFocus() {
-        if (globalsUtil.isServiceBound()) {
+        if (applicationUtil.isServiceBound()) {
             return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
                     audioManager.abandonAudioFocus(this);
         }

@@ -7,87 +7,117 @@
     android:background="#111"
     tools:context=".screens.PermissionActivity">
 
-
-    <TextView
-        android:id="@+id/permissionText"
+    <View
+        android:id="@+id/centeredView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="permissões"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:textColor="@color/text"
+        android:background="@drawable/rounded_min"
+        android:layout_margin="10dp"
+        android:layout_height="match_parent"
+        android:elevation="5dp"/>
+
+    <View
+        android:id="@+id/topCentered"
+        android:elevation="5dp"
+        app:layout_constraintStart_toStartOf="@id/centeredView"
+        app:layout_constraintEnd_toEndOf="@id/centeredView"
         app:layout_constraintTop_toTopOf="parent"
-        />
+        android:layout_margin="10dp"
+        android:background="@drawable/rounded_blue_min"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"/>
 
     <TextView
-        android:id="@+id/permissionBatteryTitle"
+        android:id="@+id/wText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:text="@string/battery_perm_title"
-        android:textColor="@color/text"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:layout_margin="10dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionText" />
+        app:layout_constraintBottom_toBottomOf="@+id/topCentered"
+        app:layout_constraintEnd_toEndOf="@id/topCentered"
+        android:text="Bem vindo!"
+        android:textColor="#fff"
+        android:textSize="25sp"
+        android:elevation="5dp"
+        app:layout_constraintStart_toStartOf="@id/topCentered"
+        app:layout_constraintTop_toTopOf="@+id/centeredView" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:text="@string/battery_perm_desc"
-        android:textAlignment="textStart"
-        android:textColor="@color/text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionBatteryTitle" />
-
-    <Button
-        android:id="@+id/allowBattery"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:background="@drawable/ui_bgbutton"
-        android:text="conceder"
-        app:layout_constraintEnd_toEndOf="@+id/permissionExternalTitle"
-        app:layout_constraintStart_toStartOf="@+id/permissionExternalTitle"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-    <TextView
-        android:id="@+id/permissionExternalTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="20dp"
-        android:text="Armazenamento interno/externo"
-        android:textColor="@color/text"
+        android:elevation="5dp"
+        android:padding="5dp"
+        android:text="Configurações iniciais"
+        android:textColor="#fff"
         android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/allowBattery" />
-
+        app:layout_constraintEnd_toEndOf="@id/wText"
+        app:layout_constraintStart_toStartOf="@id/wText"
+        app:layout_constraintTop_toBottomOf="@+id/wText" />
 
     <TextView
-        android:id="@+id/permissionExternalDesc"
+        android:id="@+id/storageAccessText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:text="@string/externalDescription"
-        android:textAlignment="textStart"
-        android:textColor="@color/text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissionExternalTitle" />
+        android:layout_margin="15dp"
+        android:padding="5dp"
+        android:textSize="16sp"
+        android:textColor="#ddd"
+        android:elevation="5dp"
+        android:text="Acesso ao Armazenamento"
+        app:layout_constraintEnd_toEndOf="@id/wText"
+        app:layout_constraintStart_toStartOf="@id/centeredView"
+        app:layout_constraintTop_toBottomOf="@+id/topCentered" />
 
-    <Button
-        android:id="@+id/allowExternal"
-        android:layout_width="200dp"
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/StorageEnableSwitcher"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="@drawable/ui_bgbutton"
-        android:text="conceder"
-        app:layout_constraintEnd_toEndOf="@+id/permissionExternalTitle"
-        app:layout_constraintStart_toStartOf="@+id/permissionExternalTitle"
-        app:layout_constraintTop_toBottomOf="@+id/permissionExternalDesc" />
+        android:layout_margin="15dp"
+        android:elevation="5dp"
+        app:trackTint="#333"
+        app:thumbTint="#4772ff"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/storageAccessText"
+        app:layout_constraintEnd_toEndOf="@+id/topCentered"
+        app:layout_constraintStart_toEndOf="@id/storageAccessText"
+        app:layout_constraintTop_toTopOf="@+id/storageAccessText" />
+
+    <TextView
+        android:id="@+id/userCountText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:elevation="5dp"
+        android:padding="5dp"
+        android:textColor="#ddd"
+        android:textSize="16sp"
+        android:text="Enviar contagem de usuário"
+        app:layout_constraintStart_toStartOf="@id/centeredView"
+        app:layout_constraintEnd_toEndOf="@id/wText"
+        app:layout_constraintTop_toBottomOf="@+id/storageAccessText" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/UserCountPermission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:elevation="5dp"
+        app:trackTint="#333"
+        app:thumbTint="#4772ff"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/userCountText"
+        app:layout_constraintEnd_toEndOf="@+id/topCentered"
+        app:layout_constraintStart_toEndOf="@+id/userCountText"
+        app:layout_constraintTop_toTopOf="@+id/userCountText" />
+
+    <ImageButton
+        android:id="@+id/acceptButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/ui_nextview"
+        android:elevation="5dp"
+        android:visibility="invisible"
+        android:layout_margin="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/centeredView"
+        app:layout_constraintEnd_toEndOf="@+id/UserCountPermission"
+        app:layout_constraintStart_toStartOf="@+id/UserCountPermission" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

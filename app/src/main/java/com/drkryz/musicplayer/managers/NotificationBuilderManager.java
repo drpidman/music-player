@@ -5,7 +5,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,10 +18,8 @@ import android.os.Build;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Base64;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 
@@ -32,8 +29,7 @@ import com.drkryz.musicplayer.listeners.media.MediaSessionCallbacks;
 import com.drkryz.musicplayer.screens.PlayerActivity;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
-import com.drkryz.musicplayer.utils.BroadcastUtils;
-import com.drkryz.musicplayer.utils.GlobalsUtil;
+import com.drkryz.musicplayer.utils.ApplicationUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
 
 import java.io.ByteArrayInputStream;
@@ -42,32 +38,32 @@ import java.io.IOException;
 
 public class NotificationBuilderManager {
 
-    private final GlobalsUtil globalsUtil;
+    private final ApplicationUtil applicationUtil;
     private final Context ctx;
 
     static int FLAGS = 0;
 
     public NotificationBuilderManager(Context context) {
         this.ctx = context;
-        globalsUtil = (GlobalsUtil) context.getApplicationContext();
+        applicationUtil = (ApplicationUtil) context.getApplicationContext();
     }
 
     public void initMediaSession() throws RemoteException {
-        if (globalsUtil.mediaSession != null) return;
+        if (applicationUtil.mediaSession != null) return;
 
-        globalsUtil.mediaSessionManager = (MediaSessionManager)
+        applicationUtil.mediaSessionManager = (MediaSessionManager)
                 ctx.getSystemService(Context.MEDIA_SESSION_SERVICE);
 
-        globalsUtil.mediaSession = new MediaSession(ctx, "AudioPlayer");
-        globalsUtil.transportControls = globalsUtil.mediaSession.getController().getTransportControls();
+        applicationUtil.mediaSession = new MediaSession(ctx, "AudioPlayer");
+        applicationUtil.transportControls = applicationUtil.mediaSession.getController().getTransportControls();
 
-        globalsUtil.mediaSession.setActive(true);
+        applicationUtil.mediaSession.setActive(true);
 
-        globalsUtil.mediaSession.setFlags(MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        applicationUtil.mediaSession.setFlags(MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         updateMetaData();
 
-        globalsUtil.mediaSession.setCallback(new MediaSessionCallbacks(ctx));
+        applicationUtil.mediaSession.setCallback(new MediaSessionCallbacks(ctx));
 
         PlaybackState playbackState =
                 new PlaybackState.Builder()
@@ -75,13 +71,13 @@ public class NotificationBuilderManager {
                         .setActions(PlaybackState.ACTION_SEEK_TO)
                         .build();
 
-        globalsUtil.mediaSession.setPlaybackState(playbackState);
+        applicationUtil.mediaSession.setPlaybackState(playbackState);
     }
 
     public void updateMetaData() {
-        Log.d("updateMetaData", "" + globalsUtil.activeAudio);
+        Log.d("updateMetaData", "" + applicationUtil.activeAudio);
 
-        Uri url = Uri.parse(globalsUtil.activeAudio.getAlbum());
+        Uri url = Uri.parse(applicationUtil.activeAudio.getAlbum());
 
         Bitmap albumArt = null;
         try {
@@ -93,14 +89,14 @@ public class NotificationBuilderManager {
             );
         }
 
-        Long duration = Long.parseLong(globalsUtil.activeAudio.getDuration());
+        Long duration = Long.parseLong(applicationUtil.activeAudio.getDuration());
 
-        globalsUtil.mediaSession.setMetadata(new MediaMetadata.Builder()
+        applicationUtil.mediaSession.setMetadata(new MediaMetadata.Builder()
                 .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, globalsUtil.activeAudio.getAuthor())
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, globalsUtil.activeAudio.getTitle())
-                .putString(MediaMetadata.METADATA_KEY_TITLE, globalsUtil.activeAudio.getTitle())
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(globalsUtil.activeAudio.getDuration()))
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, applicationUtil.activeAudio.getAuthor())
+                .putString(MediaMetadata.METADATA_KEY_ALBUM, applicationUtil.activeAudio.getTitle())
+                .putString(MediaMetadata.METADATA_KEY_TITLE, applicationUtil.activeAudio.getTitle())
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(applicationUtil.activeAudio.getDuration()))
                 .build());
 
     }
@@ -108,20 +104,20 @@ public class NotificationBuilderManager {
     private static Bitmap largeIcon = null;
 
     @SuppressLint("ServiceCast")
-    public void buildNotification(GlobalsUtil.Status status, Service service) {
+    public void buildNotification(ApplicationUtil.Status status, Service service) {
         int notificationAction = R.drawable.ui_pause;
         PendingIntent playAction_PauseAction = null;
 
-        if (status == GlobalsUtil.Status.PLAYING) {
+        if (status == ApplicationUtil.Status.PLAYING) {
             notificationAction = R.drawable.ui_pause;
             playAction_PauseAction = playbackAction(1);
-        } else if (status == GlobalsUtil.Status.PAUSED) {
+        } else if (status == ApplicationUtil.Status.PAUSED) {
             notificationAction = R.drawable.ui_play;
             playAction_PauseAction = playbackAction(0);
         }
 
 
-        Bitmap cover = PlaybackAlbum.getCover(ctx, globalsUtil.audioIndex, globalsUtil.songList);
+        Bitmap cover = PlaybackAlbum.getCover(ctx, applicationUtil.audioIndex, applicationUtil.songList);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         cover.compress(Bitmap.CompressFormat.JPEG, 50, out);
@@ -142,14 +138,14 @@ public class NotificationBuilderManager {
                             .setOnlyAlertOnce(true)
                             .setStyle(new Notification.MediaStyle()
                                     .setShowActionsInCompactView(0, 1, 2)
-                                    .setMediaSession(globalsUtil.mediaSession.getSessionToken())
+                                    .setMediaSession(applicationUtil.mediaSession.getSessionToken())
                             )
                             .setVisibility(Notification.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
                             .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentText(globalsUtil.activeAudio.getAuthor())
-                            .setContentTitle(globalsUtil.activeAudio.getTitle())
-                            .setContentInfo(globalsUtil.activeAudio.getTitle())
+                            .setContentText(applicationUtil.activeAudio.getAuthor())
+                            .setContentTitle(applicationUtil.activeAudio.getTitle())
+                            .setContentInfo(applicationUtil.activeAudio.getTitle())
                             .setCategory(Notification.CATEGORY_SERVICE)
                             .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
@@ -159,7 +155,7 @@ public class NotificationBuilderManager {
             service.startForeground(145, mBuilder.build());
         } else {
 
-            MediaSession.Token token = globalsUtil.mediaSession.getSessionToken();
+            MediaSession.Token token = applicationUtil.mediaSession.getSessionToken();
 
             androidx.core.app.NotificationCompat.Builder notificationCompat
                     = (androidx.core.app.NotificationCompat.Builder)
@@ -177,10 +173,10 @@ public class NotificationBuilderManager {
                             .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
                             .setSmallIcon(R.mipmap.ic_launcher)
-                            .setColor(globalsUtil.getResources().getColor(android.R.color.holo_purple))
-                            .setContentText(globalsUtil.activeAudio.getAuthor())
-                            .setContentTitle(globalsUtil.activeAudio.getTitle())
-                            .setContentInfo(globalsUtil.activeAudio.getTitle())
+                            .setColor(applicationUtil.getResources().getColor(android.R.color.holo_purple))
+                            .setContentText(applicationUtil.activeAudio.getAuthor())
+                            .setContentTitle(applicationUtil.activeAudio.getTitle())
+                            .setContentInfo(applicationUtil.activeAudio.getTitle())
                             .setCategory(Notification.CATEGORY_SERVICE)
                             .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)

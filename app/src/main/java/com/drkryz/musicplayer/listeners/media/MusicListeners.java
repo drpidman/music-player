@@ -7,8 +7,7 @@ import android.widget.Toast;
 
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.utils.BroadcastUtils;
-import com.drkryz.musicplayer.utils.GlobalsUtil;
-import com.drkryz.musicplayer.utils.PreferencesUtil;
+import com.drkryz.musicplayer.utils.ApplicationUtil;
 
 public class MusicListeners implements
         MediaPlayer.OnBufferingUpdateListener,
@@ -19,11 +18,11 @@ public class MusicListeners implements
         MediaPlayer.OnSeekCompleteListener
 {
 
-    private final GlobalsUtil globalsUtil;
+    private final ApplicationUtil applicationUtil;
     private final BroadcastUtils broadcastUtils;
 
     public MusicListeners(Context context) {
-        globalsUtil = (GlobalsUtil) context.getApplicationContext();
+        applicationUtil = (ApplicationUtil) context.getApplicationContext();
         broadcastUtils = new BroadcastUtils(context);
     }
 
@@ -37,16 +36,16 @@ public class MusicListeners implements
         switch (i) {
             case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
                 Log.d("MediaPlayer Error", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + i1);
-                Toast.makeText(globalsUtil.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
+                Toast.makeText(applicationUtil.getContext(), "PROGRESSIVE_PLAYBACK", Toast.LENGTH_SHORT).show();
                 break;
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
                 Log.d("MediaPlayer Error", "MEDIA ERROR SERVER DIED " + i1);
-                Toast.makeText(globalsUtil.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(applicationUtil.getContext(), "SERVER_DIED", Toast.LENGTH_SHORT).show();
 
                 break;
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
                 Log.d("MediaPlayer Error", "MEDIA ERROR UNKNOWN " + i1);
-                Toast.makeText(globalsUtil.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
+                Toast.makeText(applicationUtil.getContext(), "ERROR UNKNOWN", Toast.LENGTH_SHORT).show();
                 break;
         }
         return false;
@@ -60,14 +59,6 @@ public class MusicListeners implements
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         // play
-        broadcastUtils
-                .playbackManager(BroadcastConstants.RequestPlay, 0);
-
-        broadcastUtils
-                .playbackUIManager(BroadcastConstants.UpdateCover, false);
-
-        broadcastUtils
-                .playbackUIManager(BroadcastConstants.RequestProgress, false);
 
     }
 
@@ -82,7 +73,6 @@ public class MusicListeners implements
 
         // change: broadcastSenders.playbackManager(...) to transportControls.skipToNext();
         // fix auto playing
-        globalsUtil.transportControls.skipToNext();
-        broadcastUtils.playbackNotification(BroadcastConstants.RequestNotification, GlobalsUtil.Status.PAUSED);
+        applicationUtil.transportControls.skipToNext();
     }
 }
