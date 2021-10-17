@@ -61,7 +61,7 @@ public class TransitionListener implements MotionLayout.TransitionListener {
 
     @Override
     public void onTransitionChange(MotionLayout motionLayout, int startId, int endId, float progress) {
-
+        
     }
 
     @Override

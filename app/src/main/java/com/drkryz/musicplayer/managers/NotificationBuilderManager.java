@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
@@ -24,7 +23,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.functions.PlaybackAlbum;
+import com.drkryz.musicplayer.functions.MediaMetadata;
 import com.drkryz.musicplayer.listeners.media.MediaSessionCallbacks;
 import com.drkryz.musicplayer.screens.PlayerActivity;
 import com.drkryz.musicplayer.services.MusicService;
@@ -91,12 +90,12 @@ public class NotificationBuilderManager {
 
         Long duration = Long.parseLong(applicationUtil.activeAudio.getDuration());
 
-        applicationUtil.mediaSession.setMetadata(new MediaMetadata.Builder()
-                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, applicationUtil.activeAudio.getAuthor())
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, applicationUtil.activeAudio.getTitle())
-                .putString(MediaMetadata.METADATA_KEY_TITLE, applicationUtil.activeAudio.getTitle())
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(applicationUtil.activeAudio.getDuration()))
+        applicationUtil.mediaSession.setMetadata(new android.media.MediaMetadata.Builder()
+                .putBitmap(android.media.MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
+                .putString(android.media.MediaMetadata.METADATA_KEY_ARTIST, applicationUtil.activeAudio.getAuthor())
+                .putString(android.media.MediaMetadata.METADATA_KEY_ALBUM, applicationUtil.activeAudio.getTitle())
+                .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, applicationUtil.activeAudio.getTitle())
+                .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(applicationUtil.activeAudio.getDuration()))
                 .build());
 
     }
@@ -117,7 +116,7 @@ public class NotificationBuilderManager {
         }
 
 
-        Bitmap cover = PlaybackAlbum.getCover(ctx, applicationUtil.audioIndex, applicationUtil.songList);
+        Bitmap cover = MediaMetadata.getCover(ctx, applicationUtil.audioIndex, applicationUtil.songList);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         cover.compress(Bitmap.CompressFormat.JPEG, 50, out);

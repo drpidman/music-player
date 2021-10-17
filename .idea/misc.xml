@@ -35,7 +35,7 @@
         <entry key="app/src/main/res/drawable/ui_playback_bg.xml" value="0.16880341880341881" />
         <entry key="app/src/main/res/drawable/ui_playbtn.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ui_prev.xml" value="0.152991452991453" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_permission.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1" />

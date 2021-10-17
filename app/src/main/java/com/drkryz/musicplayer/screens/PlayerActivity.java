@@ -9,6 +9,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -20,12 +22,14 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaMetadata;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -33,11 +37,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.drkryz.musicplayer.R;
+import com.drkryz.musicplayer.functions.DominantColor;
 import com.drkryz.musicplayer.functions.GetMusicsFromExt;
-import com.drkryz.musicplayer.functions.PlaybackAlbum;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
-import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
@@ -168,8 +171,8 @@ public class PlayerActivity extends AppCompatActivity {
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
-
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) musicService.getTransportControls().seekTo(progress);
             }
 
             @Override
@@ -190,13 +193,12 @@ public class PlayerActivity extends AppCompatActivity {
 
         preferencesUtil.storeAudio(externalGet.getAll());
 
-        Intent service = new Intent(this, MusicService.class);
-        service.setAction(BroadcastConstants.PREPARE_CMD);
-        startService(service);
+
+        handleAction(0);
     }
 
 
-    private BroadcastReceiver PlaybackStatusReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver PlaybackStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.e(getPackageName(), "PlayerActivity():status received");
@@ -264,6 +266,38 @@ public class PlayerActivity extends AppCompatActivity {
                 metadata.getText(MediaMetadata.METADATA_KEY_TITLE)
         );
 
+
+        final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();
+        final int colorTo = DominantColor.GetDominantColor(cover);
+
+
+        Window window = getWindow();
+
+
+        ObjectAnimator.ofObject(motionLayout, "backgroundColor", new ArgbEvaluator(),
+                colorFrom, colorTo
+        )
+                .setDuration(1000)
+                .start();
+
+        ObjectAnimator.ofObject(bottomNav, "backgroundColor", new ArgbEvaluator(),
+                colorFrom, colorTo
+        )
+                .setDuration(1000)
+                .start();
+
+        ObjectAnimator.ofObject(window, "statusBarColor", new ArgbEvaluator(),
+                colorFrom, colorTo
+        )
+                .setDuration(1000)
+                .start();
+
+        ObjectAnimator.ofObject(window, "navigationBarColor", new ArgbEvaluator(),
+                colorFrom, colorTo
+        )
+                .setDuration(1000)
+                .start();
+
         updateSeekBar();
     }
 
@@ -292,37 +326,27 @@ public class PlayerActivity extends AppCompatActivity {
             service.setAction(BroadcastConstants.INIT_CMD);
 
             bindService(service, serviceConnection, BIND_AUTO_CREATE);
-            startService(service);
+            handleAction(1);
         } else {
             preferencesUtil.storeAudioIndex(position);
-            Intent service = new Intent(this, MusicService.class);
-            service.setAction(BroadcastConstants.PLAY_CMD);
-            startService(service);
+            handleAction(2);
         }
     }
 
     private void Pause() {
-        Intent service = new Intent(this, MusicService.class);
-        service.setAction(BroadcastConstants.PAUSE_CMD);
-        startService(service);
+        handleAction(3);
     }
 
     private void Resume() {
-        Intent service = new Intent(this, MusicService.class);
-        service.setAction(BroadcastConstants.RESUME_CMD);
-        startService(service);
+        handleAction(4);
     }
 
     private void Skip() {
-        Intent service = new Intent(this, MusicService.class);
-        service.setAction(BroadcastConstants.SKIP_CMD);
-        startService(service);
+        handleAction(5);
     };
 
     private void Previous() {
-        Intent service = new Intent(this, MusicService.class);
-        service.setAction(BroadcastConstants.PREV_CMD);
-        startService(service);
+        handleAction(6);
     };
     // ===============================
 
@@ -460,6 +484,41 @@ public class PlayerActivity extends AppCompatActivity {
                     NotificationManagerCompat.from(getApplicationContext());
 
             notificationManager.createNotificationChannel(notificationChannel.build());
+        }
+    }
+
+    private void handleAction(int action) {
+        Intent service = new Intent(this, MusicService.class);
+
+        switch (action) {
+            case 0:
+                service.setAction(BroadcastConstants.PREPARE_CMD);
+                startService(service);
+                break;
+            case 1:
+                service.setAction(BroadcastConstants.INIT_CMD);
+                startService(service);
+                break;
+            case 2:
+                service.setAction(BroadcastConstants.PLAY_CMD);
+                startService(service);
+                break;
+            case 3:
+                service.setAction(BroadcastConstants.PAUSE_CMD);
+                startService(service);
+                break;
+            case 4:
+                service.setAction(BroadcastConstants.RESUME_CMD);
+                startService(service);
+                break;
+            case 5:
+                service.setAction(BroadcastConstants.SKIP_CMD);
+                startService(service);
+            break;
+            case 6:
+                service.setAction(BroadcastConstants.PREV_CMD);
+                startService(service);
+                break;
         }
     }
 }

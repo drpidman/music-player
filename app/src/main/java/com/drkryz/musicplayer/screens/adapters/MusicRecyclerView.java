@@ -1,27 +1,18 @@
 package com.drkryz.musicplayer.screens.adapters;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.functions.PlaybackAlbum;
+import com.drkryz.musicplayer.functions.MediaMetadata;
 import com.drkryz.musicplayer.utils.SongUtil;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.ViewHolder> {
@@ -48,7 +39,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
         ImageView cover = holder.musicAlbumCover;
 
 
-        cover.setImageBitmap(PlaybackAlbum.getCover(context, position, musicList));
+        cover.setImageBitmap(MediaMetadata.getCover(context, position, musicList));
         musicTitle.setText(song.getTitle());
 
     }

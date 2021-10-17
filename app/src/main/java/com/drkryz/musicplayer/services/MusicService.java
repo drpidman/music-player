@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.media.session.MediaController.TransportControls;
 import android.media.session.MediaSession;
@@ -33,7 +32,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.app.NotificationCompat;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.functions.PlaybackAlbum;
+import com.drkryz.musicplayer.functions.MediaMetadata;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.screens.PlayerActivity;
 import com.drkryz.musicplayer.utils.ApplicationUtil;
@@ -467,12 +466,12 @@ public class MusicService extends Service implements
             );
         }
 
-        mediaSession.setMetadata(new MediaMetadata.Builder()
-                .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, activeAudio.getAuthor())
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, activeAudio.getTitle())
-                .putString(MediaMetadata.METADATA_KEY_TITLE, activeAudio.getTitle())
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(activeAudio.getDuration()))
+        mediaSession.setMetadata(new android.media.MediaMetadata.Builder()
+                .putBitmap(android.media.MediaMetadata.METADATA_KEY_ALBUM_ART, albumArt)
+                .putString(android.media.MediaMetadata.METADATA_KEY_ARTIST, activeAudio.getAuthor())
+                .putString(android.media.MediaMetadata.METADATA_KEY_ALBUM, activeAudio.getTitle())
+                .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, activeAudio.getTitle())
+                .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(activeAudio.getDuration()))
                 .build());
     }
 
@@ -489,7 +488,7 @@ public class MusicService extends Service implements
         }
 
 
-        Bitmap cover = PlaybackAlbum.getCover(getBaseContext(), audioIndex, musicList);
+        Bitmap cover = MediaMetadata.getCover(getBaseContext(), audioIndex, musicList);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         cover.compress(Bitmap.CompressFormat.JPEG, 50, out);
@@ -633,7 +632,6 @@ public class MusicService extends Service implements
                  * Quando o usuario mudar de app.
                  * Permitir que ele volte a reproduzir.
                  */
-                if (mediaPlayer == null) return;
                 if (mediaPlayer.isPlaying()) ResumeCommand();
                 buildNotification(ApplicationUtil.Status.PAUSED);
                 emitActionToUI(PLAY_CMD);
@@ -723,7 +721,11 @@ public class MusicService extends Service implements
         }
     }
 
-    public MediaMetadata getMetadata() {
+    public TransportControls getTransportControls() {
+        return transportControls;
+    }
+
+    public android.media.MediaMetadata getMetadata() {
         return mediaSession.getController().getMetadata();
     }
 
