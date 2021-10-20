@@ -16,8 +16,8 @@
 
     <com.drkryz.musicplayer.custom.CustomImageView
         android:id="@+id/musicAlbum"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="290dp"
+        android:layout_height="290dp"
         android:elevation="20dp"
         android:scaleType="centerCrop"
         android:src="@drawable/default_music"

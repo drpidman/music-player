@@ -37,14 +37,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.functions.DominantColor;
 import com.drkryz.musicplayer.functions.GetMusicsFromExt;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
-import com.drkryz.musicplayer.utils.BroadcastUtils;
 import com.drkryz.musicplayer.utils.ApplicationUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
 
@@ -60,9 +58,9 @@ public class PlayerActivity extends AppCompatActivity {
 
     private ApplicationUtil applicationUtil;
     private MusicService musicService;
-    private BroadcastUtils broadcastUtils;
     private GetMusicsFromExt externalGet;
     private PreferencesUtil preferencesUtil;
+    private LinearLayoutManager layoutManager;
 
     private MotionLayout motionLayout;
     private RecyclerView listView;
@@ -74,6 +72,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private boolean serviceBound = false;
     private boolean isPlaying = false;
+
 
 
     @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
@@ -119,7 +118,9 @@ public class PlayerActivity extends AppCompatActivity {
         alphaInAnimationAdapter.setFirstOnly(false);
 
         listView.setAdapter(new ScaleInAnimationAdapter(alphaInAnimationAdapter));
-        listView.setLayoutManager(new LinearLayoutManager(this));
+
+        layoutManager = new LinearLayoutManager(this);
+        listView.setLayoutManager(layoutManager);
         listView.setHasFixedSize(true);
 
         // list view click listener
@@ -135,14 +136,25 @@ public class PlayerActivity extends AppCompatActivity {
         UiPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Previous();
+                if (!serviceBound) {
+                    bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+                    handleAction(6);
+                } else {
+                    Previous();
+                }
             }
         });
 
         UiSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Skip();
+
+                if (!serviceBound) {
+                    bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+                    handleAction(5);
+                } else {
+                    Skip();
+                }
             }
         });
 
@@ -187,7 +199,6 @@ public class PlayerActivity extends AppCompatActivity {
         });
 
         createChannel();
-        broadcastUtils = new BroadcastUtils(getApplicationContext());
         preferencesUtil = new PreferencesUtil(getBaseContext());
         preferencesUtil.StoreUserInApp(true);
 
@@ -204,7 +215,6 @@ public class PlayerActivity extends AppCompatActivity {
             Log.e(getPackageName(), "PlayerActivity():status received");
 
             isPlaying = intent.getBooleanExtra("playback.status", false);
-
             if (isPlaying) {
                 PlayUiBtn
                         .setImageDrawable(getDrawable(R.drawable.ui_pause));
@@ -236,13 +246,11 @@ public class PlayerActivity extends AppCompatActivity {
     private final Handler mHandler = new Handler();
 
     private void startSeekBar() {
-        if (!preferencesUtil.LoadUserInApp()) return;
-        if (!isPlaying) return;
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (musicService == null) return;
+                if (!preferencesUtil.LoadUserInApp()) return;
                 seekBar.setProgress(musicService.getCurrentPosition());
                 mHandler.postDelayed(this, 1000);
             }
@@ -251,6 +259,9 @@ public class PlayerActivity extends AppCompatActivity {
 
 
     private void updateCoverImage() throws IOException {
+        if (!preferencesUtil.LoadUserInApp()) return;
+
+        if (musicService == null) return;
 
         MediaMetadata metadata = musicService.getMetadata();
         Bitmap cover = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
@@ -268,11 +279,10 @@ public class PlayerActivity extends AppCompatActivity {
 
 
         final int colorFrom = ((ColorDrawable) motionLayout.getBackground()).getColor();
-        final int colorTo = DominantColor.GetDominantColor(cover);
+        final int colorTo = com.drkryz.musicplayer.functions.MediaMetadata.getColor(this, cover);
 
 
         Window window = getWindow();
-
 
         ObjectAnimator.ofObject(motionLayout, "backgroundColor", new ArgbEvaluator(),
                 colorFrom, colorTo
@@ -357,6 +367,7 @@ public class PlayerActivity extends AppCompatActivity {
         Log.e(getPackageName(), "onStart()");
         Log.e(getPackageName(), "" + preferencesUtil.GetFirstInit());
 
+        preferencesUtil.StoreUserInApp(true);
     }
 
 
@@ -417,6 +428,8 @@ public class PlayerActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+
+                    layoutManager.scrollToPosition(preferencesUtil.loadAudioIndex());
                 }
             }
         }, 250);
@@ -432,6 +445,8 @@ public class PlayerActivity extends AppCompatActivity {
         LocalBroadcastManager
                 .getInstance(this)
                 .unregisterReceiver(PlaybackStatusReceiver);
+
+        preferencesUtil.StoreUserInApp(false);
 
         Log.e(getPackageName(), "activity destroyed");
     }

@@ -69,6 +69,7 @@ public class MusicService extends Service implements
     private PreferencesUtil preferencesUtil;
     private TransportControls transportControls;
     private MediaSessionManager mediaSessionManager;
+    private PlaybackState playbackState;
 
 
     private final String packageName = "com.drkryz.musicplayer";
@@ -129,26 +130,29 @@ public class MusicService extends Service implements
         preferencesUtil = new PreferencesUtil(getBaseContext());
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.e(getPackageName(), "onDestroy()");
-        mediaPlayer.stop();
-        mediaPlayer.release();
-        mediaPlayer = null;
+
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
 
 
-        mediaSession.release();
-        preferencesUtil.storeAudioIndex(audioIndex);
+            mediaSession.release();
+            preferencesUtil.storeAudioIndex(audioIndex);
 
 
-        removeAudioFocus();
-        stopForeground(true);
+            removeAudioFocus();
+            stopForeground(true);
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         String action = intent.getAction();
 
         Log.e(getPackageName(), "service():action=" + action);
@@ -226,15 +230,72 @@ public class MusicService extends Service implements
                 ResumeCommand();
             break;
             case SKIP_CMD:
-                SkipCommand();
+                audioIndex = preferencesUtil.loadAudioIndex();
+                if (mediaPlayer == null) {
+                    if (audioIndex == musicList.size() -1) {
+                        audioIndex = 0;
+                        activeAudio = musicList.get(audioIndex);
+                    } else {
+                        activeAudio = musicList.get(++audioIndex);
+                    }
+
+                    preferencesUtil.storeAudioIndex(audioIndex);
+
+                    if (!requestAudioFocus()) stopSelf();
+
+                    if (mediaSessionManager == null) {
+                        Log.e(getPackageName(), "null:starting new play");
+                        try {
+                            initMediaSession();
+                            initMedia();
+                        } catch (RemoteException e) {
+                            stopSelf();
+                            e.printStackTrace();
+                        }
+                    }
+
+                    buildNotification(ApplicationUtil.Status.PLAYING);
+                } else {
+                    SkipCommand();
+                }
             break;
             case PREV_CMD:
-                PreviousCommand();
+                audioIndex = preferencesUtil.loadAudioIndex();
+
+                if (mediaPlayer == null) {
+                    if (audioIndex == 0) {
+                        audioIndex = musicList.size() - 1;
+                        activeAudio = musicList.get(audioIndex);
+                    } else {
+                        activeAudio = musicList.get(--audioIndex);
+                    }
+
+                    preferencesUtil.storeAudioIndex(audioIndex);
+
+                    if (!requestAudioFocus()) {
+                        stopSelf();
+                    };
+
+                    if (mediaSessionManager == null) {
+                        Log.e(getPackageName(), "null:starting new play");
+                        try {
+                            initMediaSession();
+                            initMedia();
+                        } catch (RemoteException e) {
+                            stopSelf();
+                            e.printStackTrace();
+                        }
+                    }
+
+                    buildNotification(ApplicationUtil.Status.PLAYING);
+                } else {
+                    PreviousCommand();
+                }
             break;
         }
 
         handleActions(intent);
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -252,6 +313,10 @@ public class MusicService extends Service implements
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
+
+        if (mediaPlayer == null) {
+            stopSelf();
+        }
 
         Log.e(getPackageName(), "Removing task");
     }
@@ -324,7 +389,7 @@ public class MusicService extends Service implements
             activeAudio = musicList.get(++audioIndex);
         }
 
-        preferencesUtil.loadAudioIndex();
+        preferencesUtil.storeAudioIndex(audioIndex);
 
         StopCommand();
         mediaPlayer.reset();
@@ -377,12 +442,16 @@ public class MusicService extends Service implements
             @Override
             public void run() {
                 int current = mediaPlayer.getCurrentPosition();
-                PlaybackState playbackState =
+                playbackState =
                         new PlaybackState.Builder()
                                 .setState(state, current, 1)
-                                .setActions(PlaybackState.ACTION_SEEK_TO)
+                                .setActions(PlaybackState.ACTION_SEEK_TO
+                                        | PlaybackState.ACTION_PAUSE |
+                                        PlaybackState.ACTION_PLAY |
+                                        PlaybackState.ACTION_SKIP_TO_NEXT |
+                                        PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                                )
                                 .build();
-
                mediaSession.setPlaybackState(playbackState);
             }
         }, 50);
@@ -408,30 +477,35 @@ public class MusicService extends Service implements
             public void onPlay() {
                 super.onPlay();
                 ResumeCommand();
+                preferencesUtil.StorePlayingState(true);
             }
 
             @Override
             public void onPause() {
                 super.onPause();
                 PauseCommand();
+                preferencesUtil.StorePlayingState(false);
             }
 
             @Override
             public void onStop() {
                 super.onStop();
                 StopCommand();
+                preferencesUtil.StorePlayingState(false);
             }
 
             @Override
             public void onSkipToNext() {
                 super.onSkipToNext();
                 SkipCommand();
+                preferencesUtil.StorePlayingState(true);
             }
 
             @Override
             public void onSkipToPrevious() {
                 super.onSkipToPrevious();
                 PreviousCommand();
+                preferencesUtil.StorePlayingState(true);
             }
 
             @Override
@@ -443,10 +517,15 @@ public class MusicService extends Service implements
         });
 
 
-        PlaybackState playbackState =
+        playbackState =
                 new PlaybackState.Builder()
                         .setState(PlaybackState.STATE_PAUSED, 0, 1)
-                        .setActions(PlaybackState.ACTION_SEEK_TO)
+                        .setActions(PlaybackState.ACTION_SEEK_TO
+                                | PlaybackState.ACTION_PAUSE |
+                                PlaybackState.ACTION_PLAY |
+                                PlaybackState.ACTION_SKIP_TO_NEXT |
+                                PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                        )
                         .build();
 
         mediaSession.setPlaybackState(playbackState);
@@ -516,7 +595,6 @@ public class MusicService extends Service implements
                             .setContentText(activeAudio.getAuthor())
                             .setContentTitle(activeAudio.getTitle())
                             .setContentInfo(activeAudio.getTitle())
-                            .setCategory(Notification.CATEGORY_SERVICE)
                             .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
                             .addAction(R.drawable.ui_next, "next", playbackAction(2))
@@ -545,7 +623,6 @@ public class MusicService extends Service implements
                             .setContentText(activeAudio.getAuthor())
                             .setContentTitle(activeAudio.getTitle())
                             .setContentInfo(activeAudio.getTitle())
-                            .setCategory(Notification.CATEGORY_SERVICE)
                             .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
                             .addAction(R.drawable.ui_next, "next", playbackAction(2))
@@ -594,9 +671,8 @@ public class MusicService extends Service implements
         return false;
     }
 
-    private boolean removeAudioFocus() {
-        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
-                audioManager.abandonAudioFocus(this);
+    private void removeAudioFocus() {
+        audioManager.abandonAudioFocus(this);
     }
 
 
@@ -621,7 +697,9 @@ public class MusicService extends Service implements
                  * Resumir a reprodução
                  */
                 if (mediaPlayer == null) initMedia();
-                else if(!mediaPlayer.isPlaying()) ResumeCommand();
+                else if(!mediaPlayer.isPlaying()) {
+                    ResumeCommand();
+                }
 
                 mediaPlayer.setVolume(1.0f, 1.0f);
                 buildNotification(ApplicationUtil.Status.PLAYING);
@@ -632,7 +710,7 @@ public class MusicService extends Service implements
                  * Quando o usuario mudar de app.
                  * Permitir que ele volte a reproduzir.
                  */
-                if (mediaPlayer.isPlaying()) ResumeCommand();
+                if (mediaPlayer.isPlaying()) PauseCommand();
                 buildNotification(ApplicationUtil.Status.PAUSED);
                 emitActionToUI(PLAY_CMD);
                 break;
@@ -721,12 +799,18 @@ public class MusicService extends Service implements
         }
     }
 
+
+
     public TransportControls getTransportControls() {
         return transportControls;
     }
 
     public android.media.MediaMetadata getMetadata() {
         return mediaSession.getController().getMetadata();
+    }
+
+    public int getPlaybackState() {
+        return playbackState.getState();
     }
 
     public int getCurrentPosition() {

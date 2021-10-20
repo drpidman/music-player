@@ -14,4 +14,7 @@
     <string name="battery_perm_desc">Continue reproduzindo suas musicas mesmo com a tela desligada.
          Apertando no botão abaixo você sera redirecionado para a tela de aplicativos com otimização(ou sem otimização), procure \"Mostrar todos os apps\" ou \"Todos\" e procure pelo app \"Drkryz Player\" ou \"Music Player\".
     </string>
+    <string name="service_description">
+        Serviço iniciado pela aplicação. Parar o serviço pode causar falha da aplicação
+    </string>
 </resources>

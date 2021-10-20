@@ -10,7 +10,7 @@ public class DominantColor {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         int size = width * height;
-        int pixels[] = new int[size];
+        int[] pixels = new int[size];
 
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
         int color;
@@ -21,8 +21,8 @@ public class DominantColor {
 
         int count = 0;
 
-        for(int i = 0; i < pixels.length; i++) {
-            color = pixels[i];
+        for (int pixel : pixels) {
+            color = pixel;
             a = Color.alpha(color);
             if (a > 0) {
                 r += Color.red(color);

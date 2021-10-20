@@ -6,27 +6,4 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <View
-        android:id="@+id/leftView"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/appLogo"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:background="@drawable/splash_roundedicon"
-        android:focusable="auto"
-        android:elevation="10dp"
-        android:src="@mipmap/splash"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/leftView"
-        app:layout_constraintTop_toTopOf="@+id/leftView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
