@@ -14,11 +14,11 @@ import com.drkryz.musicplayer.utils.SongUtil;
 
 import java.util.ArrayList;
 
-public class GetMusicsFromExt {
+public class ExternalStorage {
 
     private final ArrayList<SongUtil> musics = new ArrayList<>();
 
-    public GetMusicsFromExt populateSongs(Application app) {
+    public ExternalStorage populateSongs(Application app) {
         GetExternalContent(app);
         return null;
     }

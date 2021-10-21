@@ -109,7 +109,7 @@ public class PreferencesUtil {
         editor.apply();
     }
 
-    public void SetLastIndex(int index) {
+    public void SetLastPosition(int index) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
@@ -117,23 +117,11 @@ public class PreferencesUtil {
         editor.apply();
     }
 
-    public int GetLastIndex() {
+    public int GetLastPosition() {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
-        return preferences.getInt("lastIndex", -1);
+        return preferences.getInt("lastIndex", 0);
     }
 
-    public void StoreCurrentTotalDuration(String total) {
-        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.putString("totalDuration", total);
-        editor.apply();
-    }
-
-    public String LoadTotalDuration() {
-        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
-        return  preferences.getString("totalDuration", "0");
-    }
 
     public void StoreUserInApp(boolean inactive) {
         preferences = context.getSharedPreferences(STORAGE_USER, Context.MODE_PRIVATE);

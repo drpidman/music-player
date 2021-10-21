@@ -14,6 +14,7 @@ public class BroadcastConstants {
     public static final String RESET_CMD = packageName + ".reset";
     public static final String RESUME_CMD = packageName + ".resume";
     public static final String PREPARE_CMD = packageName + ".prepare";
+    public static final String ON_RESUME_CMD = packageName + ".on.user.resume";
     // ui events with service
     public static final String UI_PLAY = packageName + ".ui.play";
     public static final String UI_PAUSE = packageName + ".ui.pause";

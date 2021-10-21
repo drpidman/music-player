@@ -37,7 +37,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.drkryz.musicplayer.R;
-import com.drkryz.musicplayer.functions.GetMusicsFromExt;
+import com.drkryz.musicplayer.functions.ExternalStorage;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
@@ -58,7 +58,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private ApplicationUtil applicationUtil;
     private MusicService musicService;
-    private GetMusicsFromExt externalGet;
+    private ExternalStorage externalGet;
     private PreferencesUtil preferencesUtil;
     private LinearLayoutManager layoutManager;
 
@@ -71,6 +71,7 @@ public class PlayerActivity extends AppCompatActivity {
     private View bottomNav;
 
     private boolean serviceBound = false;
+    private boolean isRunning = false;
     private boolean isPlaying = false;
 
 
@@ -91,6 +92,7 @@ public class PlayerActivity extends AppCompatActivity {
                 .getInstance(this)
                 .registerReceiver(MusicServiceStatus, new IntentFilter(BroadcastConstants.PREPARE_CMD + ".running"));
 
+
         motionLayout = (MotionLayout) findViewById(R.id.MainMotion);
         motionLayout.setTransitionListener(new TransitionListener(this));
 
@@ -106,7 +108,7 @@ public class PlayerActivity extends AppCompatActivity {
 
 
         applicationUtil = (ApplicationUtil) getApplicationContext();
-        externalGet = new GetMusicsFromExt();
+        externalGet = new ExternalStorage();
         externalGet.populateSongs(getApplication());
 
 
@@ -129,14 +131,13 @@ public class PlayerActivity extends AppCompatActivity {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                         Play(position);
-
                     }
                 });
 
         UiPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!serviceBound) {
+                if (!isRunning) {
                     bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
                     handleAction(6);
                 } else {
@@ -149,7 +150,7 @@ public class PlayerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (!serviceBound) {
+                if (!isRunning) {
                     bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
                     handleAction(5);
                 } else {
@@ -163,7 +164,9 @@ public class PlayerActivity extends AppCompatActivity {
             public void onClick(View view) {
                 int audioIndex = preferencesUtil.loadAudioIndex();
 
-                if (serviceBound) {
+                Log.e(getPackageName(), "running=" + isRunning);
+
+                if (isRunning) {
                     if (isPlaying) {
                         Pause();
                     } else {
@@ -201,20 +204,29 @@ public class PlayerActivity extends AppCompatActivity {
         createChannel();
         preferencesUtil = new PreferencesUtil(getBaseContext());
         preferencesUtil.StoreUserInApp(true);
-
         preferencesUtil.storeAudio(externalGet.getAll());
 
 
+        // start to first
         handleAction(0);
+        bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+
+
+
+        if (preferencesUtil.loadAudioIndex() != -1) {
+            if (!isRunning) {
+                handleAction(7);
+            }
+        }
     }
 
 
     private final BroadcastReceiver PlaybackStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e(getPackageName(), "PlayerActivity():status received");
-
             isPlaying = intent.getBooleanExtra("playback.status", false);
+
+            Log.e(getPackageName(), "PlayerActivity():status received=" + isPlaying);
             if (isPlaying) {
                 PlayUiBtn
                         .setImageDrawable(getDrawable(R.drawable.ui_pause));
@@ -235,6 +247,7 @@ public class PlayerActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+            isRunning = true;
         }
     };
 
@@ -330,7 +343,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void Play(int position) {
 
-        if (!serviceBound) {
+        if (!isRunning) {
             preferencesUtil.storeAudioIndex(position);
             Intent service = new Intent(this, MusicService.class);
             service.setAction(BroadcastConstants.INIT_CMD);
@@ -408,7 +421,7 @@ public class PlayerActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (serviceBound) {
+                if (isRunning) {
                     isPlaying = preferencesUtil.GetPlayingState();
 
                     if (isPlaying) {
@@ -532,6 +545,10 @@ public class PlayerActivity extends AppCompatActivity {
             break;
             case 6:
                 service.setAction(BroadcastConstants.PREV_CMD);
+                startService(service);
+                break;
+            case 7:
+                service.setAction(BroadcastConstants.ON_RESUME_CMD);
                 startService(service);
                 break;
         }

@@ -84,6 +84,7 @@ public class MusicService extends Service implements
     private final String RESET_CMD = packageName + ".reset";
     private final String RESUME_CMD = packageName + ".resume";
     private final String PREPARE_CMD = packageName + ".prepare";
+    private final String ON_RESUME_CMD = packageName + ".on.user.resume";
     private final String UI_PLAY = packageName + ".ui.play";
     private final String UI_PAUSE = packageName + ".ui.pause";
     private final String UI_SKIP = packageName + ".ui.skip";
@@ -101,6 +102,9 @@ public class MusicService extends Service implements
     private final String ACTION_SKIP = packageName + ".ACTION_SKIP";
     private final String ACTION_PREV = packageName + ".ACTION_PREVIOUS";
     private final String ACTION_CLOSE = packageName + ".ACTION_CLOSE";
+
+
+    private boolean resume = false;
 
     @SuppressLint("ResourceAsColor")
     @Nullable
@@ -137,6 +141,10 @@ public class MusicService extends Service implements
         Log.e(getPackageName(), "onDestroy()");
 
         if (mediaPlayer != null) {
+
+            // preload
+            preferencesUtil.SetLastPosition(mediaPlayer.getCurrentPosition());
+
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayer = null;
@@ -157,6 +165,38 @@ public class MusicService extends Service implements
 
         Log.e(getPackageName(), "service():action=" + action);
         switch (action) {
+            case ON_RESUME_CMD:
+                audioIndex = preferencesUtil.loadAudioIndex();
+                Log.e(getPackageName(), "init():on_resume_cmd");
+                try {
+                    audioIndex = preferencesUtil.loadAudioIndex();
+                    if (audioIndex != -1 && audioIndex < musicList.size()) {
+                        activeAudio = musicList.get(audioIndex);
+                    } else {
+                        stopSelf();
+                    }
+                } catch (NullPointerException e) {
+                    stopSelf();
+                    e.printStackTrace();
+                }
+
+                if (!requestAudioFocus()) {
+                    stopSelf();
+                }
+
+                if (mediaSessionManager == null) {
+                    Log.e(getPackageName(), "null:starting new play");
+                    try {
+                        initMediaSession();
+                        initMedia();
+                    } catch (RemoteException e) {
+                        stopSelf();
+                        e.printStackTrace();
+                    }
+                }
+
+                resume = true;
+            break;
             case PREPARE_CMD:
                 Log.e(getPackageName(), "prepare():service");
 
@@ -360,7 +400,11 @@ public class MusicService extends Service implements
             buildNotification(ApplicationUtil.Status.PLAYING);
             updateMediaProgress(PlaybackState.STATE_PLAYING);
 
-            emitActionToUI(PLAY_CMD);
+            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+
+            LocalBroadcastManager
+                    .getInstance(this)
+                    .sendBroadcastSync(new Intent(PREPARE_CMD + ".running"));
         }
     }
 
@@ -368,10 +412,10 @@ public class MusicService extends Service implements
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             resumePosition = mediaPlayer.getCurrentPosition();
+
             buildNotification(ApplicationUtil.Status.PAUSED);
             updateMediaProgress(PlaybackState.STATE_PAUSED);
-
-            emitActionToUI(PLAY_CMD);
+            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
         }
     }
 
@@ -399,7 +443,7 @@ public class MusicService extends Service implements
         buildNotification(ApplicationUtil.Status.PLAYING);
         updateMediaProgress(PlaybackState.STATE_SKIPPING_TO_NEXT);
 
-        emitActionToUI(PLAY_CMD);
+        emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
     }
 
     private void PreviousCommand() {
@@ -420,7 +464,7 @@ public class MusicService extends Service implements
         buildNotification(ApplicationUtil.Status.PLAYING);
         updateMediaProgress(PlaybackState.STATE_SKIPPING_TO_PREVIOUS);
 
-        emitActionToUI(PLAY_CMD);
+        emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
     }
 
     private void ResumeCommand() {
@@ -432,7 +476,7 @@ public class MusicService extends Service implements
             buildNotification(ApplicationUtil.Status.PLAYING);
             updateMediaProgress(PlaybackState.STATE_PLAYING);
 
-            emitActionToUI(PLAY_CMD);
+            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
         }
     }
 
@@ -511,8 +555,14 @@ public class MusicService extends Service implements
             @Override
             public void onSeekTo(long pos) {
                 super.onSeekTo(pos);
-                mediaPlayer.seekTo((int) pos);
-                updateMediaProgress(PlaybackState.STATE_PLAYING);
+
+                if (!mediaPlayer.isPlaying()) {
+                    mediaPlayer.seekTo((int) pos);
+                    resumePosition = (int) pos;
+                } else {
+                    mediaPlayer.seekTo((int) pos);
+                    updateMediaProgress(PlaybackState.STATE_PLAYING);
+                }
             }
         });
 
@@ -676,13 +726,13 @@ public class MusicService extends Service implements
     }
 
 
-    private void emitActionToUI(String action) {
+    private void emitActionToUI(String action, boolean isPlaying) {
         switch (action) {
             case PLAY_CMD:
                 LocalBroadcastManager
                         .getInstance(this)
                         .sendBroadcastSync(new Intent(UI_UPDATE_MEDIA_CONTROL_BUTTON)
-                        .putExtra("playback.status", mediaPlayer.isPlaying())
+                        .putExtra("playback.status", isPlaying)
                         );
             break;
         }
@@ -712,7 +762,7 @@ public class MusicService extends Service implements
                  */
                 if (mediaPlayer.isPlaying()) PauseCommand();
                 buildNotification(ApplicationUtil.Status.PAUSED);
-                emitActionToUI(PLAY_CMD);
+                emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 /**
@@ -767,7 +817,28 @@ public class MusicService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        PlayCommand();
+        if (resume) {
+
+            LocalBroadcastManager
+                    .getInstance(this)
+                    .sendBroadcastSync(new Intent(PREPARE_CMD + ".running")
+
+                    );
+
+
+            resumePosition = preferencesUtil.GetLastPosition();
+            mediaPlayer.seekTo((int) preferencesUtil.GetLastPosition());
+
+            PauseCommand();
+            buildNotification(ApplicationUtil.Status.PAUSED);
+            updateMediaProgress(PlaybackState.STATE_PAUSED);
+            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+
+            preferencesUtil.StorePlayingState(false);
+            resume = false;
+        } else {
+            PlayCommand();
+        }
     }
 
     @Override
