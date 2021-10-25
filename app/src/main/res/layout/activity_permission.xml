@@ -108,16 +108,47 @@
         app:layout_constraintStart_toEndOf="@+id/userCountText"
         app:layout_constraintTop_toTopOf="@+id/userCountText" />
 
+
+    <TextView
+        android:id="@+id/discordConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:elevation="5dp"
+        android:padding="5dp"
+        android:text="Conectar com Discord (beta)"
+        android:textColor="#ddd"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/wText"
+        app:layout_constraintStart_toStartOf="@+id/centeredView"
+        app:layout_constraintTop_toBottomOf="@+id/userCountText" />
+
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/DiscordPermission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:elevation="5dp"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/discordConnect"
+        app:layout_constraintEnd_toEndOf="@+id/topCentered"
+        app:layout_constraintStart_toEndOf="@+id/userCountText"
+        app:layout_constraintTop_toTopOf="@+id/discordConnect"
+        app:thumbTint="#4772ff"
+        app:trackTint="#333" />
+
+
     <ImageButton
         android:id="@+id/acceptButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_margin="5dp"
         android:background="@drawable/ui_nextview"
         android:elevation="5dp"
         android:visibility="invisible"
-        android:layout_margin="5dp"
         app:layout_constraintBottom_toBottomOf="@+id/centeredView"
-        app:layout_constraintEnd_toEndOf="@+id/UserCountPermission"
-        app:layout_constraintStart_toStartOf="@+id/UserCountPermission" />
+        app:layout_constraintEnd_toEndOf="@+id/DiscordPermission"
+        app:layout_constraintStart_toStartOf="@+id/DiscordPermission" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

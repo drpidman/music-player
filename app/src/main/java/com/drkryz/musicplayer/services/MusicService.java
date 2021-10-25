@@ -34,7 +34,7 @@ import androidx.media.app.NotificationCompat;
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.functions.MediaMetadata;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
-import com.drkryz.musicplayer.screens.PlayerActivity;
+import com.drkryz.musicplayer.screens.MusicActivity;
 import com.drkryz.musicplayer.utils.ApplicationUtil;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
 import com.drkryz.musicplayer.utils.SongUtil;
@@ -167,6 +167,9 @@ public class MusicService extends Service implements
         switch (action) {
             case ON_RESUME_CMD:
                 audioIndex = preferencesUtil.loadAudioIndex();
+
+                if (mediaPlayer == null) resume = true;
+
                 Log.e(getPackageName(), "init():on_resume_cmd");
                 try {
                     audioIndex = preferencesUtil.loadAudioIndex();
@@ -194,8 +197,6 @@ public class MusicService extends Service implements
                         e.printStackTrace();
                     }
                 }
-
-                resume = true;
             break;
             case PREPARE_CMD:
                 Log.e(getPackageName(), "prepare():service");
@@ -625,7 +626,7 @@ public class MusicService extends Service implements
 
         Notification.Builder mBuilder = null;
 
-        Intent mainIntent = new Intent(getBaseContext(), PlayerActivity.class);
+        Intent mainIntent = new Intent(getBaseContext(), MusicActivity.class);
         PendingIntent mainPending = PendingIntent.getActivity(getBaseContext(), 1006, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 

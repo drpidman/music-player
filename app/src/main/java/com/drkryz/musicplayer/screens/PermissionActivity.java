@@ -1,6 +1,7 @@
 package com.drkryz.musicplayer.screens;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
@@ -11,17 +12,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 
 import com.drkryz.musicplayer.R;
 
+import net.openid.appauth.AuthorizationRequest;
+import net.openid.appauth.AuthorizationService;
+import net.openid.appauth.AuthorizationServiceConfiguration;
+import net.openid.appauth.ResponseTypeValues;
+
 public class PermissionActivity extends AppCompatActivity {
 
-    private SwitchCompat storagePermissionSwitcher;
+    private SwitchCompat storagePermissionSwitcher, discordOAuthSwitcher;
     private ImageButton acceptButton;
+
+    private AuthorizationRequest authRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +40,8 @@ public class PermissionActivity extends AppCompatActivity {
 
 
         storagePermissionSwitcher = (SwitchCompat) findViewById(R.id.StorageEnableSwitcher);
+        discordOAuthSwitcher = (SwitchCompat) findViewById(R.id.DiscordPermission);
+
         acceptButton = (ImageButton) findViewById(R.id.acceptButton);
         SwitchCompat sendUserCounter = findViewById(R.id.UserCountPermission);
 
@@ -60,13 +72,51 @@ public class PermissionActivity extends AppCompatActivity {
             }
         });
 
+
+        discordOAuthSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(
+                            Uri.parse("https://api.drkryz.xyz/api/auth/discord"),
+                            Uri.parse("https://discord.com/api/oauth2/token")
+                    );
+
+                    String clientId = "726932863722979388";
+
+                    AuthorizationRequest.Builder authRequestBuilder =
+                            new AuthorizationRequest.Builder(
+                                    config,
+                                    clientId,
+                                    ResponseTypeValues.CODE,
+                                    Uri.parse("https://api.drkryz.xyz/api/auth/discord/callback")
+                            );
+
+                    authRequest =
+                            authRequestBuilder.setScope("identify")
+                                    .setCodeVerifier(null)
+                            .build();
+
+                    doAuthorization();
+                }
+            }
+        });
+
+
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getBaseContext(), PlayerActivity.class));
+                startActivity(new Intent(getBaseContext(), MusicActivity.class));
                 finish();
             }
         });
+    }
+
+    private void doAuthorization() {
+        AuthorizationService service = new AuthorizationService(this);
+        Intent authIntent = service.getAuthorizationRequestIntent(authRequest);
+        Log.e(getPackageName(), "agaraga=" + authIntent);
+        startActivityForResult(authIntent, 200);
     }
 
     @Override
@@ -109,5 +159,16 @@ public class PermissionActivity extends AppCompatActivity {
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 200) {
+            if (data != null) {
+                Log.e(getPackageName(), "" + data.getData().getQueryParameter("accessToken"));
+            }
+        }
     }
 }

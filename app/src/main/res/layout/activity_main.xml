@@ -1,125 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="#000"
+    android:background="#111"
     android:focusable="true"
-    android:id="@+id/MainMotion"
-    app:layoutDescription="@xml/activity_main_scene"
-    tools:showPaths="true"
-    tools:context=".screens.PlayerActivity"
+    tools:context=".screens.MusicActivity"
     >
-
-
-    <com.drkryz.musicplayer.custom.CustomImageView
-        android:id="@+id/musicAlbum"
-        android:layout_width="290dp"
-        android:layout_height="290dp"
-        android:elevation="20dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/default_music"
-        app:layout_constraintBottom_toBottomOf="@id/bottomNavDrag"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/currentSongTitle"
-        android:layout_width="250dp"
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:focusable="true"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:elevation="1dp"
-        android:focusableInTouchMode="true"
-        android:scrollHorizontally="true"
-        android:textColor="#fff"
-        android:textAlignment="center"
-        android:layout_height="wrap_content"/>
-
-    <androidx.appcompat.widget.AppCompatSeekBar
-        android:id="@+id/progressBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="1dp"
-        android:progressBackgroundTint="#fff"
-        android:progressTint="#fff"
-        android:thumbTint="#fff"
-        android:visibility="visible"
-        tools:layout_editor_absoluteY="18dp" />
-
-    <ImageButton
-        android:id="@+id/uiPlay"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
-        android:elevation="20dp"
-        android:adjustViewBounds="true"
-        android:background="@null"
-        android:src="@drawable/ui_play"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:tint="#fff" />
-
-    <ImageButton
-        android:id="@+id/uiSkip"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:elevation="20dp"
-        android:background="@null"
-        android:src="@drawable/ui_next"
-        app:tint="@color/text" />
-
-    <ImageButton
-        android:id="@+id/uiPrevious"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:elevation="1dp"
-        android:background="@null"
-        android:src="@drawable/ui_prev"
-        app:tint="@color/text" />
-
-    <View
-        android:id="@+id/bottomNavDrag"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#000"
-        android:elevation="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageButton
-        android:id="@+id/drawer"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:background="@null"
-        android:elevation="20dp"
-        android:src="@drawable/ui_dragbar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/bottomNavDrag"
-        app:tint="@color/text" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/musicList"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
         android:background="@null"
         android:divider="@null"
-        android:elevation="20dp"
-        android:padding="10dp"
+        android:layout_margin="10dp"
         android:scrollbarStyle="outsideInset"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/mediaBottomControl"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/listview_item" />
 
+    <View
+        android:id="@+id/mediaBottomControl"
+        android:layout_width="match_parent"
+        android:elevation="20dp"
+        android:background="@drawable/ui_mediacontrol"
+        android:layout_margin="10dp"
+        android:layout_height="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-</androidx.constraintlayout.motion.widget.MotionLayout>
+    <com.drkryz.musicplayer.custom.CustomImageView
+        android:elevation="20dp"
+        android:id="@+id/mediaAlbumArt"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="5dp"
+        android:src="@drawable/default_music"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@+id/mediaBottomControl"
+        app:layout_constraintStart_toStartOf="@+id/mediaBottomControl"
+        app:layout_constraintTop_toTopOf="@+id/mediaBottomControl" />
+
+    <TextView
+        android:id="@+id/mediaTitle"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
+        android:layout_margin="10dp"
+        android:elevation="20dp"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/mediaAlbumArt"
+        app:layout_constraintStart_toEndOf="@+id/mediaAlbumArt"
+        app:layout_constraintTop_toTopOf="@+id/mediaBottomControl" />
+
+    <TextView
+        android:id="@+id/mediaArtist"
+        android:layout_width="70dp"
+        android:layout_height="20dp"
+        android:elevation="20dp"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/mediaTitle"
+        app:layout_constraintStart_toEndOf="@+id/mediaAlbumArt"
+        app:layout_constraintTop_toTopOf="@+id/mediaTitle" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

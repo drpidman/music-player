@@ -1,6 +1,7 @@
 package com.drkryz.musicplayer.screens.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,24 +37,31 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
         SongUtil song = musicList.get(position);
 
         TextView musicTitle = holder.musicTitle;
+        TextView musicAuthor = holder.musicAuthor;
         ImageView cover = holder.musicAlbumCover;
 
 
         cover.setImageBitmap(MediaMetadata.getCover(context, position, musicList));
         musicTitle.setText(song.getTitle());
+        musicAuthor.setText(song.getAuthor());
 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView musicTitle;
+        public TextView musicTitle, musicAuthor;
         public ImageView musicAlbumCover;
+        public androidx.constraintlayout.widget.ConstraintLayout constraintLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
+
+
             musicTitle = itemView.findViewById(R.id.musicTitle);
+            musicAuthor = itemView.findViewById(R.id.musicAuthor);
             musicAlbumCover = itemView.findViewById(R.id.musicAlbumCover);
+            constraintLayout = itemView.findViewById(R.id.itemSpace);
         }
     }
 

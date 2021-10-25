@@ -6,6 +6,7 @@ import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -25,7 +26,7 @@ public class TransitionListener implements MotionLayout.TransitionListener {
     private final ImageButton playbtn, prevbtn, nextbtn, drawer;
     private final SeekBar seekBar;
     private final TextView currentPlaying;
-    private final CustomImageView album;
+    private final ImageView album;
 
     public TransitionListener(Activity activity) {
         this.context = activity;
@@ -51,12 +52,7 @@ public class TransitionListener implements MotionLayout.TransitionListener {
 
         seekBar.setVisibility(View.INVISIBLE);
         album.setVisibility(View.INVISIBLE);
-
         currentPlaying.setVisibility(View.INVISIBLE);
-
-        if (motionLayout.getConstraintSet(endId) == motionLayout.getConstraintSet(R.id.end)) {
-            drawer.setVisibility(View.INVISIBLE);
-        }
     }
 
     @Override

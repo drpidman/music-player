@@ -6,6 +6,7 @@ import android.app.Application;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
@@ -13,10 +14,14 @@ import androidx.annotation.NonNull;
 import com.drkryz.musicplayer.utils.SongUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class ExternalStorage {
 
     private final ArrayList<SongUtil> musics = new ArrayList<>();
+    private SongUtil songUtil;
 
     public ExternalStorage populateSongs(Application app) {
         GetExternalContent(app);
@@ -28,6 +33,9 @@ public class ExternalStorage {
     }
 
     public ArrayList<SongUtil> getAll() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Collections.sort(musics, Comparator.comparing(SongUtil::getTitle));
+        }
         return musics;
     }
 
@@ -57,10 +65,11 @@ public class ExternalStorage {
                        if (duration != null) {
                            int durationFilter = Integer.parseInt(duration);
 
-                           if (durationFilter > 5000) musics.add(song);
+                           if (durationFilter > 5000) {
+                               musics.add(song);
+                           }
                        }
                    }
-
                 } while (cursor.moveToNext());
             }
             cursor.close();

@@ -8,13 +8,14 @@
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
 
     <application
@@ -22,11 +23,14 @@
         android:appCategory="audio"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.MusicPlayer"
         tools:targetApi="o">
+        <activity
+            android:name=".screens.PlayerActivity"
+            android:exported="true" />
         <activity
             android:name=".screens.YTMusicActivity"
             android:exported="true" />
@@ -34,25 +38,49 @@
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
-
-        <meta-data android:name="android.app.background_running" android:value="true"/>
+        <meta-data
+            android:name="android.app.background_running"
+            android:value="true" />
 
         <activity
-            android:name=".screens.PlayerActivity"
+            android:name=".screens.MusicActivity"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".screens.PermissionActivity"
             android:exported="true" />
         <activity
+            android:name="net.openid.appauth.RedirectUriReceiverActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            tools:node="replace">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Accepts URIs that begin with "example://gizmos” -->
+                <data
+                    android:host="https://www.drkryz.xyz"
+                    android:scheme="https" />
+                <data
+                    android:host="example"
+                    android:scheme="app" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".screens.SplashActivity"
             android:exported="true"
-            android:theme="@style/SplashTheme"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@style/SplashTheme">
             <intent-filter>
+                <action android:name="anroid.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.APP_MUSIC" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -64,24 +92,24 @@
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
             android:label="MusicService"
-            android:stopWithTask="false"
             android:process="com.drkryz.musicplayer"
-            tools:ignore="ExportedService"
-            >
+            android:stopWithTask="false"
+            tools:ignore="ExportedService">
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </service>
-        <service android:name=".services.MediaBrowserService"
+        <service
+            android:name=".services.MediaBrowserService"
             android:description="@string/app_name"
             android:enabled="true"
             android:exported="false"
-            android:label="@string/app_name"
-            >
+            android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService"/>
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
+
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
