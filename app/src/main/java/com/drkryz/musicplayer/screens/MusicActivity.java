@@ -188,7 +188,7 @@ public class MusicActivity extends AppCompatActivity {
         Bitmap cover = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        cover.compress(Bitmap.CompressFormat.PNG, 100, out);
+        cover.compress(Bitmap.CompressFormat.JPEG, 100, out);
         Bitmap decode = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
 
         coverImage.setImageBitmap(decode);
@@ -307,6 +307,13 @@ public class MusicActivity extends AppCompatActivity {
 
         preferencesUtil.StoreUserInApp(false);
         Log.e(getPackageName(), "activity destroyed");
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        unbindService(serviceConnection);
     }
 
     @Override

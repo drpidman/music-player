@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.media.MediaMetadata;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,8 +27,6 @@ import com.drkryz.musicplayer.constants.BroadcastConstants;
 import com.drkryz.musicplayer.functions.ServiceManager;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.utils.PreferencesUtil;
-
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -191,7 +188,7 @@ public class PlayerActivity extends AppCompatActivity {
                     isPlaying = preferencesUtil.GetPlayingState();
 
                     if (isPlaying) {
-                        playButton.setImageDrawable(getDrawable(R.drawable.ui_pause));
+                        playButton.setImageDrawable(getDrawable(R.drawable.nf_pause));
                         try {
                             updateCoverImage();
                             startSeekBar();
@@ -199,7 +196,7 @@ public class PlayerActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     } else {
-                        playButton.setImageDrawable(getDrawable(R.drawable.ui_play));
+                        playButton.setImageDrawable(getDrawable(R.drawable.nf_play));
                         try {
                             updateCoverImage();
                             startSeekBar();
@@ -238,6 +235,8 @@ public class PlayerActivity extends AppCompatActivity {
                 .unregisterReceiver(PlaybackStatusReceiver);
 
         preferencesUtil.StoreUserInApp(true);
+
+        unbindService(serviceConnection);
         finish();
     }
 
@@ -289,7 +288,7 @@ public class PlayerActivity extends AppCompatActivity {
             Log.e(getPackageName(), "PlayerActivity():status received=" + isPlaying);
             if (isPlaying) {
                 playButton
-                        .setImageDrawable(getDrawable(R.drawable.ui_pause));
+                        .setImageDrawable(getDrawable(R.drawable.nf_pause));
                 try {
                     updateCoverImage();
                     startSeekBar();
@@ -298,7 +297,7 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             } else {
                 playButton
-                        .setImageDrawable(getDrawable(R.drawable.ui_play));
+                        .setImageDrawable(getDrawable(R.drawable.nf_play));
             }
         }
     };

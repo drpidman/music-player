@@ -30,7 +30,10 @@
         tools:targetApi="o">
         <activity
             android:name=".screens.PlayerActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".screens.YTMusicActivity"
             android:exported="true" />

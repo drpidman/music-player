@@ -2,7 +2,7 @@
 <resources>
     <style name="SplashTheme" parent="Theme.SplashScreen.IconBackground">
         <item name="windowSplashScreenBackground">#000</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/img_splash</item>
         <item name="postSplashScreenTheme">@style/SplashThemeColor</item>
     </style>
 

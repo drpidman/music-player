@@ -21,14 +21,13 @@
         app:layout_constraintBottom_toTopOf="@+id/mediaBottomControl"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/listview_item" />
 
     <View
         android:id="@+id/mediaBottomControl"
         android:layout_width="match_parent"
         android:elevation="20dp"
-        android:background="@drawable/ui_mediacontrol"
+        android:background="@drawable/obj_media_control"
         android:layout_margin="10dp"
         android:layout_height="80dp"
         app:layout_constraintBottom_toBottomOf="parent"/>
@@ -38,8 +37,8 @@
         android:id="@+id/mediaAlbumArt"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginLeft="5dp"
-        android:src="@drawable/default_music"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/img_default_music"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="@+id/mediaBottomControl"
         app:layout_constraintStart_toStartOf="@+id/mediaBottomControl"

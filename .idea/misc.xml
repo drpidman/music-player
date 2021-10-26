@@ -8,6 +8,10 @@
         <entry key="app/src/main/res/drawable/bg_listitem.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/bg_playback_play.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/drawable/bg_skip_prev.xml" value="0.1355263157894737" />
+        <entry key="app/src/main/res/drawable/btn_drag.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/btn_gear.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/btn_glob.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/btn_nextview.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/button_e_background.xml" value="0.1717948717948718" />
         <entry key="app/src/main/res/drawable/ic_appstgs.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ic_baseline_expand.xml" value="0.1" />
@@ -20,30 +24,49 @@
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.18854166666666666" />
         <entry key="app/src/main/res/drawable/ic_online_navigator.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ic_previous.xml" value="0.152991452991453" />
+        <entry key="app/src/main/res/drawable/nf_pause.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/nf_play.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/nf_prev.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/obj_listitem.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/obj_media_control.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/obj_playback_control.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/obj_splash_background_shape.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/obj_splash_roundedicon.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/playback_control_background.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/drawable/playback_controol_background.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/drawable/rounded_blue_min.xml" value="0.16880341880341881" />
         <entry key="app/src/main/res/drawable/rounded_min.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/screen_obj_splash_background.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/skip_prev_bg.xml" value="0.1355263157894737" />
+        <entry key="app/src/main/res/drawable/splash_background.xml" value="0.18287037037037038" />
+        <entry key="app/src/main/res/drawable/splash_background_shape.xml" value="0.18287037037037038" />
         <entry key="app/src/main/res/drawable/splash_roundedicon.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/ui_beforebg.xml" value="0.17222222222222222" />
+        <entry key="app/src/main/res/drawable/ui_bgbutton.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/ui_bgplay.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/ui_dragbar.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ui_gear.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/ui_listitem.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/ui_mediacontrol.xml" value="0.1299342105263158" />
         <entry key="app/src/main/res/drawable/ui_next.xml" value="0.152991452991453" />
+        <entry key="app/src/main/res/drawable/ui_nextview.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/ui_online_navigator.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/ui_pause.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/ui_pausebtn.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ui_play.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/ui_playback_bg.xml" value="0.16880341880341881" />
         <entry key="app/src/main/res/drawable/ui_playbtn.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ui_prev.xml" value="0.152991452991453" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_permission.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/activity_permission.xml" value="0.14" />
         <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
+        <entry key="app/src/main/res/layout/activity_player.xml" value="0.18" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_ytmusic.xml" value="0.12532894736842104" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.17239583333333333" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.17239583333333333" />
         <entry key="app/src/main/res/layout/fragment_notifications.xml" value="0.17239583333333333" />
-        <entry key="app/src/main/res/layout/listview_item.xml" value="0.14" />
+        <entry key="app/src/main/res/layout/listview_item.xml" value="0.2" />
         <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.33" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.13223684210526315" />

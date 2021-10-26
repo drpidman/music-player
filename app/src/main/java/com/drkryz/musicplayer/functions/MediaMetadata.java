@@ -31,7 +31,7 @@ public class MediaMetadata {
             );
         } catch (IOException e) {
             cover = BitmapFactory
-                    .decodeResource(context.getResources(), R.drawable.default_music);
+                    .decodeResource(context.getResources(), R.drawable.img_default_music);
             e.printStackTrace();
         }
 

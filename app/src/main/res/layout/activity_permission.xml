@@ -10,7 +10,7 @@
     <View
         android:id="@+id/centeredView"
         android:layout_width="match_parent"
-        android:background="@drawable/rounded_min"
+        android:background="@drawable/obj_rounded_min"
         android:layout_margin="10dp"
         android:layout_height="match_parent"
         android:elevation="5dp"/>
@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="@id/centeredView"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="10dp"
-        android:background="@drawable/rounded_blue_min"
+        android:background="@drawable/obj_rounded_blue_min"
         android:layout_width="match_parent"
         android:layout_height="150dp"/>
 
@@ -144,7 +144,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_margin="5dp"
-        android:background="@drawable/ui_nextview"
+        android:background="@drawable/btn_nextview"
         android:elevation="5dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/centeredView"

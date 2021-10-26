@@ -592,7 +592,7 @@ public class MusicService extends Service implements
         } catch (IOException e) {
             albumArt = BitmapFactory.decodeResource(
                     getResources(),
-                    R.drawable.default_music
+                    R.drawable.img_default_music
             );
         }
 
@@ -606,14 +606,14 @@ public class MusicService extends Service implements
     }
 
     private void buildNotification(ApplicationUtil.Status status) {
-        int notificationAction = R.drawable.ui_pause;
+        int notificationAction = R.drawable.nf_pause;
         PendingIntent playAction_PauseAction = null;
 
         if (status == ApplicationUtil.Status.PLAYING) {
-            notificationAction = R.drawable.ui_pause;
+            notificationAction = R.drawable.nf_pause;
             playAction_PauseAction = playbackAction(1);
         } else if (status == ApplicationUtil.Status.PAUSED) {
-            notificationAction = R.drawable.ui_play;
+            notificationAction = R.drawable.nf_play;
             playAction_PauseAction = playbackAction(0);
         }
 
@@ -646,10 +646,10 @@ public class MusicService extends Service implements
                             .setContentText(activeAudio.getAuthor())
                             .setContentTitle(activeAudio.getTitle())
                             .setContentInfo(activeAudio.getTitle())
-                            .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
+                            .addAction(R.drawable.nf_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
-                            .addAction(R.drawable.ui_next, "next", playbackAction(2))
-                            .addAction(R.drawable.ic_baseline_close_24, "close", playbackAction(4));
+                            .addAction(R.drawable.nf_next, "next", playbackAction(2))
+                            .addAction(R.drawable.nf_close, "close", playbackAction(4));
 
             startForeground(145, mBuilder.build());
         } else {
@@ -674,10 +674,10 @@ public class MusicService extends Service implements
                             .setContentText(activeAudio.getAuthor())
                             .setContentTitle(activeAudio.getTitle())
                             .setContentInfo(activeAudio.getTitle())
-                            .addAction(R.drawable.ui_prev, "previous", playbackAction(3))
+                            .addAction(R.drawable.nf_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
-                            .addAction(R.drawable.ui_next, "next", playbackAction(2))
-                            .addAction(R.drawable.ic_baseline_close_24, "close", playbackAction(4));
+                            .addAction(R.drawable.nf_next, "next", playbackAction(2))
+                            .addAction(R.drawable.nf_close, "close", playbackAction(4));
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getBaseContext());
 
             startForeground(145, notificationCompat.build());

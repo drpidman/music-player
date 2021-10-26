@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#111"
-    android:layout_gravity="center"
     tools:context=".screens.PlayerActivity">
 
     <ImageView
@@ -13,16 +12,18 @@
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/default_music"
+        android:src="@drawable/img_default_music"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.387" />
 
     <TextView
         android:id="@+id/mediaCurrentTitle"
         android:layout_width="250dp"
-        android:layout_height="30dp"
+        android:layout_height="40dp"
         android:padding="5dp"
         android:singleLine="true"
         android:ellipsize="marquee"
@@ -30,7 +31,7 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:scrollHorizontally="true"
-        android:textSize="15sp"
+        android:textSize="20sp"
         android:textAlignment="center"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="@+id/mediaAlbumArt"
@@ -54,7 +55,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@null"
-        android:src="@drawable/ui_next"
+        android:src="@drawable/nf_next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
         app:layout_constraintStart_toEndOf="@+id/mediaPlay"
@@ -66,7 +67,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@null"
-        android:src="@drawable/ui_prev"
+        android:src="@drawable/nf_prev"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/mediaPlay"
         app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
@@ -78,7 +79,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:background="@null"
-        android:src="@drawable/ui_play"
+        android:src="@drawable/nf_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/mediaAlbumArt"
         app:layout_constraintStart_toStartOf="@+id/mediaAlbumArt"
