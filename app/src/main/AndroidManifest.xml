@@ -79,11 +79,8 @@
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="anroid.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.APP_MUSIC" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -95,7 +92,6 @@
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
             android:label="MusicService"
-            android:process="com.drkryz.musicplayer"
             android:stopWithTask="false"
             tools:ignore="ExportedService">
             <intent-filter>

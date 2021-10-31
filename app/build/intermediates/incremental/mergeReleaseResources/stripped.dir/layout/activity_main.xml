@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="#111"
+    android:focusable="true"
+    tools:context=".screens.MusicActivity"
+    >
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/musicList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintHeight_default="percent"
+        android:divider="@null"
+        android:padding="5dp"
+        android:layout_margin="5dp"
+        android:scrollbarThumbHorizontal="@color/white"
+        android:scrollbarThumbVertical="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/mediaBottomControl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:listitem="@layout/listview_item" />
+
+    <View
+        android:id="@+id/mediaBottomControl"
+        android:layout_width="match_parent"
+        android:elevation="20dp"
+        android:layout_margin="5dp"
+        android:background="@drawable/obj_media_control"
+        android:layout_height="90dp"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.drkryz.musicplayer.custom.CustomImageView
+        android:elevation="20dp"
+        android:id="@+id/mediaAlbumArt"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/img_default_music"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@+id/mediaBottomControl"
+        app:layout_constraintStart_toStartOf="@+id/mediaBottomControl"
+        app:layout_constraintTop_toTopOf="@+id/mediaBottomControl" />
+
+    <TextView
+        android:id="@+id/mediaTitle"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
+        android:layout_margin="10dp"
+        android:elevation="20dp"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/mediaAlbumArt"
+        app:layout_constraintStart_toEndOf="@+id/mediaAlbumArt"
+        app:layout_constraintTop_toTopOf="@+id/mediaBottomControl" />
+
+    <TextView
+        android:id="@+id/mediaArtist"
+        android:layout_width="70dp"
+        android:layout_height="20dp"
+        android:elevation="20dp"
+        android:singleLine="true"
+        android:textColor="#ccc"
+        app:layout_constraintStart_toStartOf="@+id/mediaTitle"
+        app:layout_constraintTop_toBottomOf="@+id/mediaTitle" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

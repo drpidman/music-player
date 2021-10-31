@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SplashScreen" parent="android:Theme.DeviceDefault.NoActionBar">
+        <item name="android:windowSplashScreenAnimatedIcon">?windowSplashScreenAnimatedIcon</item>
+        <item name="android:windowSplashScreenBackground">?windowSplashScreenBackground</item>
+        <item name="android:windowSplashScreenAnimationDuration">
+            ?windowSplashScreenAnimationDuration
+        </item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+    </style>
+    <style name="Theme.SplashScreen.IconBackground" parent="Theme.SplashScreen">
+        <item name="android:windowSplashScreenIconBackgroundColor">
+            ?windowSplashScreenIconBackgroundColor
+        </item>
+    </style>
+</resources>

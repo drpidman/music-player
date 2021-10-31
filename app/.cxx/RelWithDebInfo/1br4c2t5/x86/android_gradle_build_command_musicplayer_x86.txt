@@ -1,0 +1,7 @@
+Executable : /home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja
+arguments : 
+-C
+/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/RelWithDebInfo/1br4c2t5/x86
+musicplayer
+jvmArgs : 
+

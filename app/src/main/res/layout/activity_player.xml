@@ -15,10 +15,8 @@
         android:src="@drawable/img_default_music"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.387" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/mediaCurrentTitle"
@@ -56,10 +54,10 @@
         android:layout_height="50dp"
         android:background="@null"
         android:src="@drawable/nf_next"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
         app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
         app:layout_constraintStart_toEndOf="@+id/mediaPlay"
-        app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar"
+        app:layout_constraintTop_toTopOf="@+id/mediaPlay"
         app:tint="#087fff" />
 
     <ImageButton
@@ -68,10 +66,10 @@
         android:layout_height="50dp"
         android:background="@null"
         android:src="@drawable/nf_prev"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
         app:layout_constraintEnd_toStartOf="@+id/mediaPlay"
         app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
-        app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar"
+        app:layout_constraintTop_toTopOf="@+id/mediaPlay"
         app:tint="#087fff" />
 
     <ImageButton
@@ -83,7 +81,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/mediaAlbumArt"
         app:layout_constraintStart_toStartOf="@+id/mediaAlbumArt"
-        app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar"
+        app:layout_constraintTop_toBottomOf="@+id/mediaCurrentTitle"
         app:tint="#087fff" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

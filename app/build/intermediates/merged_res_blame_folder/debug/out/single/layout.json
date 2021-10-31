@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_ytmusic.xml",
+        "source": "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/res/layout/activity_ytmusic.xml"
+    },
+    {
+        "merged": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_player.xml",
+        "source": "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/res/layout/activity_player.xml"
+    },
+    {
+        "merged": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_permission.xml",
+        "source": "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/res/layout/activity_permission.xml"
+    },
+    {
+        "merged": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/listview_item.xml",
+        "source": "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/res/layout/listview_item.xml"
+    },
+    {
+        "merged": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_main.xml",
+        "source": "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/res/layout/activity_main.xml"
+    },
+    {
+        "merged": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_splash.xml",
+        "source": "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/res/layout/activity_splash.xml"
+    }
+]

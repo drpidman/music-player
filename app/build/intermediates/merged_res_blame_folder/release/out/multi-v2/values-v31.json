@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-v31/values-v31.xml",
+            "map": [
+                {
+                    "source": "/home/drkryz/.gradle/caches/transforms-3/023d15cb33ebd26d2569c1138c4e4bd4/transformed/jetified-core-splashscreen-1.0.0-alpha02/res/values-v31/values-v31.xml",
+                    "from": {
+                        "startLines": "2,10",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,581",
+                        "endLines": "9,14",
+                        "endColumns": "12,12",
+                        "endOffsets": "576,805"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,3 @@
+ninja: Entering directory `/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/RelWithDebInfo/1br4c2t5/x86'
+[1/2] Building CXX object CMakeFiles/musicplayer.dir/musicplayer.cpp.o
+[2/2] Linking CXX shared library /home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/cxx/RelWithDebInfo/1br4c2t5/obj/x86/libmusicplayer.so

@@ -1,0 +1,3 @@
+/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/Debug/4q725xj4/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/Debug/4q725xj4/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/Debug/4q725xj4/arm64-v8a/CMakeFiles/musicplayer.dir

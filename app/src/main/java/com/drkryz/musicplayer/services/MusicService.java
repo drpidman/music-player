@@ -153,7 +153,6 @@ public class MusicService extends Service implements
             mediaSession.release();
             preferencesUtil.storeAudioIndex(audioIndex);
 
-
             removeAudioFocus();
             stopForeground(true);
         }

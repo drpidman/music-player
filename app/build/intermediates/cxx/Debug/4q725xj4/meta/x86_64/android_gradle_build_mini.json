@@ -1,0 +1,33 @@
+{
+  "buildFiles": [
+    "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/cpp/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+      "-C",
+      "/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/Debug/4q725xj4/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+    "-C",
+    "/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/Debug/4q725xj4/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "musicplayer-Debug-x86_64": {
+      "artifactName": "musicplayer",
+      "buildCommandComponents": [
+        "/home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+        "-C",
+        "/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/Debug/4q725xj4/x86_64",
+        "musicplayer"
+      ],
+      "abi": "x86_64",
+      "output": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/cxx/Debug/4q725xj4/obj/x86_64/libmusicplayer.so",
+      "runtimeFiles": []
+    }
+  }
+}

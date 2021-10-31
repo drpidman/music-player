@@ -140,6 +140,8 @@ public class PlayerActivity extends AppCompatActivity {
 
             }
         });
+
+
     }
 
     @Override
@@ -221,6 +223,7 @@ public class PlayerActivity extends AppCompatActivity {
                 .unregisterReceiver(PlaybackStatusReceiver);
         Log.e(getPackageName(), "activity destroyed");
 
+        unbindService(serviceConnection);
     }
 
     @Override
@@ -236,8 +239,6 @@ public class PlayerActivity extends AppCompatActivity {
 
         preferencesUtil.StoreUserInApp(true);
 
-        unbindService(serviceConnection);
-        finish();
     }
 
     private void updateSeekBar() {

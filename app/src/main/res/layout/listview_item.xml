@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="5dp"
     android:background="@drawable/obj_listitem"
     android:descendantFocusability="blocksDescendants"
     android:layout_width="match_parent"
@@ -11,13 +10,13 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:id="@+id/itemSpace"
-        android:layout_margin="1dp"
-        android:layout_height="100dp">
+        android:layout_height="wrap_content">
 
         <com.drkryz.musicplayer.custom.CustomImageView
             android:id="@+id/musicAlbumCover"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_margin="10dp"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -28,6 +27,8 @@
             android:layout_width="150dp"
             android:layout_height="30dp"
             android:singleLine="true"
+            android:fontFamily="@font/varela"
+            android:textStyle="bold"
             android:ellipsize="marquee"
             app:layout_constraintBottom_toBottomOf="@+id/musicAlbumCover"
             app:layout_constraintEnd_toEndOf="parent"
@@ -38,6 +39,11 @@
             android:id="@+id/musicAuthor"
             android:layout_width="150dp"
             android:layout_height="20dp"
+            android:fontFamily="@font/varela"
+            android:textStyle="bold|italic"
+            android:singleLine="true"
+            android:textColor="#3b3b3b"
+            android:ellipsize="marquee"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/musicTitle"
             app:layout_constraintStart_toStartOf="@+id/musicTitle"

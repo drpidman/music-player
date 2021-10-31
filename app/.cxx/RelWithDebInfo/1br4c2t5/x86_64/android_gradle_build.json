@@ -1,0 +1,40 @@
+{
+  "stringTable": {},
+  "buildFiles": [
+    "/home/drkryz/Documentos/Projects/MusicPlayer/app/src/main/cpp/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+      "-C",
+      "/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/RelWithDebInfo/1br4c2t5/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+    "-C",
+    "/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/RelWithDebInfo/1br4c2t5/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "musicplayer-RelWithDebInfo-x86_64": {
+      "buildCommandComponents": [
+        "/home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja",
+        "-C",
+        "/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/RelWithDebInfo/1br4c2t5/x86_64",
+        "musicplayer"
+      ],
+      "buildType": "release",
+      "abi": "x86_64",
+      "artifactName": "musicplayer",
+      "output": "/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/cxx/RelWithDebInfo/1br4c2t5/obj/x86_64/libmusicplayer.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {},
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

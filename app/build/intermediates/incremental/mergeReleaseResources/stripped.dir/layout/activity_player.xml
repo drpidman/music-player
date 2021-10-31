@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#111"
+    tools:context=".screens.PlayerActivity">
+
+    <View
+        android:id="@+id/supportForPlayerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp"/>
+
+    <ImageView
+        android:id="@+id/mediaAlbumArt"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_default_music"
+        app:layout_constraintBottom_toBottomOf="@+id/supportForPlayerView"
+        app:layout_constraintEnd_toEndOf="@+id/supportForPlayerView"
+        app:layout_constraintStart_toStartOf="@+id/supportForPlayerView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/mediaCurrentTitle"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:padding="5dp"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/mediaAlbumArt"
+        app:layout_constraintStart_toStartOf="@+id/mediaAlbumArt"
+        app:layout_constraintTop_toBottomOf="@+id/mediaAlbumArt" />
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/appCompatSeekBar"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:elevation="1dp"
+        android:progressBackgroundTint="#fff"
+        android:progressTint="#087fff"
+        android:thumbTint="#087fff"
+        app:layout_constraintBottom_toBottomOf="@+id/supportForPlayerView"
+        app:layout_constraintEnd_toEndOf="@+id/mediaAlbumArt"
+        app:layout_constraintStart_toStartOf="@+id/mediaAlbumArt"
+        app:layout_constraintTop_toBottomOf="@+id/mediaCurrentTitle" />
+
+    <ImageButton
+        android:id="@+id/mediaSkip"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@null"
+        android:src="@drawable/nf_next"
+        app:layout_constraintBottom_toBottomOf="@+id/supportForPlayerView"
+        app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
+        app:layout_constraintStart_toEndOf="@+id/mediaPlay"
+        app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar"
+        app:tint="#087fff" />
+
+    <ImageButton
+        android:id="@+id/mediaPrev"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@null"
+        android:src="@drawable/nf_prev"
+        app:layout_constraintBottom_toBottomOf="@+id/supportForPlayerView"
+        app:layout_constraintEnd_toStartOf="@+id/mediaPlay"
+        app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
+        app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar"
+        app:tint="#087fff" />
+
+    <ImageButton
+        android:id="@+id/mediaPlay"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="@null"
+        android:src="@drawable/nf_play"
+        app:layout_constraintBottom_toBottomOf="@+id/supportForPlayerView"
+        app:layout_constraintEnd_toEndOf="@+id/mediaAlbumArt"
+        app:layout_constraintStart_toStartOf="@+id/mediaAlbumArt"
+        app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar"
+        app:tint="#087fff" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

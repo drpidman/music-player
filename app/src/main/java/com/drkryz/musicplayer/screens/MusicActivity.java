@@ -30,6 +30,9 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -42,6 +45,7 @@ import com.drkryz.musicplayer.functions.ExternalStorage;
 import com.drkryz.musicplayer.functions.ServiceManager;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
 import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
+import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
 import com.drkryz.musicplayer.constants.BroadcastConstants;
@@ -54,6 +58,7 @@ import java.io.IOException;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 public class MusicActivity extends AppCompatActivity {
 
@@ -70,6 +75,7 @@ public class MusicActivity extends AppCompatActivity {
 
     private ImageView coverImage;
     private TextView musicTitle, musicAuthor;
+    private ImageButton mediaControlPlayButton;
 
     private boolean serviceBound = false;
     private boolean isRunning = false;
@@ -99,6 +105,7 @@ public class MusicActivity extends AppCompatActivity {
         coverImage = (ImageView) findViewById(R.id.mediaAlbumArt);
         musicTitle = (TextView) findViewById(R.id.mediaTitle);
         musicAuthor = (TextView) findViewById(R.id.mediaArtist);
+        mediaControlPlayButton = (ImageButton) findViewById(R.id.mediaControlPlayButton);
 
         mediaBottomControl = (View) findViewById(R.id.mediaBottomControl);
 
@@ -110,8 +117,9 @@ public class MusicActivity extends AppCompatActivity {
         // list view adapter
         MusicRecyclerView adapter = new MusicRecyclerView(externalGet.getAll(), getBaseContext());
         AlphaInAnimationAdapter alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapter);
-        alphaInAnimationAdapter.setDuration(5000);
-        alphaInAnimationAdapter.setInterpolator(new OvershootInterpolator());
+
+        alphaInAnimationAdapter.setDuration(1000);
+        alphaInAnimationAdapter.setInterpolator(new AccelerateInterpolator());
         alphaInAnimationAdapter.setFirstOnly(false);
 
         listView.setAdapter(new ScaleInAnimationAdapter(alphaInAnimationAdapter));
@@ -129,6 +137,17 @@ public class MusicActivity extends AppCompatActivity {
                     }
                 });
 
+
+        mediaBottomControl.setOnTouchListener(new OnSwipeTouchListener() {
+            @Override
+            public boolean onSwipeTop() {
+                Intent PlayerActivityIntent = new Intent(getBaseContext(), PlayerActivity.class);
+                startActivity(PlayerActivityIntent);
+                return super.onSwipeTop();
+            }
+        });
+
+
         createChannel();
         preferencesUtil = new PreferencesUtil(getBaseContext());
         preferencesUtil.StoreUserInApp(true);
@@ -142,10 +161,54 @@ public class MusicActivity extends AppCompatActivity {
             }
         });
 
+        listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (preferencesUtil.loadAudio().size() < 1) return;
+
+                int totalItemCount = layoutManager.getItemCount();
+                int lastVisible = layoutManager.findLastVisibleItemPosition();
+
+                boolean endHasBeenReached = lastVisible + 1 >= totalItemCount;
+
+                if (totalItemCount > 0 && endHasBeenReached) {
+                    mediaBottomControl.setVisibility(View.INVISIBLE);
+                } else {
+                    mediaBottomControl.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
 
         // start to first
         ServiceManager.handleAction(0, this);
         bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
+
+
+        mediaControlPlayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int audioIndex = preferencesUtil.loadAudioIndex();
+
+                Log.e(getPackageName(), "running=" + isRunning);
+
+                if (isRunning) {
+                    if (isPlaying) {
+                        ServiceManager.handleAction(3, getBaseContext());
+                    } else {
+                        ServiceManager.handleAction(4, getBaseContext());
+                    }
+                } else {
+                    if (audioIndex != -1) {
+                        Intent service = new Intent(getBaseContext(), MusicService.class);
+                        service.setAction(BroadcastConstants.INIT_CMD);
+
+                        bindService(service, serviceConnection, BIND_AUTO_CREATE);
+                        startService(service);
+                    }
+                }
+            }
+        });
     }
 
 
@@ -192,9 +255,15 @@ public class MusicActivity extends AppCompatActivity {
         Bitmap decode = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
 
         coverImage.setImageBitmap(decode);
-
         musicTitle.setText(metadata.getString(MediaMetadata.METADATA_KEY_TITLE));
         musicAuthor.setText(metadata.getString(MediaMetadata.METADATA_KEY_ARTIST));
+
+        if (isPlaying) {
+            mediaControlPlayButton.setImageDrawable(getDrawable(R.drawable.nf_pause));
+        } else {
+            mediaControlPlayButton.setImageDrawable(getDrawable(R.drawable.nf_play));
+        }
+
     }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -306,14 +375,9 @@ public class MusicActivity extends AppCompatActivity {
                 .unregisterReceiver(PlaybackStatusReceiver);
 
         preferencesUtil.StoreUserInApp(false);
-        Log.e(getPackageName(), "activity destroyed");
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
 
         unbindService(serviceConnection);
+        Log.e(getPackageName(), "activity destroyed");
     }
 
     @Override
@@ -365,5 +429,9 @@ public class MusicActivity extends AppCompatActivity {
 
             notificationManager.createNotificationChannel(notificationChannel.build());
         }
+    }
+
+    static {
+        System.loadLibrary("musicplayer");
     }
 }
