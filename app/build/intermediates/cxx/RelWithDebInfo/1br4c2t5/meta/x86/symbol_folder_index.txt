@@ -1,1 +1,0 @@
-/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/cxx/RelWithDebInfo/1br4c2t5/obj/x86

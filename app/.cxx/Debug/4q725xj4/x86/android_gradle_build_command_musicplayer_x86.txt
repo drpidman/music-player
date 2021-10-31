@@ -1,7 +1,0 @@
-Executable : /home/drkryz/Android/Sdk/cmake/3.10.2.4988404/bin/ninja
-arguments : 
--C
-/home/drkryz/Documentos/Projects/MusicPlayer/app/.cxx/Debug/4q725xj4/x86
-musicplayer
-jvmArgs : 
-
