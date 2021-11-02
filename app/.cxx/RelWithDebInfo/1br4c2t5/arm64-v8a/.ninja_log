@@ -4,3 +4,5 @@
 0	19	0	clean	e3f225e156d604a
 0	4	0	clean	e3f225e156d604a
 1	4	0	clean	e3f225e156d604a
+18	118	1635722726	CMakeFiles/musicplayer.dir/musicplayer.cpp.o	2487268d43aa6b1c
+134	426	1635722726	/home/drkryz/Documentos/Projects/MusicPlayer/app/build/intermediates/cxx/RelWithDebInfo/1br4c2t5/obj/arm64-v8a/libmusicplayer.so	8a1f01e8234ba81d

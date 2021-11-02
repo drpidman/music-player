@@ -20,7 +20,7 @@ import com.drkryz.musicplayer.custom.CustomImageView;
 public class TransitionListener implements MotionLayout.TransitionListener {
 
     private LayoutInflater inflater = null;
-    private Activity context;
+    private final Activity context;
 
 
     private final ImageButton playbtn, prevbtn, nextbtn, drawer;

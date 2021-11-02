@@ -16,7 +16,7 @@ public class PreferencesUtil {
     private final String STORAGE_USER = "COM.drkryz.musicplayer.STORAGE_USER";
 
     private SharedPreferences preferences;
-    private Context context;
+    private final Context context;
 
     public PreferencesUtil(Context context) {
         this.context = context;
@@ -33,7 +33,7 @@ public class PreferencesUtil {
     }
 
     public ArrayList<SongUtil> loadAudio() {
-        preferences = context.getSharedPreferences(STORAGE, context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = preferences.getString("audioArrayList", null);
         Type type = new TypeToken<ArrayList<SongUtil>>() {}.getType();
@@ -93,13 +93,13 @@ public class PreferencesUtil {
 
         editor.putBoolean("playingState", playingState);
         editor.apply();
-    };
+    }
 
     public boolean GetPlayingState() {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
         return preferences.getBoolean("playingState", false);
 
-    };
+    }
 
     public void SetLastCover(String cover) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);

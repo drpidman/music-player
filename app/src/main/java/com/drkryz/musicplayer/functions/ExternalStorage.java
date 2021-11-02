@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import com.drkryz.musicplayer.utils.SongUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -23,9 +22,8 @@ public class ExternalStorage {
     private final ArrayList<SongUtil> musics = new ArrayList<>();
     private SongUtil songUtil;
 
-    public ExternalStorage populateSongs(Application app) {
+    public void populateSongs(Application app) {
         GetExternalContent(app);
-        return null;
     }
 
     public SongUtil getMusicIndex(int index) {
@@ -54,22 +52,22 @@ public class ExternalStorage {
                     String author = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
                     String duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                    Long AlbumArt = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+                    long AlbumArt = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 
                     Uri artWork = Uri.parse("content://media/external/audio/albumart");
                     Uri albumArt = ContentUris.withAppendedId(artWork, AlbumArt);
 
                     SongUtil song = new SongUtil(title, author, path, duration, String.valueOf(albumArt));
 
-                   if (path.endsWith(".mp3")) {
-                       if (duration != null) {
-                           int durationFilter = Integer.parseInt(duration);
+                    if (path.endsWith(".mp3")) {
+                        if (duration != null) {
+                            int durationFilter = Integer.parseInt(duration);
 
-                           if (durationFilter > 5000) {
-                               musics.add(song);
-                           }
-                       }
-                   }
+                            if (durationFilter > 5000) {
+                                musics.add(song);
+                            }
+                        }
+                    }
                 } while (cursor.moveToNext());
             }
             cursor.close();

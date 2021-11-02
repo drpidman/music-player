@@ -15,15 +15,13 @@ import java.util.ArrayList;
 
 public class MediaMetadata {
 
-    private static Bitmap cover = null;
-    private static PreferencesUtil preferencesUtil;
-
     public static Bitmap getCover(Context context, int index, ArrayList<SongUtil> song) {
-        preferencesUtil = new PreferencesUtil(context);
+        PreferencesUtil preferencesUtil = new PreferencesUtil(context);
 
         SongUtil songUtil = song.get(index);
         String albumUri = songUtil.getAlbum();
 
+        Bitmap cover = null;
         try {
             cover = MediaStore.Images.Media.getBitmap(
                     context.getContentResolver(),

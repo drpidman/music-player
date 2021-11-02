@@ -1,16 +1,15 @@
 package com.drkryz.musicplayer.screens;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -22,29 +21,24 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AnticipateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.functions.ExternalStorage;
 import com.drkryz.musicplayer.functions.ServiceManager;
 import com.drkryz.musicplayer.listeners.ItemClickSupport;
-import com.drkryz.musicplayer.listeners.MainListeners.TransitionListener;
 import com.drkryz.musicplayer.listeners.OnSwipeTouchListener;
 import com.drkryz.musicplayer.screens.adapters.MusicRecyclerView;
 import com.drkryz.musicplayer.services.MusicService;
@@ -58,17 +52,13 @@ import java.io.IOException;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
-import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 public class MusicActivity extends AppCompatActivity {
 
 
-    private ApplicationUtil applicationUtil;
     private MusicService musicService;
-    private ExternalStorage externalGet;
     private PreferencesUtil preferencesUtil;
     private LinearLayoutManager layoutManager;
-    private RecyclerView listView;
 
 
     private View mediaBottomControl;
@@ -100,8 +90,7 @@ public class MusicActivity extends AppCompatActivity {
                 .registerReceiver(MusicServiceStatus, new IntentFilter(BroadcastConstants.PREPARE_CMD + ".running"));
 
 
-
-        listView = (RecyclerView) findViewById(R.id.musicList);
+        RecyclerView listView = (RecyclerView) findViewById(R.id.musicList);
         coverImage = (ImageView) findViewById(R.id.mediaAlbumArt);
         musicTitle = (TextView) findViewById(R.id.mediaTitle);
         musicAuthor = (TextView) findViewById(R.id.mediaArtist);
@@ -109,8 +98,8 @@ public class MusicActivity extends AppCompatActivity {
 
         mediaBottomControl = (View) findViewById(R.id.mediaBottomControl);
 
-        applicationUtil = (ApplicationUtil) getApplicationContext();
-        externalGet = new ExternalStorage();
+        ApplicationUtil applicationUtil = (ApplicationUtil) getApplicationContext();
+        ExternalStorage externalGet = new ExternalStorage();
         externalGet.populateSongs(getApplication());
 
 
@@ -259,9 +248,9 @@ public class MusicActivity extends AppCompatActivity {
         musicAuthor.setText(metadata.getString(MediaMetadata.METADATA_KEY_ARTIST));
 
         if (isPlaying) {
-            mediaControlPlayButton.setImageDrawable(getDrawable(R.drawable.nf_pause));
+            mediaControlPlayButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.nf_pause));
         } else {
-            mediaControlPlayButton.setImageDrawable(getDrawable(R.drawable.nf_play));
+            mediaControlPlayButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.nf_play));
         }
 
     }

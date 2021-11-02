@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.ViewHolder> {
 
-    private ArrayList<SongUtil> musicList;
-    private Context context;
+    private final ArrayList<SongUtil> musicList;
+    private final Context context;
 
     @Override
     public MusicRecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

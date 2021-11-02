@@ -314,7 +314,7 @@ public class MusicService extends Service implements
 
                     if (!requestAudioFocus()) {
                         stopSelf();
-                    };
+                    }
 
                     if (mediaSessionManager == null) {
                         Log.e(getPackageName(), "null:starting new play");
@@ -715,10 +715,7 @@ public class MusicService extends Service implements
                 getSystemService(Context.AUDIO_SERVICE);
 
         int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            return true;
-        }
-        return false;
+        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
     private void removeAudioFocus() {

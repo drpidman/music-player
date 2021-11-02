@@ -1,6 +1,8 @@
 package com.drkryz.musicplayer.screens;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.TextViewCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.content.BroadcastReceiver;
@@ -11,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.media.MediaMetadata;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,10 +45,12 @@ public class PlayerActivity extends AppCompatActivity {
     private boolean isRunning = false;
     private boolean isPlaying = false;
 
-    private ImageButton playButton, skipButton, prevButton;
+    private ImageButton playButton, skipButton, prevButton, closePlayerButton;
     private ImageView musicAlbumArt;
-    private TextView musicTitle;
+    private TextView musicTitle, musicArtist, mediaCurrentPosition, mediaTotalDuration;
     private SeekBar seekBar;
+
+    private ConstraintLayout loadingScreen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +68,16 @@ public class PlayerActivity extends AppCompatActivity {
 
         musicAlbumArt = (ImageView) findViewById(R.id.mediaAlbumArt);
         musicTitle = (TextView) findViewById(R.id.mediaCurrentTitle);
+        musicArtist = (TextView) findViewById(R.id.mediaCurrentAuthor);
+        mediaCurrentPosition = (TextView) findViewById(R.id.mediaCurrentPosition);
+        mediaTotalDuration = (TextView) findViewById(R.id.mediaTotalDuration);
+
         seekBar = (SeekBar) findViewById(R.id.appCompatSeekBar);
         skipButton = (ImageButton) findViewById(R.id.mediaSkip);
         prevButton = (ImageButton) findViewById(R.id.mediaPrev);
         playButton = (ImageButton) findViewById(R.id.mediaPlay);
+        closePlayerButton = (ImageButton) findViewById(R.id.closePlayerUi);
+        loadingScreen = (ConstraintLayout) findViewById(R.id.loadingView);
         preferencesUtil = new PreferencesUtil(getBaseContext());
 
 
@@ -122,6 +133,14 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
+        closePlayerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getBaseContext(), MusicActivity.class));
+                finish();
+            }
+        });
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int position, boolean fromUser) {
@@ -140,7 +159,6 @@ public class PlayerActivity extends AppCompatActivity {
 
             }
         });
-
 
     }
 
@@ -190,7 +208,7 @@ public class PlayerActivity extends AppCompatActivity {
                     isPlaying = preferencesUtil.GetPlayingState();
 
                     if (isPlaying) {
-                        playButton.setImageDrawable(getDrawable(R.drawable.nf_pause));
+                        playButton.setImageDrawable(getDrawable(R.drawable.ui_pause));
                         try {
                             updateCoverImage();
                             startSeekBar();
@@ -198,7 +216,7 @@ public class PlayerActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     } else {
-                        playButton.setImageDrawable(getDrawable(R.drawable.nf_play));
+                        playButton.setImageDrawable(getDrawable(R.drawable.ui_play));
                         try {
                             updateCoverImage();
                             startSeekBar();
@@ -207,6 +225,8 @@ public class PlayerActivity extends AppCompatActivity {
                         }
                     }
                 }
+
+                loadingScreen.setVisibility(View.INVISIBLE);
             }
         }, 250);
     }
@@ -244,10 +264,12 @@ public class PlayerActivity extends AppCompatActivity {
     private void updateSeekBar() {
         MediaMetadata mediaMetadata = musicService.getMetadata();
         seekBar.setMax((int) mediaMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION));
+        mediaTotalDuration.setText(getTime((int) mediaMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION)));
     }
 
     private final Handler mHandler = new Handler();
     private void startSeekBar() {
+
         if (!preferencesUtil.LoadUserInApp()) return;
         runOnUiThread(new Runnable() {
             @Override
@@ -255,6 +277,8 @@ public class PlayerActivity extends AppCompatActivity {
                 if (musicService == null) return;
                 if (!preferencesUtil.LoadUserInApp()) return;
                 seekBar.setProgress(musicService.getCurrentPosition());
+                mediaCurrentPosition.setText(getTime(musicService.getCurrentPosition()));
+
                 mHandler.postDelayed(this, 1000);
             }
         });
@@ -277,7 +301,22 @@ public class PlayerActivity extends AppCompatActivity {
                 metadata.getText(MediaMetadata.METADATA_KEY_TITLE)
         );
 
+        musicArtist.setSelected(true);
+        musicArtist.setText(
+                metadata.getText(MediaMetadata.METADATA_KEY_ARTIST)
+        );
+
+        loadingScreen.setVisibility(View.INVISIBLE);
+
         updateSeekBar();
+    }
+
+    public String getTime(int time) {
+        int seconds = time / 1000;
+        int minutes = seconds / 60;
+        seconds = seconds % 60;
+
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
 
@@ -289,7 +328,7 @@ public class PlayerActivity extends AppCompatActivity {
             Log.e(getPackageName(), "PlayerActivity():status received=" + isPlaying);
             if (isPlaying) {
                 playButton
-                        .setImageDrawable(getDrawable(R.drawable.nf_pause));
+                        .setImageDrawable(getDrawable(R.drawable.ui_pause));
                 try {
                     updateCoverImage();
                     startSeekBar();
@@ -298,7 +337,7 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             } else {
                 playButton
-                        .setImageDrawable(getDrawable(R.drawable.nf_play));
+                        .setImageDrawable(getDrawable(R.drawable.ui_play));
             }
         }
     };
@@ -316,7 +355,6 @@ public class PlayerActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             Log.d(getPackageName(), "service connected");
             MusicService.LocalBinder binder = (MusicService.LocalBinder) iBinder;
-
             musicService = binder.getService();
             serviceBound = true;
         }
