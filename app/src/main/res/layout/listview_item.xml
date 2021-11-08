@@ -12,7 +12,7 @@
         android:id="@+id/itemSpace"
         android:layout_height="wrap_content">
 
-        <com.drkryz.musicplayer.custom.CustomImageView
+        <com.drkryz.musicplayer.CustomViews.CustomImageView
             android:id="@+id/musicAlbumCover"
             android:layout_width="65dp"
             android:layout_height="65dp"

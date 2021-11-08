@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#111"
-    tools:context=".screens.PlayerActivity">
+    tools:context=".Screens.PlayerActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#111"
+        android:visibility="invisible"
         android:elevation="20dp"
         >
 
@@ -65,40 +66,52 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mediaMetadata"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:id="@+id/mediaMetadata"
+        android:padding="10dp"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintHeight_default="spread"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topControlMenu">
 
-        <com.drkryz.musicplayer.custom.CustomImageView
+        <com.drkryz.musicplayer.CustomViews.CustomImageView
             android:id="@+id/mediaAlbumArt"
             android:layout_width="300dp"
             android:layout_height="300dp"
+            android:background="@drawable/obj_topbar_background"
+            android:layout_margin="10dp"
+            android:elevation="10dp"
             android:scaleType="centerCrop"
-            android:elevation="30dp"
             android:src="@drawable/img_default_music"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/mediaMetadata">
 
         <TextView
             android:id="@+id/mediaCurrentTitle"
             android:layout_width="250dp"
             android:layout_height="40dp"
             android:layout_margin="10dp"
-            android:text="UNKNOWN"
-            android:singleLine="true"
             android:ellipsize="marquee"
-            android:textColor="#cccccc"
-            android:textAlignment="center"
-            android:textSize="25sp"
             android:fontFamily="@font/varela"
+            android:singleLine="true"
+            android:text="UNKNOWN"
+            android:textAlignment="center"
+            android:textColor="#cccccc"
+            android:textSize="25sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@+id/mediaAlbumArt"
-            app:layout_constraintStart_toStartOf="@+id/mediaAlbumArt"
-            app:layout_constraintTop_toBottomOf="@+id/mediaAlbumArt" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/mediaCurrentAuthor"
@@ -117,6 +130,8 @@
             app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
             app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
             app:layout_constraintTop_toBottomOf="@+id/mediaCurrentTitle" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!--EM DESENVOLVIMENTO-->
@@ -124,7 +139,35 @@
         android:id="@+id/mediaUtils"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/mediaMetadata">
+        android:layout_margin="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+
+        <ImageButton
+            android:id="@+id/AddFavorite"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:background="@null"
+            android:src="@drawable/btn_favorite"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#3b3b3b" />
+
+
+        <ImageButton
+            android:id="@+id/EditMetadata"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:background="@null"
+            android:src="@drawable/btn_edit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#3b3b3b" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -133,6 +176,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mediaUtils">
 
         <TextView
@@ -140,11 +185,11 @@
             android:layout_width="50dp"
             android:layout_height="20dp"
             android:layout_marginLeft="10dp"
+            android:fontFamily="@font/varela"
+            android:singleLine="true"
             android:text="00:00"
             android:textAlignment="center"
             android:textColor="#3b3b3b"
-            android:fontFamily="@font/varela"
-            android:singleLine="true"
             app:layout_constraintStart_toStartOf="@id/appCompatSeekBar"
             app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar" />
 
@@ -153,27 +198,26 @@
             android:layout_width="50dp"
             android:layout_height="20dp"
             android:layout_marginRight="10dp"
+            android:fontFamily="@font/varela"
+            android:singleLine="true"
             android:text="00:00"
             android:textAlignment="center"
             android:textColor="#3b3b3b"
-            android:fontFamily="@font/varela"
-            android:singleLine="true"
-            app:layout_constraintTop_toBottomOf="@id/appCompatSeekBar"
             app:layout_constraintEnd_toEndOf="@id/appCompatSeekBar"
-            />
+            app:layout_constraintTop_toBottomOf="@id/appCompatSeekBar" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
             android:id="@+id/appCompatSeekBar"
             android:layout_width="match_parent"
-            android:thumb="@drawable/obj_seekbar_thumb"
-            android:splitTrack="false"
-            android:padding="0dp"
+            android:layout_height="match_parent"
             android:background="@null"
-            android:minHeight="10dp"
             android:maxHeight="10dp"
-            android:thumbTint="#458cff"
+            android:minHeight="10dp"
+            android:padding="0dp"
             android:progressDrawable="@drawable/obj_seekbar_style"
-            android:layout_height="match_parent"/>
+            android:splitTrack="false"
+            android:thumb="@drawable/obj_seekbar_thumb"
+            android:thumbTint="#458cff" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -181,8 +225,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:padding="10dp"
         android:elevation="10dp"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mediaProgress">
 
         <ImageButton
@@ -218,5 +264,26 @@
             app:layout_constraintStart_toEndOf="@+id/mediaPlay"
             app:layout_constraintTop_toTopOf="@+id/mediaPlay"
             app:tint="#3b3b3b" />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@null"
+            android:src="@drawable/btn_shuffle"
+            app:layout_constraintBottom_toBottomOf="@+id/mediaPrev"
+            app:layout_constraintEnd_toStartOf="@+id/mediaPrev"
+            app:layout_constraintTop_toTopOf="@+id/mediaPrev"
+            app:tint="#3b3b3b" />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@null"
+            android:src="@drawable/btn_loop"
+            app:layout_constraintBottom_toBottomOf="@+id/mediaSkip"
+            app:layout_constraintStart_toEndOf="@+id/mediaSkip"
+            app:layout_constraintTop_toTopOf="@+id/mediaSkip"
+            app:tint="#3b3b3b" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

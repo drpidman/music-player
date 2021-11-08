@@ -8,24 +8,54 @@
     android:background="#111"
     android:layout_gravity="bottom"
     android:focusable="true"
-    tools:context=".screens.MusicActivity"
+    tools:context=".Screens.MusicActivity"
     >
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/musicList"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:elevation="5dp"
+        android:translationZ="2dp"
+        android:background="#111"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@null"
+            android:src="@drawable/btn_search"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="5dp"
-        android:divider="@null"
-        android:padding="5dp"
-        android:scrollbarThumbHorizontal="@color/white"
-        android:scrollbarThumbVertical="@color/white"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/obj_support_recyclerview_background"
+        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@+id/mediaBottomControl"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/listview_item"/>
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/musicList"
+            app:layout_constrainedHeight="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:background="@drawable/obj_support_recyclerview_background"
+            android:scrollbarThumbHorizontal="@color/white"
+            android:scrollbarThumbVertical="@color/white"
+            tools:listitem="@layout/listview_item"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mediaBottomControl"
@@ -34,10 +64,10 @@
         android:layout_margin="5dp"
         android:layout_marginBottom="4dp"
         android:background="@drawable/obj_media_control"
-        android:elevation="20dp"
+        android:elevation="5dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.drkryz.musicplayer.custom.CustomImageView
+        <com.drkryz.musicplayer.CustomViews.CustomImageView
             android:id="@+id/mediaAlbumArt"
             android:layout_width="65dp"
             android:layout_height="65dp"

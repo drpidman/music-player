@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.drkryz.musicplayer">
+    package="com.drkryz.musicplayer" >
 
     <permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
@@ -19,7 +19,7 @@
     <permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
 
     <application
-        android:name=".utils.ApplicationUtil"
+        android:name=".Utils.ApplicationUtil"
         android:appCategory="audio"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,16 +27,15 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicPlayer"
-        tools:targetApi="o">
+        tools:targetApi="o" >
         <activity
-            android:name=".screens.PlayerActivity"
+            android:name=".Screens.EditorActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Screens.PlayerActivity"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:screenOrientation="portrait"
-            />
-        <activity
-            android:name=".screens.YTMusicActivity"
-            android:exported="true" />
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -46,18 +45,18 @@
             android:value="true" />
 
         <activity
-            android:name=".screens.MusicActivity"
+            android:name=".Screens.MusicActivity"
             android:exported="true"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".screens.PermissionActivity"
+            android:name=".Screens.PermissionActivity"
             android:exported="true" />
         <activity
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            tools:node="replace">
+            tools:node="replace" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -73,37 +72,40 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".screens.SplashActivity"
+            android:name=".Screens.SplashActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme" >
             <intent-filter>
                 <action android:name="anroid.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.APP_MUSIC" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <service
-            android:name=".services.MusicService"
+            android:name=".Services.MusicService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
             android:label="MusicService"
             android:stopWithTask="false"
-            tools:ignore="ExportedService">
+            tools:ignore="ExportedService" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </service>
         <service
-            android:name=".services.MediaBrowserService"
+            android:name=".Services.MediaBrowserService"
             android:description="@string/app_name"
             android:enabled="true"
             android:exported="false"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
@@ -111,7 +113,7 @@
 
         <receiver
             android:name="androidx.media.session.MediaButtonReceiver"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
