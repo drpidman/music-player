@@ -21,16 +21,21 @@ import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadata;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.drkryz.musicplayer.Class.Default.UserPlaylist;
 import com.drkryz.musicplayer.R;
 import com.drkryz.musicplayer.Utils.ContentManagerUtil;
 import com.drkryz.musicplayer.Utils.ServiceManagerUtil;
@@ -45,9 +50,14 @@ import com.drkryz.musicplayer.Utils.PreferencesUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 public class MusicActivity extends AppCompatActivity {
 
@@ -66,10 +76,11 @@ public class MusicActivity extends AppCompatActivity {
     private boolean serviceBound = false;
     private boolean isRunning = false;
     private boolean isPlaying = false;
+    private ArrayList<UserPlaylist> musicList;
 
 
 
-    @SuppressLint({"ServiceCast", "ClickableViewAccessibility"})
+    @SuppressLint({"ServiceCast", "ClickableViewAccessibility", "NotifyDataSetChanged"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,21 +108,24 @@ public class MusicActivity extends AppCompatActivity {
         ApplicationUtil applicationUtil = (ApplicationUtil) getApplicationContext();
         ContentManagerUtil externalGet = new ContentManagerUtil();
         externalGet.populateSongs(getApplication());
+        musicList = externalGet.getAll(getApplication());
 
 
         // list view adapter
-        MusicRecyclerView adapter = new MusicRecyclerView(externalGet.getAll(getApplication()), getBaseContext(), musicService);
+        MusicRecyclerView adapter = new MusicRecyclerView(musicList, getBaseContext(), musicService);
         AlphaInAnimationAdapter alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapter);
 
-        alphaInAnimationAdapter.setDuration(1000);
-        alphaInAnimationAdapter.setInterpolator(new AccelerateInterpolator());
+        alphaInAnimationAdapter.setDuration(200);
+        alphaInAnimationAdapter.setInterpolator(new AnticipateInterpolator());
         alphaInAnimationAdapter.setFirstOnly(false);
 
-        listView.setAdapter(new ScaleInAnimationAdapter(alphaInAnimationAdapter));
+        listView.setAdapter(new SlideInBottomAnimationAdapter(alphaInAnimationAdapter));
+
 
         layoutManager = new LinearLayoutManager(this);
         listView.setLayoutManager(layoutManager);
         listView.setHasFixedSize(true);
+
 
         // list view click listener
         ItemClickSupport.addTo(listView)
@@ -136,7 +150,7 @@ public class MusicActivity extends AppCompatActivity {
         createChannel();
         preferencesUtil = new PreferencesUtil(getBaseContext());
         preferencesUtil.storeUserInApp(true);
-        preferencesUtil.storeAudio(externalGet.getAll(getApplication()));
+        preferencesUtil.storeAudio(musicList);
 
         mediaBottomControl.setOnClickListener(new View.OnClickListener() {
             @Override

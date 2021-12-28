@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.drkryz.musicplayer.R;
@@ -16,6 +17,8 @@ import com.drkryz.musicplayer.Utils.PreferencesUtil;
 import com.drkryz.musicplayer.Class.Default.UserPlaylist;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.ViewHolder> {
 
@@ -24,6 +27,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
     private final PreferencesUtil preferencesUtil;
     private final MusicService musicService;
 
+    @NonNull
     @Override
     public MusicRecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
@@ -31,8 +35,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
 
         View musicView = inflater.inflate(R.layout.listview_item, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(musicView);
-        return viewHolder;
+        return new ViewHolder(musicView);
     }
 
     @Override
@@ -43,7 +46,6 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
         TextView musicAuthor = holder.musicAuthor;
         ImageView cover = holder.musicAlbumCover;
 
-
         cover.setImageBitmap(MediaMetadataUtil.getCover(context, position, musicList));
         musicTitle.setText(song.getTitle());
         musicAuthor.setText(song.getAuthor());
@@ -51,7 +53,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
 
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public TextView musicTitle, musicAuthor;
         public ImageView musicAlbumCover;

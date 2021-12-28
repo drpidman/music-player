@@ -25,8 +25,7 @@ import java.util.Comparator;
 
 public class ContentManagerUtil {
 
-    private ArrayList<UserPlaylist> musics = new ArrayList<>();
-    private ArrayList<UserPlaylist> comparator = new ArrayList<>();
+    private final ArrayList<UserPlaylist> musics = new ArrayList<>();
 
     public void populateSongs(Application app) {
         GetExternalContent(app);
@@ -41,6 +40,7 @@ public class ContentManagerUtil {
         return musics;
     }
 
+    private Handler mHandler = new Handler();
     @SuppressLint("Range")
     private void GetExternalContent(@NonNull Application app) {
 
@@ -80,19 +80,13 @@ public class ContentManagerUtil {
                                             String.valueOf(albumArt), false
                                     );
 
-                                    musics.add(userPlaylist);
-                                } else if (preferencesUtil.loadAudio().isEmpty()) {
-                                    userPlaylist = new UserPlaylist(
-                                            title, author, path, duration,
-                                            String.valueOf(albumArt), false
-                                    );
-
-                                    musics.add(userPlaylist);
                                 } else {
-                                    userPlaylist = null;
 
-                                    if (index != -1 && index < preferencesUtil.loadAudio().size()) {
-                                        userPlaylist = preferencesUtil.loadAudio().get(index);
+                                    ArrayList<UserPlaylist> comparator = preferencesUtil.loadAudio();
+
+                                    if (index != -1 && index < comparator.size()) {
+
+                                        userPlaylist = comparator.get(index);
                                     } else {
 
                                         userPlaylist = new UserPlaylist(
@@ -100,15 +94,16 @@ public class ContentManagerUtil {
                                                 String.valueOf(albumArt), false);
                                     }
 
-                                    if (userPlaylist == null) return;
-
                                     userPlaylist = new UserPlaylist(
                                             title, author, path, duration,
                                             String.valueOf(albumArt), userPlaylist.isFavorite()
                                     );
 
-                                    musics.add(userPlaylist);
+
+                                    Log.e(app.getPackageName(), "" + userPlaylist.getTitle() + ":" + userPlaylist.isFavorite());
                                 }
+
+                                musics.add(userPlaylist);
                             }
                         }
                     }

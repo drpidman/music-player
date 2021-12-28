@@ -896,21 +896,25 @@ public class MusicService extends Service implements
     public void addFavorite(int index) {
         if (mediaPlayer == null) return;
 
-        musicList.get(index).setFavorite(true);
+        if (index != -1 && index < musicList.size()) {
+            musicList.get(index).setFavorite(true);
+        }
+
         preferencesUtil.storeAudio(musicList);
     }
 
     public void removeFavorite(int index) {
         if (mediaPlayer == null) return;
 
-        musicList.get(index).setFavorite(false);
+        if (index != -1 && index < musicList.size()) {
+            musicList.get(index).setFavorite(false);
+        }
+
         preferencesUtil.storeAudio(musicList);
     }
 
     public boolean isFavorite(int index) {
         musicList = preferencesUtil.loadAudio();
-
-        Log.e(getPackageName(), "isFavorite:" + musicList.get(index).isFavorite());
 
         if (mediaPlayer != null) {
             return musicList.get(index).isFavorite();
