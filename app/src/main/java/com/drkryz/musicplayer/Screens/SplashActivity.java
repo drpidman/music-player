@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -19,9 +20,13 @@ import android.util.Log;
 import com.drkryz.musicplayer.Class.Default.UserFavorites;
 import com.drkryz.musicplayer.Class.Default.UserPlaylist;
 import com.drkryz.musicplayer.R;
+import com.drkryz.musicplayer.Utils.ContentManagerUtil;
 import com.drkryz.musicplayer.Utils.PreferencesUtil;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /*
  * configure app permissions in first initialization
@@ -29,7 +34,9 @@ import java.util.ArrayList;
 
 public class SplashActivity extends Activity {
 
-    private ArrayList<UserFavorites> favorites = new ArrayList<>();
+
+    private final ArrayList<UserPlaylist> musics = new ArrayList<>();
+
 
     @SuppressLint("Range")
     @Override
@@ -45,12 +52,22 @@ public class SplashActivity extends Activity {
             loadMain();
         }
 
+
         setContentView(R.layout.activity_splash);
     }
 
 
+    @SuppressLint("Range")
     private void loadMain() {
+        ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getBaseContext());
+
+
         Intent intent = new Intent(SplashActivity.this, MusicActivity.class);
+        intent.putExtra("com.drkryz.array.musics",
+                new Gson().toJson(contentManagerUtil.getMusics())
+        );
+
+
         startActivity(intent);
         finish();
     }

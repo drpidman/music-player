@@ -43,6 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MusicService extends Service implements
         AudioManager.OnAudioFocusChangeListener,
@@ -84,7 +85,10 @@ public class MusicService extends Service implements
     private final String RESET_CMD = packageName + ".reset";
     private final String RESUME_CMD = packageName + ".resume";
     private final String PREPARE_CMD = packageName + ".prepare";
+    private final String FAVORITE_CMD = packageName + ".favorite";
     private final String ON_RESUME_CMD = packageName + ".on.user.resume";
+    public final String LOOPING_CMD = packageName + ".looping";
+    public final String SHUFFLE_CMD = packageName + ".shuffle";
     private final String UI_PLAY = packageName + ".ui.play";
     private final String UI_PAUSE = packageName + ".ui.pause";
     private final String UI_SKIP = packageName + ".ui.skip";
@@ -102,6 +106,8 @@ public class MusicService extends Service implements
     private final String ACTION_SKIP = packageName + ".ACTION_SKIP";
     private final String ACTION_PREV = packageName + ".ACTION_PREVIOUS";
     private final String ACTION_CLOSE = packageName + ".ACTION_CLOSE";
+    public final String ACTION_FAVORITE = packageName + "ACTION.FAVORITE";
+    public final String ACTION_FAVORITE_UNDO = packageName + "ACTION_UNFAVORITE";
 
 
     private boolean resume = false;
@@ -332,6 +338,34 @@ public class MusicService extends Service implements
                     PreviousCommand();
                 }
             break;
+            case FAVORITE_CMD:
+                if (isFavorite(audioIndex)) {
+                    RemoveFavoriteCommand(audioIndex);
+                } else {
+                    AddFavoriteCommand(audioIndex);
+                }
+
+                if (mediaPlayer.isPlaying()) {
+                    buildNotification(ApplicationUtil.Status.PLAYING);
+                } else {
+                    buildNotification(ApplicationUtil.Status.PAUSED);
+                }
+            break;
+            case SHUFFLE_CMD:
+                if (isShuffle()) {
+                    preferencesUtil.storeShuffleState(false);
+                } else {
+                    preferencesUtil.storeShuffleState(true);
+                }
+            break;
+            case LOOPING_CMD:
+                if (isLooping()) {
+                    mediaPlayer.setLooping(false);
+                    preferencesUtil.storeLoopState(mediaPlayer.isLooping());
+                } else {
+                    mediaPlayer.setLooping(true);
+                    preferencesUtil.storeLoopState(mediaPlayer.isLooping());
+                }
         }
 
         handleActions(intent);
@@ -432,7 +466,9 @@ public class MusicService extends Service implements
             audioIndex = 0;
             activeAudio = musicList.get(audioIndex);
         } else {
-            activeAudio = musicList.get(++audioIndex);
+            if (preferencesUtil.loadShuffleState()) {
+                activeAudio = musicList.get(new Random().nextInt(musicList.size()));
+            } else activeAudio = musicList.get(++audioIndex);
         }
 
         preferencesUtil.storeAudioIndex(audioIndex);
@@ -480,6 +516,28 @@ public class MusicService extends Service implements
 
             emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
         }
+    }
+
+
+    private void AddFavoriteCommand(int index) {
+        if (mediaPlayer == null) return;
+
+        if (index != -1 && index < musicList.size()) {
+            musicList.get(index).setFavorite(true);
+        }
+
+        preferencesUtil.storeAudio(musicList);
+    }
+
+
+    private void RemoveFavoriteCommand(int index) {
+        if (mediaPlayer == null) return;
+
+        if (index != -1 && index < musicList.size()) {
+            musicList.get(index).setFavorite(false);
+        }
+
+        preferencesUtil.storeAudio(musicList);
     }
 
     private void updateMediaProgress(int state) {
@@ -610,6 +668,9 @@ public class MusicService extends Service implements
 
     private void buildNotification(ApplicationUtil.Status status) {
         int notificationAction = R.drawable.nf_pause;
+        int notificationFavAction = R.drawable.btn_favorite;
+
+
         PendingIntent playAction_PauseAction = null;
 
         if (status == ApplicationUtil.Status.PLAYING) {
@@ -620,6 +681,16 @@ public class MusicService extends Service implements
             playAction_PauseAction = playbackAction(0);
         }
 
+        PendingIntent fav_unfavAction = null;
+
+
+        if (isFavorite(audioIndex)) {
+            notificationFavAction = R.drawable.btn_favorite_active;
+            fav_unfavAction = playbackAction(6);
+        } else {
+            notificationFavAction = R.drawable.btn_favorite;
+            fav_unfavAction = playbackAction(5);
+        }
 
         Bitmap cover = MediaMetadataUtil.getCover(getBaseContext(), audioIndex, musicList);
 
@@ -640,15 +711,16 @@ public class MusicService extends Service implements
                             .setContentIntent(mainPending)
                             .setOnlyAlertOnce(true)
                             .setStyle(new Notification.MediaStyle()
-                                    .setShowActionsInCompactView(0, 1, 2)
+                                    .setShowActionsInCompactView(1, 2, 3)
                                     .setMediaSession(mediaSession.getSessionToken())
                             )
                             .setVisibility(Notification.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.img_splash)
                             .setContentText(activeAudio.getAuthor())
                             .setContentTitle(activeAudio.getTitle())
                             .setContentInfo(activeAudio.getTitle())
+                            .addAction(notificationFavAction, "favorite", fav_unfavAction)
                             .addAction(R.drawable.nf_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
                             .addAction(R.drawable.nf_next, "next", playbackAction(2))
@@ -673,10 +745,11 @@ public class MusicService extends Service implements
                             .setOnlyAlertOnce(true)
                             .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
                             .setLargeIcon(largeIcon)
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.img_splash)
                             .setContentText(activeAudio.getAuthor())
                             .setContentTitle(activeAudio.getTitle())
                             .setContentInfo(activeAudio.getTitle())
+                            .addAction(notificationFavAction, "favorite", fav_unfavAction)
                             .addAction(R.drawable.nf_prev, "previous", playbackAction(3))
                             .addAction(notificationAction, "pause", playAction_PauseAction)
                             .addAction(R.drawable.nf_next, "next", playbackAction(2))
@@ -704,11 +777,17 @@ public class MusicService extends Service implements
             case 3:
                 playbackAction.setAction(BroadcastConstants.ACTION_PREV);
                 return PendingIntent.getService(context, actionNumber, playbackAction, 0);
-            default:
-                break;
             case 4:
                 playbackAction.setAction(BroadcastConstants.ACTION_CLOSE);
                 return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+            case 5:
+                playbackAction.setAction(BroadcastConstants.ACTION_FAVORITE);
+                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+            case 6:
+                playbackAction.setAction(BroadcastConstants.ACTION_FAVORITE_UNDO);
+                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+            default:
+                break;
         }
         return null;
     }
@@ -868,11 +947,60 @@ public class MusicService extends Service implements
         } else if (actionString.equalsIgnoreCase(ACTION_STOP)) {
             transportControls.stop();
         } else if (actionString.equalsIgnoreCase(ACTION_CLOSE)) {
+            removeAudioFocus();
             PauseCommand();
-            stopSelf();
+            buildNotification(ApplicationUtil.Status.PAUSED);
+            preferencesUtil.storePlayingState(false);
+            stopForeground(true);
+        } else if (actionString.equalsIgnoreCase(ACTION_FAVORITE)) {
+            if (isFavorite(audioIndex)) {
+                RemoveFavoriteCommand(audioIndex);
+            } else {
+                AddFavoriteCommand(audioIndex);
+            }
+
+            if (mediaPlayer.isPlaying()) {
+                buildNotification(ApplicationUtil.Status.PLAYING);
+            } else {
+                buildNotification(ApplicationUtil.Status.PAUSED);
+            }
+
+            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+        } else if (actionString.equalsIgnoreCase(ACTION_FAVORITE_UNDO)) {
+            if (!isFavorite(audioIndex)) {
+                AddFavoriteCommand(audioIndex);
+            } else {
+                RemoveFavoriteCommand(audioIndex);
+            }
+
+            if (mediaPlayer.isPlaying()) {
+                buildNotification(ApplicationUtil.Status.PLAYING);
+            } else {
+                buildNotification(ApplicationUtil.Status.PAUSED);
+            }
+
+            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
         }
     }
 
+
+    private boolean isFavorite(int index) {
+        musicList = preferencesUtil.loadAudio();
+
+        if (mediaPlayer != null) {
+            return musicList.get(index).isFavorite();
+        }
+
+        return false;
+    }
+
+    private boolean isShuffle() {
+        return preferencesUtil.loadShuffleState();
+    }
+
+    private boolean isLooping() {
+        return mediaPlayer.isLooping();
+    }
 
 
     public TransportControls getTransportControls() {
@@ -890,37 +1018,6 @@ public class MusicService extends Service implements
     public int getCurrentPosition() {
         if (mediaPlayer != null) return mediaPlayer.getCurrentPosition();
         return 0;
-    }
-
-
-    public void addFavorite(int index) {
-        if (mediaPlayer == null) return;
-
-        if (index != -1 && index < musicList.size()) {
-            musicList.get(index).setFavorite(true);
-        }
-
-        preferencesUtil.storeAudio(musicList);
-    }
-
-    public void removeFavorite(int index) {
-        if (mediaPlayer == null) return;
-
-        if (index != -1 && index < musicList.size()) {
-            musicList.get(index).setFavorite(false);
-        }
-
-        preferencesUtil.storeAudio(musicList);
-    }
-
-    public boolean isFavorite(int index) {
-        musicList = preferencesUtil.loadAudio();
-
-        if (mediaPlayer != null) {
-            return musicList.get(index).isFavorite();
-        }
-
-        return false;
     }
 
     public class LocalBinder extends Binder {

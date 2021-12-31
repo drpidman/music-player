@@ -106,7 +106,7 @@ public class PermissionActivity extends AppCompatActivity {
         acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getBaseContext(), MusicActivity.class));
+                startActivity(new Intent(getBaseContext(), SplashActivity.class));
                 finish();
             }
         });

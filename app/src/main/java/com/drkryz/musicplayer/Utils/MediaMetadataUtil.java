@@ -17,8 +17,6 @@ import java.util.ArrayList;
 public class MediaMetadataUtil {
 
     public static Bitmap getCover(Context context, int index, ArrayList<UserPlaylist> song) {
-        PreferencesUtil preferencesUtil = new PreferencesUtil(context);
-
         UserPlaylist userPlaylist = song.get(index);
         String albumUri = userPlaylist.getAlbum();
 

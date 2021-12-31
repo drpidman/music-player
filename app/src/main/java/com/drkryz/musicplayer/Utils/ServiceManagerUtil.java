@@ -44,6 +44,18 @@ public class ServiceManagerUtil {
                 service.setAction(BroadcastConstants.ON_RESUME_CMD);
                 context.startService(service);
                 break;
+            case 8:
+                service.setAction(BroadcastConstants.FAVORITE_CMD);
+                context.startService(service);
+                break;
+            case 9:
+                service.setAction(BroadcastConstants.SHUFFLE_CMD);
+                context.startService(service);
+                break;
+            case 10:
+                service.setAction(BroadcastConstants.LOOPING_CMD);
+                context.startService(service);
+                break;
         }
     }
 }

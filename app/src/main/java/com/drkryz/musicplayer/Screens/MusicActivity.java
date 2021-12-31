@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -46,10 +47,14 @@ import com.drkryz.musicplayer.Services.MusicService;
 import com.drkryz.musicplayer.Constants.BroadcastConstants;
 import com.drkryz.musicplayer.Utils.ApplicationUtil;
 import com.drkryz.musicplayer.Utils.PreferencesUtil;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,8 +81,9 @@ public class MusicActivity extends AppCompatActivity {
     private boolean serviceBound = false;
     private boolean isRunning = false;
     private boolean isPlaying = false;
-    private ArrayList<UserPlaylist> musicList;
 
+    private ArrayList<UserPlaylist> musicList;
+    private MusicRecyclerView adapter;
 
 
     @SuppressLint({"ServiceCast", "ClickableViewAccessibility", "NotifyDataSetChanged"})
@@ -102,17 +108,21 @@ public class MusicActivity extends AppCompatActivity {
         musicTitle = (TextView) findViewById(R.id.mediaTitle);
         musicAuthor = (TextView) findViewById(R.id.mediaArtist);
         mediaControlPlayButton = (ImageButton) findViewById(R.id.mediaControlPlayButton);
-
         mediaBottomControl = (View) findViewById(R.id.mediaBottomControl);
 
-        ApplicationUtil applicationUtil = (ApplicationUtil) getApplicationContext();
-        ContentManagerUtil externalGet = new ContentManagerUtil();
-        externalGet.populateSongs(getApplication());
-        musicList = externalGet.getAll(getApplication());
+        if (getIntent().getExtras() == null) {
+            musicList =
+                    new ContentManagerUtil(this).getMusics();
+        } else musicList = new Gson().fromJson(
+                getIntent().getExtras().getString("com.drkryz.array.musics"),
+                new TypeToken<ArrayList<UserPlaylist>>() {}.getType());
 
 
         // list view adapter
-        MusicRecyclerView adapter = new MusicRecyclerView(musicList, getBaseContext(), musicService);
+
+        adapter = new MusicRecyclerView(musicList, getBaseContext(), musicService);
+
+
         AlphaInAnimationAdapter alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapter);
 
         alphaInAnimationAdapter.setDuration(200);
@@ -125,7 +135,6 @@ public class MusicActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         listView.setLayoutManager(layoutManager);
         listView.setHasFixedSize(true);
-
 
         // list view click listener
         ItemClickSupport.addTo(listView)
@@ -243,6 +252,7 @@ public class MusicActivity extends AppCompatActivity {
             mediaControlPlayButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.nf_play));
         }
 
+
     }
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -338,7 +348,7 @@ public class MusicActivity extends AppCompatActivity {
                     layoutManager.scrollToPosition(preferencesUtil.loadAudioIndex());
                 }
             }
-        }, 250);
+        }, 16);
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.drkryz.musicplayer.Utils.PreferencesUtil;
 import com.drkryz.musicplayer.Class.Default.UserPlaylist;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -45,6 +46,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
         TextView musicTitle = holder.musicTitle;
         TextView musicAuthor = holder.musicAuthor;
         ImageView cover = holder.musicAlbumCover;
+
 
         cover.setImageBitmap(MediaMetadataUtil.getCover(context, position, musicList));
         musicTitle.setText(song.getTitle());

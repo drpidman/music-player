@@ -26,6 +26,7 @@
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.18854166666666666" />
         <entry key="app/src/main/res/drawable/ic_online_navigator.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ic_previous.xml" value="0.152991452991453" />
+        <entry key="app/src/main/res/drawable/nf_close.xml" value="0.175" />
         <entry key="app/src/main/res/drawable/nf_pause.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/nf_play.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/nf_prev.xml" value="0.20572916666666666" />
@@ -70,7 +71,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_permission.xml" value="0.14" />
         <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
-        <entry key="app/src/main/res/layout/activity_player.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_player.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_ytmusic.xml" value="0.12532894736842104" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.17239583333333333" />

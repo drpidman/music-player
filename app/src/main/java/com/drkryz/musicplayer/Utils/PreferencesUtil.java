@@ -44,29 +44,6 @@ public class PreferencesUtil {
         return gson.fromJson(json, type);
     }
 
-
-    public void storeFavorite(ArrayList<UserFavorites> arrayList) {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(arrayList);
-        editor.putString("audio.user.favorites", json);
-        editor.apply();
-    }
-
-    public ArrayList<UserFavorites> loadFavorite() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = preferences.getString("audio.user.favorites", null);
-        Type type = new TypeToken<ArrayList<UserFavorites>>() {}.getType();
-
-        return gson.fromJson(json, type);
-    }
-
-
-
-
     public void storeAudioIndex(int index) {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -116,8 +93,29 @@ public class PreferencesUtil {
         editor.apply();
     }
 
-    public boolean loadUserInApp() {
-        preferences = context.getSharedPreferences(STORAGE_USER, Context.MODE_PRIVATE);
-        return preferences.getBoolean("inApp", false);
+    public void storeShuffleState(boolean shuffle) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("state.shuffle", shuffle);
+        editor.apply();
+    }
+
+    public boolean loadShuffleState() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getBoolean("state.shuffle", false);
+    }
+
+    public void storeLoopState(boolean loop) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("state.loop", loop);
+        editor.apply();
+    }
+
+    public boolean loadLoopState() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getBoolean("state.loop", false);
     }
 }

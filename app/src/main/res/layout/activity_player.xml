@@ -14,6 +14,7 @@
         android:layout_height="match_parent"
         android:background="#111"
         android:elevation="20dp"
+        android:visibility="invisible"
         >
 
         <ProgressBar
@@ -36,22 +37,6 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/varela"
-            android:text="NOW PLAYING"
-            android:textColor="#cccccc"
-            android:padding="5dp"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
         <ImageButton
             android:id="@+id/closePlayerUi"
             android:layout_width="35dp"
@@ -157,12 +142,12 @@
 
 
         <ImageButton
-            android:id="@+id/EditMetadata"
+            android:id="@+id/shareTo"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="5dp"
             android:background="@null"
-            android:src="@drawable/btn_edit"
+            android:src="@drawable/btn_share"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -265,6 +250,7 @@
             app:tint="#3b3b3b" />
 
         <ImageButton
+            android:id="@+id/mediaShuffle"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@null"
@@ -275,6 +261,7 @@
             app:tint="#3b3b3b" />
 
         <ImageButton
+            android:id="@+id/mediaLooping"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@null"

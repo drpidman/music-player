@@ -45,7 +45,11 @@ public class PlayerActivity extends AppCompatActivity {
     private boolean isRunning = false;
     private boolean isPlaying = false;
 
-    private ImageButton playButton, skipButton, prevButton, closePlayerButton, favoriteButton;
+    private ImageButton
+            playButton, skipButton, prevButton,
+            closePlayerButton, favoriteButton,
+            shuffleButton, loopingButton;
+
     private ImageView musicAlbumArt;
     private TextView musicTitle, musicArtist, mediaCurrentPosition, mediaTotalDuration;
     private SeekBar seekBar;
@@ -77,6 +81,8 @@ public class PlayerActivity extends AppCompatActivity {
         prevButton = (ImageButton) findViewById(R.id.mediaPrev);
         playButton = (ImageButton) findViewById(R.id.mediaPlay);
         favoriteButton = (ImageButton) findViewById(R.id.AddFavorite);
+        shuffleButton = (ImageButton) findViewById(R.id.mediaShuffle);
+        loopingButton = (ImageButton) findViewById(R.id.mediaLooping);
 
         closePlayerButton = (ImageButton) findViewById(R.id.closePlayerUi);
         loadingScreen = (ConstraintLayout) findViewById(R.id.loadingView);
@@ -165,15 +171,46 @@ public class PlayerActivity extends AppCompatActivity {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (musicService.isFavorite(preferencesUtil.loadAudioIndex())) {
-                    musicService.removeFavorite(preferencesUtil.loadAudioIndex());
+
+                UserPlaylist userPlaylist = preferencesUtil.loadAudio().get(preferencesUtil.loadAudioIndex());
+
+                if (userPlaylist.isFavorite()) {
+                    ServiceManagerUtil.handleAction(8, getBaseContext());
                     favoriteButton.setImageDrawable(getDrawable(R.drawable.btn_favorite));
                 } else {
-                    musicService.addFavorite(preferencesUtil.loadAudioIndex());
+                    ServiceManagerUtil.handleAction(8, getBaseContext());
                     favoriteButton.setImageDrawable(getDrawable(R.drawable.btn_favorite_active));
-
                     Drawable fab = favoriteButton.getDrawable();
                     fab.setTint(getResources().getColor(R.color.av_red));
+                }
+            }
+        });
+
+
+        shuffleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (preferencesUtil.loadShuffleState()) {
+                    ServiceManagerUtil.handleAction(9, getBaseContext());
+                    shuffleButton.setImageDrawable(getDrawable(R.drawable.btn_shuffle));
+                } else {
+                    ServiceManagerUtil.handleAction(9, getBaseContext());
+                    Drawable fab = shuffleButton.getDrawable();
+                    fab.setTint(getResources().getColor(R.color.av_dark_blue));
+                }
+            }
+        });
+
+        loopingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (preferencesUtil.loadLoopState()) {
+                    ServiceManagerUtil.handleAction(10, getBaseContext());
+                    loopingButton.setImageDrawable(getDrawable(R.drawable.btn_loop));
+                } else {
+                    ServiceManagerUtil.handleAction(10, getBaseContext());
+                    Drawable fab = loopingButton.getDrawable();
+                    fab.setTint(getResources().getColor(R.color.av_dark_blue));
                 }
             }
         });
@@ -245,7 +282,7 @@ public class PlayerActivity extends AppCompatActivity {
 
                 loadingScreen.setVisibility(View.INVISIBLE);
             }
-        }, 250);
+        }, 16);
     }
 
 
@@ -337,6 +374,20 @@ public class PlayerActivity extends AppCompatActivity {
 
         } else {
             favoriteButton.setImageDrawable(getDrawable(R.drawable.btn_favorite));
+        }
+
+        if (!preferencesUtil.loadShuffleState()) {
+            shuffleButton.setImageDrawable(getDrawable(R.drawable.btn_shuffle));
+        } else {
+            Drawable fab = shuffleButton.getDrawable();
+            fab.setTint(getResources().getColor(R.color.av_dark_blue));
+        }
+
+        if (!preferencesUtil.loadLoopState()) {
+            loopingButton.setImageDrawable(getDrawable(R.drawable.btn_loop));
+        } else {
+            Drawable fab = loopingButton.getDrawable();
+            fab.setTint(getResources().getColor(R.color.av_dark_blue));
         }
 
         updateSeekBar();

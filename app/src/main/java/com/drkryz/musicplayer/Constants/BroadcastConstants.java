@@ -14,6 +14,9 @@ public class BroadcastConstants {
     public static final String RESET_CMD = packageName + ".reset";
     public static final String RESUME_CMD = packageName + ".resume";
     public static final String PREPARE_CMD = packageName + ".prepare";
+    public static final String FAVORITE_CMD = packageName + ".favorite";
+    public static final String LOOPING_CMD = packageName + ".looping";
+    public static final String SHUFFLE_CMD = packageName + ".shuffle";
     public static final String ON_RESUME_CMD = packageName + ".on.user.resume";
     // ui events with service
     public static final String UI_PLAY = packageName + ".ui.play";
@@ -35,4 +38,6 @@ public class BroadcastConstants {
     public static final String ACTION_SKIP = packageName + ".ACTION_SKIP";
     public static final String ACTION_PREV = packageName + ".ACTION_PREVIOUS";
     public static final String ACTION_CLOSE = packageName + ".ACTION_CLOSE";
+    public static final String ACTION_FAVORITE = packageName + "ACTION.FAVORITE";
+    public static final String ACTION_FAVORITE_UNDO = packageName + "ACTION_UNFAVORITE";
 }
