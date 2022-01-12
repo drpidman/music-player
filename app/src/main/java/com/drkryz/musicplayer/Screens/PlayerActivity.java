@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -48,7 +49,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ImageButton
             playButton, skipButton, prevButton,
             closePlayerButton, favoriteButton,
-            shuffleButton, loopingButton;
+            shuffleButton, loopingButton, shareButton;
 
     private ImageView musicAlbumArt;
     private TextView musicTitle, musicArtist, mediaCurrentPosition, mediaTotalDuration;
@@ -80,6 +81,7 @@ public class PlayerActivity extends AppCompatActivity {
         skipButton = (ImageButton) findViewById(R.id.mediaSkip);
         prevButton = (ImageButton) findViewById(R.id.mediaPrev);
         playButton = (ImageButton) findViewById(R.id.mediaPlay);
+        shareButton = (ImageButton) findViewById(R.id.shareTo);
         favoriteButton = (ImageButton) findViewById(R.id.AddFavorite);
         shuffleButton = (ImageButton) findViewById(R.id.mediaShuffle);
         loopingButton = (ImageButton) findViewById(R.id.mediaLooping);
@@ -171,7 +173,9 @@ public class PlayerActivity extends AppCompatActivity {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (musicService == null) return;
 
+                if (preferencesUtil.loadAudioIndex() == -1) return;
                 UserPlaylist userPlaylist = preferencesUtil.loadAudio().get(preferencesUtil.loadAudioIndex());
 
                 if (userPlaylist.isFavorite()) {
@@ -190,6 +194,7 @@ public class PlayerActivity extends AppCompatActivity {
         shuffleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (musicService == null) return;
                 if (preferencesUtil.loadShuffleState()) {
                     ServiceManagerUtil.handleAction(9, getBaseContext());
                     shuffleButton.setImageDrawable(getDrawable(R.drawable.btn_shuffle));
@@ -204,6 +209,7 @@ public class PlayerActivity extends AppCompatActivity {
         loopingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (musicService == null) return;
                 if (preferencesUtil.loadLoopState()) {
                     ServiceManagerUtil.handleAction(10, getBaseContext());
                     loopingButton.setImageDrawable(getDrawable(R.drawable.btn_loop));
@@ -212,6 +218,22 @@ public class PlayerActivity extends AppCompatActivity {
                     Drawable fab = loopingButton.getDrawable();
                     fab.setTint(getResources().getColor(R.color.av_dark_blue));
                 }
+            }
+        });
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (preferencesUtil.loadAudioIndex() == -1) return;
+                UserPlaylist userPlaylist = preferencesUtil.loadAudio().get(preferencesUtil.loadAudioIndex());
+
+
+                Intent shareIntentAudio = new Intent();
+                shareIntentAudio.setAction(Intent.ACTION_SEND);
+                shareIntentAudio.putExtra(Intent.EXTRA_STREAM, Uri.parse(userPlaylist.getPath()));
+                shareIntentAudio.setType("audio/mp3");
+                startActivity(Intent.createChooser(shareIntentAudio, "Enviar para..."));
             }
         });
     }

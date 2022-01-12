@@ -28,6 +28,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicPlayer"
         tools:targetApi="o" >
+
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <meta-data
+            android:name="android.app.background_running"
+            android:value="true" />
+
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2203772771295704~6851168639"/>
+
+
         <activity
             android:name=".Screens.EditorActivity"
             android:exported="true" />
@@ -36,13 +50,6 @@
             android:exported="true"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
-
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
-        <meta-data
-            android:name="android.app.background_running"
-            android:value="true" />
 
         <activity
             android:name=".Screens.MusicActivity"

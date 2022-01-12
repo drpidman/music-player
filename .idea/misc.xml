@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/drawable/bg_listitem.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/bg_playback_play.xml" value="0.13223684210526315" />
         <entry key="app/src/main/res/drawable/bg_skip_prev.xml" value="0.1355263157894737" />
+        <entry key="app/src/main/res/drawable/btn_addplaylist.xml" value="0.18354430379746836" />
         <entry key="app/src/main/res/drawable/btn_arrowright.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/btn_drag.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/btn_gear.xml" value="0.20572916666666666" />
@@ -27,9 +28,14 @@
         <entry key="app/src/main/res/drawable/ic_online_navigator.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/ic_previous.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/nf_close.xml" value="0.175" />
+        <entry key="app/src/main/res/drawable/nf_facebook.xml" value="0.2230769230769231" />
+        <entry key="app/src/main/res/drawable/nf_instagram.xml" value="0.2230769230769231" />
         <entry key="app/src/main/res/drawable/nf_pause.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/nf_play.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/nf_prev.xml" value="0.20572916666666666" />
+        <entry key="app/src/main/res/drawable/nf_privacy_shild.xml" value="0.1675925925925926" />
+        <entry key="app/src/main/res/drawable/nf_support_email.xml" value="0.1675925925925926" />
+        <entry key="app/src/main/res/drawable/nf_twitter.xml" value="0.2230769230769231" />
         <entry key="app/src/main/res/drawable/obj_listitem.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/obj_media_control.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/obj_playback_control.xml" value="0.20572916666666666" />
@@ -51,6 +57,7 @@
         <entry key="app/src/main/res/drawable/splash_background_shape.xml" value="0.18287037037037038" />
         <entry key="app/src/main/res/drawable/splash_roundedicon.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/drawable/style_border.xml" value="0.2222222222222222" />
+        <entry key="app/src/main/res/drawable/style_gradient.xml" value="0.18354430379746836" />
         <entry key="app/src/main/res/drawable/ui_beforebg.xml" value="0.17222222222222222" />
         <entry key="app/src/main/res/drawable/ui_bgbutton.xml" value="0.20572916666666666" />
         <entry key="app/src/main/res/drawable/ui_bgplay.xml" value="0.20572916666666666" />
@@ -69,9 +76,9 @@
         <entry key="app/src/main/res/drawable/ui_prev.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/layout/activity_editor.xml" value="0.21041666666666667" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_permission.xml" value="0.14" />
+        <entry key="app/src/main/res/layout/activity_permission.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
-        <entry key="app/src/main/res/layout/activity_player.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_player.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_ytmusic.xml" value="0.12532894736842104" />
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.17239583333333333" />

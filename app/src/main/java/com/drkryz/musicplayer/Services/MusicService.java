@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
@@ -23,6 +25,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -63,6 +67,7 @@ public class MusicService extends Service implements
     private UserPlaylist activeAudio;
     private ArrayList<UserPlaylist> musicList;
     private int resumePosition = 0;
+    private boolean ongoingCall = false;
 
     private MediaPlayer mediaPlayer;
     private AudioManager audioManager;
@@ -70,6 +75,8 @@ public class MusicService extends Service implements
     private PreferencesUtil preferencesUtil;
     private TransportControls transportControls;
     private MediaSessionManager mediaSessionManager;
+    private PhoneStateListener phoneStateListener;
+    private TelephonyManager telephonyManager;
     private PlaybackState playbackState;
 
 
@@ -160,6 +167,7 @@ public class MusicService extends Service implements
             preferencesUtil.storeAudioIndex(audioIndex);
 
             removeAudioFocus();
+            unregisterReceiver(becomingNoisyReceiver);
             stopForeground(true);
         }
     }
@@ -188,7 +196,7 @@ public class MusicService extends Service implements
                     e.printStackTrace();
                 }
 
-                if (!requestAudioFocus()) {
+                if (requestAudioFocus()) {
                     stopSelf();
                 }
 
@@ -206,6 +214,8 @@ public class MusicService extends Service implements
             case PREPARE_CMD:
                 Log.e(getPackageName(), "prepare():service");
 
+                phoneCallListener();
+
                 if (musicList == null) {
                     musicList = preferencesUtil.loadAudio();
                 }
@@ -219,6 +229,9 @@ public class MusicService extends Service implements
                 LocalBroadcastManager
                         .getInstance(this)
                         .sendBroadcastSync(new Intent(PREPARE_CMD));
+
+                registerNoisyState();
+
             break;
             case INIT_CMD:
                 Log.e(getPackageName(), "init():service");
@@ -234,7 +247,7 @@ public class MusicService extends Service implements
                     e.printStackTrace();
                 }
 
-                if (!requestAudioFocus()) {
+                if (requestAudioFocus()) {
                     stopSelf();
                 }
 
@@ -282,12 +295,14 @@ public class MusicService extends Service implements
                         audioIndex = 0;
                         activeAudio = musicList.get(audioIndex);
                     } else {
-                        activeAudio = musicList.get(++audioIndex);
+                        if (preferencesUtil.loadShuffleState()) {
+                            activeAudio = musicList.get(new Random().nextInt(musicList.size()));
+                        } else activeAudio = musicList.get(++audioIndex);
                     }
 
                     preferencesUtil.storeAudioIndex(audioIndex);
 
-                    if (!requestAudioFocus()) stopSelf();
+                    if (requestAudioFocus()) stopSelf();
 
                     if (mediaSessionManager == null) {
                         Log.e(getPackageName(), "null:starting new play");
@@ -318,7 +333,7 @@ public class MusicService extends Service implements
 
                     preferencesUtil.storeAudioIndex(audioIndex);
 
-                    if (!requestAudioFocus()) {
+                    if (requestAudioFocus()) {
                         stopSelf();
                     }
 
@@ -352,11 +367,7 @@ public class MusicService extends Service implements
                 }
             break;
             case SHUFFLE_CMD:
-                if (isShuffle()) {
-                    preferencesUtil.storeShuffleState(false);
-                } else {
-                    preferencesUtil.storeShuffleState(true);
-                }
+                preferencesUtil.storeShuffleState(!isShuffle());
             break;
             case LOOPING_CMD:
                 if (isLooping()) {
@@ -436,7 +447,7 @@ public class MusicService extends Service implements
             buildNotification(ApplicationUtil.Status.PLAYING);
             updateMediaProgress(PlaybackState.STATE_PLAYING);
 
-            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+            emitActionToUI(mediaPlayer.isPlaying());
 
             LocalBroadcastManager
                     .getInstance(this)
@@ -451,7 +462,7 @@ public class MusicService extends Service implements
 
             buildNotification(ApplicationUtil.Status.PAUSED);
             updateMediaProgress(PlaybackState.STATE_PAUSED);
-            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+            emitActionToUI(mediaPlayer.isPlaying());
         }
     }
 
@@ -462,12 +473,20 @@ public class MusicService extends Service implements
     }
 
     private void SkipCommand() {
+
+        if (mediaPlayer.isLooping()) {
+            mediaPlayer.setLooping(false);
+            preferencesUtil.storeLoopState(mediaPlayer.isLooping());
+        }
+
         if (audioIndex == musicList.size() -1) {
             audioIndex = 0;
             activeAudio = musicList.get(audioIndex);
         } else {
             if (preferencesUtil.loadShuffleState()) {
-                activeAudio = musicList.get(new Random().nextInt(musicList.size()));
+                int nextInt = new Random().nextInt(musicList.size());
+                activeAudio = musicList.get(nextInt);
+                audioIndex = nextInt;
             } else activeAudio = musicList.get(++audioIndex);
         }
 
@@ -481,10 +500,17 @@ public class MusicService extends Service implements
         buildNotification(ApplicationUtil.Status.PLAYING);
         updateMediaProgress(PlaybackState.STATE_SKIPPING_TO_NEXT);
 
-        emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+        emitActionToUI(mediaPlayer.isPlaying());
     }
 
     private void PreviousCommand() {
+
+        if (mediaPlayer.isLooping()) {
+            mediaPlayer.setLooping(false);
+            preferencesUtil.storeLoopState(mediaPlayer.isLooping());
+        }
+
+
         if (audioIndex == 0) {
             audioIndex = musicList.size() - 1;
             activeAudio = musicList.get(audioIndex);
@@ -502,7 +528,7 @@ public class MusicService extends Service implements
         buildNotification(ApplicationUtil.Status.PLAYING);
         updateMediaProgress(PlaybackState.STATE_SKIPPING_TO_PREVIOUS);
 
-        emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+        emitActionToUI(mediaPlayer.isPlaying());
     }
 
     private void ResumeCommand() {
@@ -514,7 +540,7 @@ public class MusicService extends Service implements
             buildNotification(ApplicationUtil.Status.PLAYING);
             updateMediaProgress(PlaybackState.STATE_PLAYING);
 
-            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+            emitActionToUI(mediaPlayer.isPlaying());
         }
     }
 
@@ -705,26 +731,25 @@ public class MusicService extends Service implements
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mBuilder = (Notification.Builder)
-                    new Notification.Builder(getBaseContext(), "Music Player")
-                            .setShowWhen(true)
-                            .setContentIntent(mainPending)
-                            .setOnlyAlertOnce(true)
-                            .setStyle(new Notification.MediaStyle()
-                                    .setShowActionsInCompactView(1, 2, 3)
-                                    .setMediaSession(mediaSession.getSessionToken())
-                            )
-                            .setVisibility(Notification.VISIBILITY_PUBLIC)
-                            .setLargeIcon(largeIcon)
-                            .setSmallIcon(R.drawable.img_splash)
-                            .setContentText(activeAudio.getAuthor())
-                            .setContentTitle(activeAudio.getTitle())
-                            .setContentInfo(activeAudio.getTitle())
-                            .addAction(notificationFavAction, "favorite", fav_unfavAction)
-                            .addAction(R.drawable.nf_prev, "previous", playbackAction(3))
-                            .addAction(notificationAction, "pause", playAction_PauseAction)
-                            .addAction(R.drawable.nf_next, "next", playbackAction(2))
-                            .addAction(R.drawable.nf_close, "close", playbackAction(4));
+            mBuilder = new Notification.Builder(getBaseContext(), "Music Player")
+                    .setShowWhen(true)
+                    .setContentIntent(mainPending)
+                    .setOnlyAlertOnce(true)
+                    .setStyle(new Notification.MediaStyle()
+                            .setShowActionsInCompactView(1, 2, 3)
+                            .setMediaSession(mediaSession.getSessionToken())
+                    )
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setLargeIcon(largeIcon)
+                    .setSmallIcon(R.drawable.img_splash)
+                    .setContentText(activeAudio.getAuthor())
+                    .setContentTitle(activeAudio.getTitle())
+                    .setContentInfo(activeAudio.getTitle())
+                    .addAction(notificationFavAction, "favorite", fav_unfavAction)
+                    .addAction(R.drawable.nf_prev, "previous", playbackAction(3))
+                    .addAction(notificationAction, "pause", playAction_PauseAction)
+                    .addAction(R.drawable.nf_next, "next", playbackAction(2))
+                    .addAction(R.drawable.nf_close, "close", playbackAction(4));
 
             startForeground(145, mBuilder.build());
         } else {
@@ -732,8 +757,7 @@ public class MusicService extends Service implements
             MediaSession.Token token = mediaSession.getSessionToken();
 
             androidx.core.app.NotificationCompat.Builder notificationCompat
-                    = (androidx.core.app.NotificationCompat.Builder)
-                    new androidx.core.app.NotificationCompat.Builder(getBaseContext(),
+                    = new androidx.core.app.NotificationCompat.Builder(getBaseContext(),
                             "Music Player"
                     )
                             .setStyle(new NotificationCompat.MediaStyle()
@@ -798,7 +822,7 @@ public class MusicService extends Service implements
                 getSystemService(Context.AUDIO_SERVICE);
 
         int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        return result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
     private void removeAudioFocus() {
@@ -806,16 +830,57 @@ public class MusicService extends Service implements
     }
 
 
-    private void emitActionToUI(String action, boolean isPlaying) {
-        switch (action) {
-            case PLAY_CMD:
-                LocalBroadcastManager
-                        .getInstance(this)
-                        .sendBroadcastSync(new Intent(UI_UPDATE_MEDIA_CONTROL_BUTTON)
-                        .putExtra("playback.status", isPlaying)
-                        );
-            break;
+    private void phoneCallListener() {
+        telephonyManager = (TelephonyManager)
+                getSystemService(TELEPHONY_SERVICE);
+
+        phoneStateListener = new PhoneStateListener() {
+            @Override
+            public void onCallStateChanged(int state, String phoneNumber) {
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        if (mediaPlayer != null) {
+                            PauseCommand();
+                            ongoingCall = true;
+                        }
+                    break;
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        if (mediaPlayer != null) {
+                            if (ongoingCall) {
+                                ongoingCall = false;
+                                ResumeCommand();
+                            }
+                        }
+                    break;
+                }
+            }
+        };
+
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+    }
+
+    private final BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            PauseCommand();
+            buildNotification(ApplicationUtil.Status.PAUSED);
+            preferencesUtil.storePlayingState(false);
         }
+    };
+
+    private void registerNoisyState() {
+        IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+        registerReceiver(becomingNoisyReceiver, intentFilter);
+    }
+
+
+    private void emitActionToUI(boolean isPlaying) {
+        LocalBroadcastManager
+                .getInstance(this)
+                .sendBroadcastSync(new Intent(UI_UPDATE_MEDIA_CONTROL_BUTTON)
+                        .putExtra("playback.status", isPlaying)
+                );
     }
 
 
@@ -823,7 +888,7 @@ public class MusicService extends Service implements
     public void onAudioFocusChange(int focusChange) {
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
-                /**
+                /*
                  * Resumir a reprodução
                  */
                 if (mediaPlayer == null) initMedia();
@@ -836,7 +901,7 @@ public class MusicService extends Service implements
                 preferencesUtil.storePlayingState(true);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
-                /**
+                /*
                  * Apps que reproduzem por um longo tempo..
                  * Quando o usuario mudar de app.
                  * Permitir que ele volte a reproduzir.
@@ -845,10 +910,10 @@ public class MusicService extends Service implements
 
                 preferencesUtil.storePlayingState(false);
                 buildNotification(ApplicationUtil.Status.PAUSED);
-                emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+                emitActionToUI(mediaPlayer.isPlaying());
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                /**
+                /*
                  * Parar por um curto tempo (parar quando um status/stories com musica começar a tocar
                  * e Resumir quando o status/stories encerrar/fechar)
                  */
@@ -873,6 +938,7 @@ public class MusicService extends Service implements
     public void onCompletion(MediaPlayer mediaPlayer) {
         Log.d(getPackageName(), "onCompletion()");
         if (musicList.size() == 0) return;
+
         SkipCommand();
     }
 
@@ -913,12 +979,12 @@ public class MusicService extends Service implements
 
 
             resumePosition = preferencesUtil.loadLastPosition();
-            mediaPlayer.seekTo((int) preferencesUtil.loadLastPosition());
+            mediaPlayer.seekTo(preferencesUtil.loadLastPosition());
 
             PauseCommand();
             buildNotification(ApplicationUtil.Status.PAUSED);
             updateMediaProgress(PlaybackState.STATE_PAUSED);
-            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+            emitActionToUI(mediaPlayer.isPlaying());
 
             preferencesUtil.storePlayingState(false);
             resume = false;
@@ -965,7 +1031,7 @@ public class MusicService extends Service implements
                 buildNotification(ApplicationUtil.Status.PAUSED);
             }
 
-            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+            emitActionToUI(mediaPlayer.isPlaying());
         } else if (actionString.equalsIgnoreCase(ACTION_FAVORITE_UNDO)) {
             if (!isFavorite(audioIndex)) {
                 AddFavoriteCommand(audioIndex);
@@ -979,7 +1045,7 @@ public class MusicService extends Service implements
                 buildNotification(ApplicationUtil.Status.PAUSED);
             }
 
-            emitActionToUI(PLAY_CMD, mediaPlayer.isPlaying());
+            emitActionToUI(mediaPlayer.isPlaying());
         }
     }
 
@@ -1009,10 +1075,6 @@ public class MusicService extends Service implements
 
     public android.media.MediaMetadata getMetadata() {
         return mediaSession.getController().getMetadata();
-    }
-
-    public int getPlaybackState() {
-        return playbackState.getState();
     }
 
     public int getCurrentPosition() {

@@ -16,22 +16,30 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 
 import com.drkryz.musicplayer.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import net.openid.appauth.AuthorizationRequest;
 import net.openid.appauth.AuthorizationService;
 import net.openid.appauth.AuthorizationServiceConfiguration;
 import net.openid.appauth.ResponseTypeValues;
 
-public class PermissionActivity extends AppCompatActivity {
+public class PermissionActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private SwitchCompat storagePermissionSwitcher, discordOAuthSwitcher;
-    private ImageButton acceptButton;
 
-    private AuthorizationRequest authRequest;
+    private ImageButton instagramProfileBtn, twitterProfileBtn,
+    facebookProfileBtn, acceptPermission;
+    private Button goPermission;
+
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,84 +47,28 @@ public class PermissionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_permission);
 
 
-        storagePermissionSwitcher = (SwitchCompat) findViewById(R.id.StorageEnableSwitcher);
-        discordOAuthSwitcher = (SwitchCompat) findViewById(R.id.DiscordPermission);
-
-        acceptButton = (ImageButton) findViewById(R.id.acceptButton);
-        SwitchCompat sendUserCounter = findViewById(R.id.UserCountPermission);
-
-        storagePermissionSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        ActivityCompat.requestPermissions(
-                                PermissionActivity.this, new String[]{
-                                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                }, 140
-                        );
-                    }
-                }
-
-                StoreStorageSwitcher(isChecked);
+            public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
             }
         });
 
-        sendUserCounter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                StoreUserCounterSwitcher(isChecked);
-            }
-        });
+        instagramProfileBtn = findViewById(R.id.link_Instagram_support);
+        twitterProfileBtn = findViewById(R.id.link_Twitter_support);
+        facebookProfileBtn = findViewById(R.id.link_Facebook_support);
+        acceptPermission = findViewById(R.id.acceptPermission);
+        goPermission = findViewById(R.id.goPermission);
 
 
-        discordOAuthSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    AuthorizationServiceConfiguration config = new AuthorizationServiceConfiguration(
-                            Uri.parse("https://api.drkryz.xyz/api/auth/discord"),
-                            Uri.parse("https://discord.com/api/oauth2/token")
-                    );
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
-                    String clientId = "726932863722979388";
-
-                    AuthorizationRequest.Builder authRequestBuilder =
-                            new AuthorizationRequest.Builder(
-                                    config,
-                                    clientId,
-                                    ResponseTypeValues.CODE,
-                                    Uri.parse("https://api.drkryz.xyz/api/auth/discord/callback")
-                            );
-
-                    authRequest =
-                            authRequestBuilder.setScope("identify")
-                                    .setCodeVerifier(null)
-                            .build();
-
-                    doAuthorization();
-                }
-            }
-        });
-
-
-        acceptButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getBaseContext(), SplashActivity.class));
-                finish();
-            }
-        });
-    }
-
-    private void doAuthorization() {
-        AuthorizationService service = new AuthorizationService(this);
-        Intent authIntent = service.getAuthorizationRequestIntent(authRequest);
-        Log.e(getPackageName(), "agaraga=" + authIntent);
-        startActivityForResult(authIntent, 200);
+        instagramProfileBtn.setOnClickListener(this);
+        twitterProfileBtn.setOnClickListener(this);
+        facebookProfileBtn.setOnClickListener(this);
+        acceptPermission.setOnClickListener(this);
+        goPermission.setOnClickListener(this);
     }
 
     @Override
@@ -150,24 +102,47 @@ public class PermissionActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 140) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                storagePermissionSwitcher.setEnabled(false);
-                acceptButton.setVisibility(View.VISIBLE);
-            } else {
-                storagePermissionSwitcher.setChecked(false);
-                StoreStorageSwitcher(false);
+                acceptPermission.setVisibility(View.VISIBLE);
+            } else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(
+                        PermissionActivity.this, new String[]{
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        }, 140
+                );
             }
         }
 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    private void goUri(String url) {
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
+    }
 
-        if (requestCode == 200) {
-            if (data != null) {
-                Log.e(getPackageName(), "" + data.getData().getQueryParameter("accessToken"));
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == instagramProfileBtn.getId()) {
+            goUri("https://instagram.com/Scutfy");
+        } else if (view.getId() == facebookProfileBtn.getId()) {
+            goUri("https://facebook.com/Scutfy-102889618941068");
+        } else if (view.getId() == twitterProfileBtn.getId()) {
+            goUri("https://twitter.com/drkryzProject");
+        } else if (view.getId() == acceptPermission.getId()) {
+            startActivity(new Intent(getBaseContext(), SplashActivity.class));
+            finish();
+        } else if (view.getId() == goPermission.getId()) {
+            if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                        PermissionActivity.this, new String[]{
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        }, 140
+                );
             }
         }
     }
