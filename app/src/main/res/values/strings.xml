@@ -1,20 +1,12 @@
 <resources>
-    <string name="app_name">Scutfy</string>
-    <string name="error_info">
-        A permissão para o acesso ao armazenamento foi negada.
-        Para que o nosso aplicativo funcione corretamente, essa permissão é necessária!
-        Com ela conseguimos carregar arquivos de midía(.mp4, .mp3, .wav), e sem ela
-        voce tera apenas uma lista em branco.
-    </string>
-    <string name="externalDescription">
-        Permissão necessária para o aplicativo ler o conteúdo do armazenamento
-        interno/externo(apenas arquivos de audio filtrados).
-    </string>
-    <string name="battery_perm_title">Gerenciamento de bateria</string>
-    <string name="battery_perm_desc">Continue reproduzindo suas musicas mesmo com a tela desligada.
-         Apertando no botão abaixo você sera redirecionado para a tela de aplicativos com otimização(ou sem otimização), procure \"Mostrar todos os apps\" ou \"Todos\" e procure pelo app \"Drkryz Player\" ou \"Music Player\".
-    </string>
-    <string name="service_description">
-        Serviço iniciado pela aplicação. Parar o serviço pode causar falha da aplicação
-    </string>
+    <string name="app_name" translatable="false">Scutfy</string>
+    <string name="perm_wlc_msg">Bem vindo!</string>
+    <string name="perm_dft_conf_msg">Vamos fazer alguns ajustes</string>
+    <string name="perm_dft_conf_strg_access">Armazenamento</string>
+    <string name="perm_dft_conf_str_access_msg">Precisamos de acesso ao armazenamento</string>
+    <string name="perm_dft_conf_str_access_msg_allow">conceder</string>
+    <string name="perm_inf_conf_spt">Suporte</string>
+    <string name="perm_inf_conf_spt_msg">Email de contato direto com a equipe: drkryzproject@gmail.com</string>
+    <string name="perm_inf_conf_prcv">Privacidade</string>
+    <string name="perm_inf_conf_prcv_msg">Seus dados de relatórios enviados estão seguros</string>
 </resources>

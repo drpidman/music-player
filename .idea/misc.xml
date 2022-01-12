@@ -76,7 +76,7 @@
         <entry key="app/src/main/res/drawable/ui_prev.xml" value="0.152991452991453" />
         <entry key="app/src/main/res/layout/activity_editor.xml" value="0.21041666666666667" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/activity_permission.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_permission.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_permission_denied.xml" value="0.15" />
         <entry key="app/src/main/res/layout/activity_player.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1" />

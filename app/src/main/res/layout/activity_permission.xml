@@ -40,9 +40,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="-30dp"
                 android:fontFamily="@font/varela"
-                android:text="Scutfy"
+                android:text="@string/app_name"
                 android:textColor="#fff"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="@+id/brand"
                 app:layout_constraintStart_toStartOf="@+id/brand"
                 app:layout_constraintTop_toBottomOf="@+id/brand" />
@@ -51,10 +51,10 @@
                 android:id="@+id/brandDescription_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bem vindo"
+                android:text="@string/perm_wlc_msg"
                 android:textColor="#fff"
                 android:fontFamily="@font/varela"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/brand"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -63,9 +63,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/varela"
-                android:text="Vamos fazer alguns ajustes"
+                android:text="@string/perm_dft_conf_msg"
                 android:textColor="#fff"
-                android:textSize="13dp"
+                android:textSize="13sp"
                 app:layout_constraintStart_toEndOf="@+id/brand"
                 app:layout_constraintTop_toBottomOf="@+id/brandDescription_text" />
 
@@ -169,9 +169,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/varela"
-                    android:text="Armazenamento"
+                    android:text="@string/perm_dft_conf_strg_access"
                     android:textColor="#fff"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -179,9 +179,9 @@
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/varela"
-                    android:text="Precisamos de acesso ao armazenamento"
+                    android:text="@string/perm_dft_conf_str_access_msg"
                     android:textColor="#fff"
-                    android:textSize="12dp"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/img_Support_WindowWork_Title" />
@@ -199,7 +199,7 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/obj_rounded_blue_min"
-                android:text="conceder"
+                android:text="@string/perm_dft_conf_str_access_msg_allow"
                 android:textSize="10sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -213,8 +213,8 @@
                 android:background="@null"
                 android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/AcceptPermission" />
+                app:layout_constraintEnd_toEndOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -261,9 +261,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/varela"
-                    android:text="Suporte"
+                    android:text="@string/perm_inf_conf_spt"
                     android:textColor="#fff"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -271,9 +271,9 @@
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/varela"
-                    android:text="Email de contato direto com a equipe: drkryzproject@gmail.com"
+                    android:text="@string/perm_inf_conf_spt_msg"
                     android:textColor="#fff"
-                    android:textSize="12dp"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/img_Support_WindowWork1_Title" />
@@ -323,9 +323,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/varela"
-                    android:text="Privacidade"
+                    android:text="@string/perm_inf_conf_prcv"
                     android:textColor="#fff"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -333,9 +333,9 @@
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/varela"
-                    android:text="Seus dados enviados estão totalmente seguros"
+                    android:text="@string/perm_inf_conf_prcv_msg"
                     android:textColor="#fff"
-                    android:textSize="12dp"
+                    android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/img_Support2_WindowWork_Title" />

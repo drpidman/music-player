@@ -11,8 +11,8 @@ android {
         applicationId "com.drkryz.musicplayer"
         minSdk 23
         targetSdk 31
-        versionCode 40
-        versionName "1.13.7"
+        versionCode 13
+        versionName "1.13.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -68,8 +68,8 @@ dependencies {
     implementation 'com.mikhaellopez:circularimageview:4.3.0'
     implementation 'jp.wasabeef:recyclerview-animators:4.0.2'
     implementation 'androidx.navigation:navigation-ui:2.3.5'
-    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.core:core-splashscreen:1.0.0-beta01'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.code.gson:gson:2.8.8'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.media:media:1.4.3'

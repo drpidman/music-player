@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="perm_wlc_msg">Welcome</string>
+    <string name="perm_dft_conf_msg">Lets make some adjustments</string>
+    <string name="perm_dft_conf_strg_access">Storage</string>
+    <string name="perm_dft_conf_str_access_msg">We need access to storage</string>
+    <string name="perm_dft_conf_str_access_msg_allow">grant</string>
+    <string name="perm_inf_conf_spt">Support</string>
+    <string name="perm_inf_conf_spt_msg">Direct contact email with the team: drkryzproject@gmail.com</string>
+    <string name="perm_inf_conf_prcv">Privacy</string>
+    <string name="perm_inf_conf_prcv_msg">Your reporting data is safe</string>
+</resources>
