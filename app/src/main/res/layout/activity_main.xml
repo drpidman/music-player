@@ -4,65 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:background="#111"
     android:layout_gravity="bottom"
+    android:animateLayoutChanges="true"
+    android:background="@color/primaryColor"
     android:focusable="true"
-    tools:context=".Screens.MusicActivity"
-    >
+    tools:context=".Screens.MusicActivity">
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/obj_media_control"
+        android:elevation="10dp"
+        android:layout_margin="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:elevation="5dp"
-        android:translationZ="2dp"
-        android:background="#111"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageButton
-            android:id="@+id/btnSearch"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:background="@null"
-            android:visibility="invisible"
-            android:src="@drawable/btn_search"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@mipmap/splash"
-            app:layout_constraintEnd_toEndOf="@+id/btnSearch"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
         android:background="@drawable/obj_support_recyclerview_background"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@+id/mediaBottomControl"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="5dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/musicList"
-            app:layout_constrainedHeight="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="@null"
             android:background="@drawable/obj_support_recyclerview_background"
-            android:scrollbarThumbHorizontal="@color/white"
-            android:scrollbarThumbVertical="@color/white"
-            tools:listitem="@layout/listview_item"/>
+            android:divider="@null"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:scrollbarThumbHorizontal="@color/primaryColor"
+            android:scrollbarThumbVertical="@color/primaryColor"
+            app:layout_constrainedHeight="true"
+            tools:listitem="@layout/listview_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -73,15 +55,15 @@
         android:layout_margin="5dp"
         android:layout_marginBottom="4dp"
         android:background="@drawable/obj_media_control"
-        android:elevation="5dp"
+        android:elevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.drkryz.musicplayer.CustomViews.CustomImageView
+        <com.drkryz.scutfy.CustomViews.CustomImageView
             android:id="@+id/mediaAlbumArt"
             android:layout_width="65dp"
             android:layout_height="65dp"
-            android:layout_marginStart="10dp"
             android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
             android:scaleType="centerCrop"
             android:src="@drawable/img_default_music"
             app:layout_constraintBottom_toBottomOf="@+id/mediaBottomControl"
@@ -97,7 +79,7 @@
             android:fontFamily="@font/varela"
             android:singleLine="true"
             android:text="unknown"
-            android:textColor="#cccc"
+            android:textColor="#cccccc"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@+id/mediaAlbumArt"
             app:layout_constraintStart_toEndOf="@+id/mediaAlbumArt"
@@ -111,7 +93,7 @@
             android:fontFamily="@font/varela"
             android:singleLine="true"
             android:text="unknown"
-            android:textColor="#3b3b3b"
+            android:textColor="#ccc"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="@+id/mediaTitle"
             app:layout_constraintTop_toBottomOf="@+id/mediaTitle" />
@@ -126,7 +108,8 @@
             android:src="@drawable/nf_play"
             app:layout_constraintBottom_toBottomOf="@+id/mediaAlbumArt"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/mediaAlbumArt" />
+            app:layout_constraintTop_toTopOf="@+id/mediaAlbumArt"
+            app:tint="@color/lightBlue" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

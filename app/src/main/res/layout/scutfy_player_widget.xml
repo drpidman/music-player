@@ -1,0 +1,86 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.MusicPlayer.AppWidget.Container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:theme="@style/BaseTheme.AppWidgetContainer"
+    tools:ignore="ContentDescription"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        >
+
+        <LinearLayout
+            android:gravity="start"
+            android:id="@+id/widgetSupportAlbum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/widgetMusicCover"
+                android:layout_width="70dp"
+                android:scaleType="centerCrop"
+                android:layout_height="70dp"
+                android:src="@drawable/img_default_music" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="start"
+            android:id="@+id/widgetSupportMetaTexts"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/widgetMusicT"
+                android:layout_width="150dp"
+                android:text="unknown"
+                android:padding="5dp"
+                android:layout_margin="7dp"
+                android:fontFamily="@font/varela"
+                android:textSize="15sp"
+                android:textColor="@color/darkGray"
+                android:textAlignment="textStart"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+            <ImageButton
+                android:id="@+id/widgetMusicPv"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@null"
+                android:layout_margin="10dp"
+                android:src="@drawable/nf_prev"
+                app:tint="@color/darkGray" />
+
+            <ImageButton
+                android:id="@+id/widgetMusicP"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@null"
+                android:layout_margin="10dp"
+                android:src="@drawable/nf_play"
+                app:tint="@color/darkGray" />
+
+            <ImageButton
+                android:id="@+id/widgetMusicSkp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_margin="10dp"
+                android:background="@null"
+                android:src="@drawable/nf_next"
+                app:tint="@color/darkGray" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -12,7 +12,7 @@
         android:id="@+id/itemSpace"
         android:layout_height="wrap_content">
 
-        <com.drkryz.musicplayer.CustomViews.CustomImageView
+        <com.drkryz.scutfy.CustomViews.CustomImageView
             android:id="@+id/musicAlbumCover"
             android:layout_width="65dp"
             android:layout_height="65dp"
@@ -29,6 +29,8 @@
             android:singleLine="true"
             android:fontFamily="@font/varela"
             android:textStyle="bold"
+            android:theme="@style/BaseTheme"
+            android:textColor="#cccccc"
             android:ellipsize="marquee"
             app:layout_constraintBottom_toBottomOf="@+id/musicAlbumCover"
             app:layout_constraintEnd_toEndOf="parent"
@@ -42,7 +44,7 @@
             android:fontFamily="@font/varela"
             android:textStyle="bold|italic"
             android:singleLine="true"
-            android:textColor="#3b3b3b"
+            android:textColor="#ccc"
             android:ellipsize="marquee"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/musicTitle"

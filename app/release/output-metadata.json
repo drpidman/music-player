@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.drkryz.musicplayer",
+  "applicationId": "com.drkryz.scutfy",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 40,
-      "versionName": "1.13.7",
+      "versionCode": 13,
+      "versionName": "1.13.25",
       "outputFile": "app-release.apk"
     }
   ],

@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--old colors-->
-    <color name="white">#fff</color>
+    <color name="primaryColor">#FFFFFF</color>
+    <color name="mediaControlColor">#FFFFFF</color>
+    <color name="secondaryColor">#333</color>
+    <color name="darkGray">#cccc</color>
+    <color name="darkSoftBlue">#2b5dff</color>
+    <color name="lightMediumBlue">#3073fc</color>
+    <color name="lightBlue">#458cff</color>
+    <color name="softBlack">#212121</color>
+    <color name="minBlack">#222</color>
+    <color name="lightGray">#3b3b3b</color>
     <color name="black">#111</color>
-    <color name="text">#fff</color>
-    <color name="default_black">#111</color>
+    <color name="defaultBlack">#1d1d1d</color>
+    <color name="red">#FF0D0D</color>
+    <color name="light_blue_50">#FFE1F5FE</color>
+    <color name="light_blue_200">#FF81D4FA</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
 </resources>

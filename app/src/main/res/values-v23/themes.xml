@@ -3,8 +3,8 @@
 
     <style name="Theme.MusicPlayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="android:navigationBarColor">@color/white</item>
-        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/primaryColor</item>
+        <item name="android:statusBarColor">@color/primaryColor</item>
         <item name="android:windowLightStatusBar">true</item>
         <!-- Customize your theme here. -->
     </style>

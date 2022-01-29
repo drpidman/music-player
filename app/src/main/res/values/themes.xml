@@ -1,9 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.MusicPlayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="android:navigationBarColor">@color/white</item>
-        <item name="android:statusBarColor">@color/white</item>
-        <!-- Customize your theme here. -->
+    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="statusBarBackground">@color/primaryColor</item>
+        <item name="android:statusBarColor">@color/primaryColor</item>
+        <item name="android:windowBackground">@color/primaryColor</item>
+        <item name="android:navigationBarColor">@color/primaryColor</item>
     </style>
+
+    <style name="BaseTheme.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+        <item name="appWidgetRadius">8dp</item>
+        <item name="appWidgetPadding">4dp</item>
+        <item name="appWidgetInnerRadius">4dp</item>
+    </style>
+
+    <style name="BaseTheme.SearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <item name="background">@drawable/obj_searchview_background</item>
+        <item name="queryBackground">@null</item>
+    </style>
+
+    <style name="BaseTheme.AppWidgetContainer" parent="BaseTheme.AppWidgetContainerParent" />
 </resources>

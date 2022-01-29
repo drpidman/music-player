@@ -9,4 +9,7 @@
     <string name="perm_inf_conf_spt_msg">Email de contato direto com a equipe: drkryzproject@gmail.com</string>
     <string name="perm_inf_conf_prcv">Privacidade</string>
     <string name="perm_inf_conf_prcv_msg">Seus dados de relatórios enviados estão seguros</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
 </resources>
