@@ -38,9 +38,11 @@ import androidx.media.app.NotificationCompat;
 
 import com.drkryz.scutfy.Class.Default.UserPlaylist;
 import com.drkryz.scutfy.Constants.BroadcastConstants;
+import com.drkryz.scutfy.Helpers.UserFavoritesHelper;
 import com.drkryz.scutfy.R;
 import com.drkryz.scutfy.Screens.MusicActivity;
 import com.drkryz.scutfy.Utils.ApplicationUtil;
+import com.drkryz.scutfy.Utils.ContentManagerUtil;
 import com.drkryz.scutfy.Utils.MediaMetadataUtil;
 import com.drkryz.scutfy.Utils.PreferencesUtil;
 
@@ -98,7 +100,10 @@ public class MusicService extends Service implements
     private final String ACTION_SKIP = packageName + ".ACTION_SKIP";
     private final String ACTION_PREV = packageName + ".ACTION_PREVIOUS";
     private final String ACTION_CLOSE = packageName + ".ACTION_CLOSE";
+
     private int audioIndex = -1;
+    private String MEDIA_ACTIVE_TITLE = "";
+
     private UserPlaylist activeAudio;
     private ArrayList<UserPlaylist> musicList;
     private int resumePosition = 0;
@@ -112,6 +117,10 @@ public class MusicService extends Service implements
     private PhoneStateListener phoneStateListener;
     private TelephonyManager telephonyManager;
     private PlaybackState playbackState;
+
+
+
+    private ContentManagerUtil contentManagerUtil;
 
 
     private final BroadcastReceiver becomingNoisyReceiver = new BroadcastReceiver() {
@@ -182,12 +191,15 @@ public class MusicService extends Service implements
         switch (action) {
             case ON_RESUME_CMD:
                 audioIndex = preferencesUtil.loadAudioIndex();
+                MEDIA_ACTIVE_TITLE = preferencesUtil.loadAudioTitle();
 
                 if (mediaPlayer == null) resume = true;
 
                 Log.e(getPackageName(), "init():on_resume_cmd");
                 try {
                     audioIndex = preferencesUtil.loadAudioIndex();
+                    MEDIA_ACTIVE_TITLE = preferencesUtil.loadAudioTitle();
+
                     if (audioIndex != -1 && audioIndex < musicList.size()) {
                         activeAudio = musicList.get(audioIndex);
                     } else {
@@ -219,7 +231,9 @@ public class MusicService extends Service implements
                 phoneCallListener();
 
                 if (musicList == null) {
-                    musicList = preferencesUtil.loadAudio();
+
+                    contentManagerUtil = new ContentManagerUtil(this);
+                    musicList = contentManagerUtil.getMusics(this);
                 }
 
                 if (mediaPlayer != null) {
@@ -239,6 +253,8 @@ public class MusicService extends Service implements
                 Log.e(getPackageName(), "init():service");
                 try {
                     audioIndex = preferencesUtil.loadAudioIndex();
+                    MEDIA_ACTIVE_TITLE = preferencesUtil.loadAudioTitle();
+
                     if (audioIndex != -1 && audioIndex < musicList.size()) {
                         activeAudio = musicList.get(audioIndex);
                     } else {
@@ -270,6 +286,7 @@ public class MusicService extends Service implements
             case PLAY_CMD:
                 Log.e(getPackageName(), "play():service=" + preferencesUtil.loadAudioIndex());
                 audioIndex = preferencesUtil.loadAudioIndex();
+                MEDIA_ACTIVE_TITLE = preferencesUtil.loadAudioTitle();
 
                 if (audioIndex != -1 && audioIndex < musicList.size()) {
                     activeAudio = musicList.get(audioIndex);
@@ -292,6 +309,8 @@ public class MusicService extends Service implements
                 break;
             case SKIP_CMD:
                 audioIndex = preferencesUtil.loadAudioIndex();
+                MEDIA_ACTIVE_TITLE = preferencesUtil.loadAudioTitle();
+
                 if (mediaPlayer == null) {
                     if (audioIndex == musicList.size() - 1) {
                         audioIndex = 0;
@@ -303,6 +322,7 @@ public class MusicService extends Service implements
                     }
 
                     preferencesUtil.storeAudioIndex(audioIndex);
+                    preferencesUtil.storeAudioTitle(MEDIA_ACTIVE_TITLE);
 
                     if (requestAudioFocus()) stopSelf();
 
@@ -324,6 +344,7 @@ public class MusicService extends Service implements
                 break;
             case PREV_CMD:
                 audioIndex = preferencesUtil.loadAudioIndex();
+                MEDIA_ACTIVE_TITLE = preferencesUtil.loadAudioTitle();
 
                 if (mediaPlayer == null) {
                     if (audioIndex == 0) {
@@ -334,6 +355,7 @@ public class MusicService extends Service implements
                     }
 
                     preferencesUtil.storeAudioIndex(audioIndex);
+                    preferencesUtil.storeAudioTitle(MEDIA_ACTIVE_TITLE);
 
                     if (requestAudioFocus()) {
                         stopSelf();
@@ -379,6 +401,11 @@ public class MusicService extends Service implements
                     mediaPlayer.setLooping(true);
                     preferencesUtil.storeLoopState(mediaPlayer.isLooping());
                 }
+                break;
+            case "update.playlist":
+                musicList = new ContentManagerUtil(getBaseContext())
+                        .getMusics(getBaseContext());
+                break;
         }
 
         handleActions(intent);
@@ -425,6 +452,8 @@ public class MusicService extends Service implements
                 .build()
         );
 
+
+
         try {
             if (activeAudio == null) return;
             mediaPlayer.setDataSource(activeAudio.getPath());
@@ -438,7 +467,6 @@ public class MusicService extends Service implements
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
-
     }
 
     private void PlayCommand() {
@@ -482,6 +510,7 @@ public class MusicService extends Service implements
         if (audioIndex == musicList.size() - 1) {
             audioIndex = 0;
             activeAudio = musicList.get(audioIndex);
+            MEDIA_ACTIVE_TITLE = musicList.get(audioIndex).getTitle();
         } else {
             if (preferencesUtil.loadShuffleState()) {
                 int nextInt = new Random().nextInt(musicList.size());
@@ -491,6 +520,7 @@ public class MusicService extends Service implements
         }
 
         preferencesUtil.storeAudioIndex(audioIndex);
+        preferencesUtil.storeAudioTitle(MEDIA_ACTIVE_TITLE);
 
         StopCommand();
         mediaPlayer.reset();
@@ -514,11 +544,13 @@ public class MusicService extends Service implements
         if (audioIndex == 0) {
             audioIndex = musicList.size() - 1;
             activeAudio = musicList.get(audioIndex);
+            MEDIA_ACTIVE_TITLE = musicList.get(audioIndex).getTitle();
         } else {
             activeAudio = musicList.get(--audioIndex);
         }
 
         preferencesUtil.storeAudioIndex(audioIndex);
+        preferencesUtil.storeAudioTitle(MEDIA_ACTIVE_TITLE);
 
         StopCommand();
         mediaPlayer.reset();
@@ -547,21 +579,26 @@ public class MusicService extends Service implements
     private void AddFavoriteCommand(int index) {
         if (mediaPlayer == null) return;
 
+
+        UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(this);
+
         if (index != -1 && index < musicList.size()) {
-            musicList.get(index).setFavorite(true);
+            userFavoritesHelper.storeFavorite(musicList.get(index).getTitle());
         }
 
-        preferencesUtil.storeAudio(musicList);
     }
 
     private void RemoveFavoriteCommand(int index) {
         if (mediaPlayer == null) return;
 
+
+
+        UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(this);
+
         if (index != -1 && index < musicList.size()) {
-            musicList.get(index).setFavorite(false);
+            userFavoritesHelper.removeFavorite(musicList.get(index).getTitle());
         }
 
-        preferencesUtil.storeAudio(musicList);
     }
 
     private void updateMediaProgress(int state) {
@@ -578,7 +615,8 @@ public class MusicService extends Service implements
                                         | PlaybackState.ACTION_PAUSE |
                                         PlaybackState.ACTION_PLAY |
                                         PlaybackState.ACTION_SKIP_TO_NEXT |
-                                        PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                                        PlaybackState.ACTION_SKIP_TO_PREVIOUS |
+                                        PlaybackState.ACTION_PREPARE
                                 )
                                 .build();
                 mediaSession.setPlaybackState(playbackState);
@@ -605,6 +643,9 @@ public class MusicService extends Service implements
             public void onPlay() {
                 super.onPlay();
                 ResumeCommand();
+
+                updateMediaProgress(PlaybackState.STATE_PLAYING);
+
                 preferencesUtil.storePlayingState(true);
             }
 
@@ -612,6 +653,9 @@ public class MusicService extends Service implements
             public void onPause() {
                 super.onPause();
                 PauseCommand();
+
+                updateMediaProgress(PlaybackState.STATE_PAUSED);
+
                 preferencesUtil.storePlayingState(false);
             }
 
@@ -626,6 +670,9 @@ public class MusicService extends Service implements
             public void onSkipToNext() {
                 super.onSkipToNext();
                 SkipCommand();
+
+                updateMediaProgress(PlaybackState.STATE_SKIPPING_TO_NEXT);
+
                 preferencesUtil.storePlayingState(true);
             }
 
@@ -633,6 +680,9 @@ public class MusicService extends Service implements
             public void onSkipToPrevious() {
                 super.onSkipToPrevious();
                 PreviousCommand();
+
+                updateMediaProgress(PlaybackState.STATE_SKIPPING_TO_PREVIOUS);
+
                 preferencesUtil.storePlayingState(true);
             }
 
@@ -658,7 +708,8 @@ public class MusicService extends Service implements
                                 | PlaybackState.ACTION_PAUSE |
                                 PlaybackState.ACTION_PLAY |
                                 PlaybackState.ACTION_SKIP_TO_NEXT |
-                                PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                                PlaybackState.ACTION_SKIP_TO_PREVIOUS |
+                                PlaybackState.ACTION_PREPARE
                         )
                         .build();
 
@@ -685,7 +736,7 @@ public class MusicService extends Service implements
                 .putString(android.media.MediaMetadata.METADATA_KEY_ARTIST, activeAudio.getAuthor())
                 .putString(android.media.MediaMetadata.METADATA_KEY_ALBUM, activeAudio.getTitle())
                 .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, activeAudio.getTitle())
-                .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, Long.parseLong(activeAudio.getDuration()))
+                .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, convertString(activeAudio.getDuration()))
                 .build());
     }
 
@@ -1037,10 +1088,11 @@ public class MusicService extends Service implements
 
 
     private boolean isFavorite(int index) {
-        musicList = preferencesUtil.loadAudio();
+
+        UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(this);
 
         if (mediaPlayer != null) {
-            return musicList.get(index).isFavorite();
+            return userFavoritesHelper.isFavorite(musicList.get(index).getTitle());
         }
 
         return false;
@@ -1058,6 +1110,9 @@ public class MusicService extends Service implements
     public TransportControls getTransportControls() {
         return transportControls;
     }
+    public PlaybackState getPlaybackState() {
+        return playbackState;
+    }
 
     public android.media.MediaMetadata getMetadata() {
         return mediaSession.getController().getMetadata();
@@ -1073,4 +1128,17 @@ public class MusicService extends Service implements
             return MusicService.this;
         }
     }
+
+
+
+    private static native int convertString(String text);
+    
+
+    
+    static {
+        System.loadLibrary("scutfy-msp-c");
+    }
+
+
+    
 }

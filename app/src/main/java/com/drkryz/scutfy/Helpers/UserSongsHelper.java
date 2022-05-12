@@ -1,19 +1,28 @@
 package com.drkryz.scutfy.Helpers;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.CharArrayBuffer;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 
 import com.drkryz.scutfy.Class.Default.Encripta;
 import com.drkryz.scutfy.Class.Default.UserPlaylist;
 import com.drkryz.scutfy.Database.UserSongs.UserSongsTable;
+import com.google.firebase.crashlytics.internal.model.CrashlyticsReport;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class UserSongsHelper extends SQLiteOpenHelper {
@@ -23,13 +32,10 @@ public class UserSongsHelper extends SQLiteOpenHelper {
 
     private static final String SQL_ENTRIES =
             "CREATE TABLE " + UserSongsTable.TABLE_NAME + " (" +
-                    UserSongsTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    UserSongsTable.SONG_TITLE + " TEXT, " +
-                    UserSongsTable.SONG_AUTHOR + " TEXT, " +
-                    UserSongsTable.SONG_DURATION + " TEXT, " +
-                    UserSongsTable.SONG_ALBUM_URI + " TEXT, " +
-                    UserSongsTable.SONG_PATH_URI + " TEXT, " +
-                    UserSongsTable.SONG_FAVOURITE + " BOOLEAN)";
+                    UserSongsTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + UserSongsTable.SONG_COLUMN + " TEXT " +
+                    ")";
+
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + UserSongsTable.TABLE_NAME;
 
@@ -42,7 +48,6 @@ public class UserSongsHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sql) {
         sql.execSQL(SQL_ENTRIES);
-        sql.execSQL("PRAGMA auto_vacuum=FULL");
     }
 
     @Override
@@ -51,64 +56,29 @@ public class UserSongsHelper extends SQLiteOpenHelper {
         onCreate(sql);
     }
 
-    public void storeAudio(SQLiteDatabase sql, UserPlaylist userPlaylist, ContentValues contentValues) {
-        sql.insert(UserSongsTable.TABLE_NAME, null, contentValues);
-        loadedSong.add(userPlaylist);
-
+    public void storeAudio(SQLiteDatabase sql, ContentValues contentValues) {
+        if (loadAudio(sql) != null) {
+            sql.update(UserSongsTable.TABLE_NAME, contentValues, null, null);
+        } else {
+            sql.insert(UserSongsTable.TABLE_NAME, null, contentValues);
+        }
     }
 
-    public ArrayList<UserPlaylist> getLoadedSong() {
-        return loadedSong;
-    }
+    public ArrayList<UserPlaylist> loadAudio(SQLiteDatabase sql) {
+        Gson gson
+                = new Gson();
 
 
-    @SuppressLint("range")
-    public void loadColumns(SQLiteDatabase sql, Context context) {
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor cursor = sql.query(UserSongsTable.TABLE_NAME,
+                new String[]{ UserSongsTable.SONG_COLUMN }, null, null, null, null, null);
 
-        Cursor cursor = context.getContentResolver().query(uri, null, MediaStore.Audio.Media.DURATION + ">= 60000", null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER, null);
-        UserPlaylist userPlaylist;
+        if (cursor.moveToFirst()) {
+            @SuppressLint("Range") String JSONString = cursor.getString(cursor.getColumnIndex(UserSongsTable.SONG_COLUMN));
 
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                do {
-
-                    String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                    String author = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                    String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                    String duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                    long AlbumArt = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                    Uri artWork = Uri.parse("content://media/external/audio/albumart");
-                    Uri albumArt = ContentUris.withAppendedId(artWork, AlbumArt);
-
-                    try {
-                        userPlaylist = new UserPlaylist(
-                                new Encripta().encrypt(title), author, duration, path, String.valueOf(albumArt), false
-                        );
-
-                        loadedSong.add(userPlaylist);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                } while (cursor.moveToNext());
-                cursor.close();
-            }
+            Type type = new TypeToken<ArrayList<UserPlaylist>>() {}.getType();
+            return gson.fromJson(JSONString, type);
         }
 
+        return null;
     }
-
-    public void updateAudio(SQLiteDatabase sql, UserPlaylist userPlaylist, ContentValues contentValues) {
-        sql.update(UserSongsTable.TABLE_NAME, contentValues, null, null);
-        loadedSong.add(userPlaylist);
-    }
-
-    public Cursor getAudio(SQLiteDatabase sql, String[] columns, int pos, String title, String author) {
-        Cursor cursor = sql.query(
-                UserSongsTable.TABLE_NAME, columns, UserSongsTable.SONG_TITLE + "='" + title + "'", null, null, null, null
-        );
-
-        return cursor;
-    }
-
 }

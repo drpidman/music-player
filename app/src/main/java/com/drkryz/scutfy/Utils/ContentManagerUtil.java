@@ -3,12 +3,17 @@ package com.drkryz.scutfy.Utils;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.drkryz.scutfy.Class.Default.UserPlaylist;
+import com.drkryz.scutfy.Database.UserSongs;
+import com.drkryz.scutfy.Helpers.UserSongsHelper;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -20,9 +25,7 @@ public class ContentManagerUtil {
     public ContentManagerUtil(Context ctx) {
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String isMusic = MediaStore.Audio.Media.IS_MUSIC + "!=0";
 
-        PreferencesUtil preferencesUtil = new PreferencesUtil(ctx);
         Cursor cursor = ctx.getContentResolver().query(uri, null, MediaStore.Audio.Media.DURATION + ">= 60000", null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER, null);
 
         int index = -1;
@@ -41,33 +44,11 @@ public class ContentManagerUtil {
                     Uri albumArt = ContentUris.withAppendedId(artWork, AlbumArt);
 
                     index++;
-                    UserPlaylist userPlaylist;
+                    UserPlaylist userPlaylist = new UserPlaylist(
+                            title, author, path, duration,
+                            String.valueOf(albumArt), false
+                    );
 
-                    if (preferencesUtil.loadAudio() == null) {
-
-                        userPlaylist = new UserPlaylist(
-                                title, author, path, duration,
-                                String.valueOf(albumArt), false
-                        );
-
-                    } else {
-
-                        ArrayList<UserPlaylist> comparator = preferencesUtil.loadAudio();
-
-                        if (index != -1 && index < comparator.size()) {
-                            userPlaylist = comparator.get(index);
-                        } else {
-                            userPlaylist = new UserPlaylist(
-                                    title, author, path, duration,
-                                    String.valueOf(albumArt), false);
-                        }
-
-
-                        userPlaylist = new UserPlaylist(
-                                title, author, path, duration,
-                                String.valueOf(albumArt), userPlaylist.isFavorite()
-                        );
-                    }
 
                     musics.add(userPlaylist);
 
@@ -78,7 +59,48 @@ public class ContentManagerUtil {
         }
     }
 
-    public ArrayList<UserPlaylist> getMusics() {
+
+    @SuppressLint("Range")
+    public String getMusicPathByName(String music_title, Context ctx) {
+
+
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
+        String[] selection = {
+                music_title
+        };
+
+        Cursor cursor = ctx.getContentResolver()
+                .query(uri, null, MediaStore.Audio.Media.TITLE + "=?", selection, null, null);
+
+
+        if (cursor.moveToFirst()) {
+            return cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+        }
+
+        return null;
+    }
+
+    public int getMusicIndexByName(String music_title, Context ctx) {
+
+        int index = -1;
+
+        for (UserPlaylist music : musics) {
+            index++;
+            if (music.getTitle().equals(music_title)) {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+
+
+    
+
+
+    public ArrayList<UserPlaylist> getMusics(Context ctx) {
         return musics;
     }
 }

@@ -47,7 +47,11 @@ public class UserPlaylist {
      * @return {@link #Author}
      */
     public String getAuthor() {
-        return Author;
+        if (Author.equals("<unknown>")) {
+            return "unknown";
+        } else {
+            return Author;
+        }
     }
 
     /**

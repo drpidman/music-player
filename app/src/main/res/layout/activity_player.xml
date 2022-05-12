@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:background="@color/primaryColor"
         android:elevation="20dp"
-        android:visibility="visible"
+        android:visibility="invisible"
         >
 
         <ProgressBar
@@ -35,7 +35,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topControlMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         app:layout_constraintTop_toTopOf="parent"
         >
         <ImageButton
@@ -66,11 +66,8 @@
             android:id="@+id/mediaAlbumArt"
             android:layout_width="300dp"
             android:layout_height="300dp"
-            android:background="@drawable/obj_topbar_background"
             android:layout_margin="10dp"
-            android:elevation="10dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/img_default_music"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -80,6 +77,7 @@
         android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constrainedHeight="true"
         app:layout_constraintTop_toBottomOf="@+id/mediaMetadata">
 
         <TextView
@@ -90,7 +88,6 @@
             android:ellipsize="marquee"
             android:fontFamily="@font/varela"
             android:singleLine="true"
-            android:text="UNKNOWN"
             android:textAlignment="center"
             android:textColor="#cccccc"
             android:textSize="25sp"
@@ -102,17 +99,13 @@
         <TextView
             android:id="@+id/mediaCurrentAuthor"
             android:layout_width="100dp"
-            android:layout_height="30dp"
-            android:text="unknown"
-            android:singleLine="true"
+            android:layout_height="20dp"
             android:ellipsize="marquee"
-            android:padding="5dp"
-            android:layout_margin="10dp"
+            android:fontFamily="@font/varela"
+            android:singleLine="true"
+            android:textAlignment="center"
             android:textColor="#3b3b3b"
             android:textStyle="bold"
-            android:textAlignment="center"
-            android:fontFamily="@font/varela"
-            app:layout_constraintBottom_toBottomOf="@+id/mediaCurrentTitle"
             app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
             app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
             app:layout_constraintTop_toBottomOf="@+id/mediaCurrentTitle" />
@@ -126,9 +119,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/mediaProgress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+       >
 
         <ImageButton
             android:id="@+id/AddFavorite"
@@ -162,9 +156,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/mediaControls"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mediaUtils">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/mediaCurrentPosition"
@@ -197,32 +191,33 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@null"
-            android:maxHeight="10dp"
-            android:minHeight="10dp"
+            android:maxHeight="2dp"
+            android:minHeight="2dp"
             android:padding="0dp"
             android:progressDrawable="@drawable/obj_seekbar_style"
             android:splitTrack="false"
             android:thumb="@drawable/obj_seekbar_thumb"
-            android:thumbTint="#458cff" />
+            android:thumbTint="#cccccc" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mediaControls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
         android:elevation="10dp"
         android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mediaProgress">
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
             android:id="@+id/mediaPlay"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:background="@null"
-            android:src="@drawable/ui_play"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/sc_mn_anim_playback_play"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -231,10 +226,10 @@
 
         <ImageButton
             android:id="@+id/mediaPrev"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@null"
-            android:src="@drawable/nf_prev"
+            android:layout_width="30dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/sc_previous_2"
             app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
             app:layout_constraintEnd_toStartOf="@+id/mediaPlay"
             app:layout_constraintTop_toTopOf="@+id/mediaPlay"
@@ -242,10 +237,10 @@
 
         <ImageButton
             android:id="@+id/mediaSkip"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@null"
-            android:src="@drawable/nf_next"
+            android:layout_width="30dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/sc_skip_2"
             app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
             app:layout_constraintStart_toEndOf="@+id/mediaPlay"
             app:layout_constraintTop_toTopOf="@+id/mediaPlay"
@@ -258,7 +253,8 @@
             android:background="@null"
             android:src="@drawable/btn_shuffle"
             app:layout_constraintBottom_toBottomOf="@+id/mediaPrev"
-            app:layout_constraintEnd_toStartOf="@+id/mediaPrev"
+
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/mediaPrev"
             app:tint="#3b3b3b" />
 
@@ -267,9 +263,9 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@null"
-            android:src="@drawable/btn_loop"
+            android:src="@drawable/nf_repeat"
             app:layout_constraintBottom_toBottomOf="@+id/mediaSkip"
-            app:layout_constraintStart_toEndOf="@+id/mediaSkip"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/mediaSkip"
             app:tint="#3b3b3b" />
 

@@ -1,5 +1,6 @@
 package com.drkryz.scutfy.Screens;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
@@ -10,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
 import android.net.Uri;
@@ -24,13 +26,16 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.drkryz.scutfy.Class.Default.UserPlaylist;
 import com.drkryz.scutfy.Constants.BroadcastConstants;
+import com.drkryz.scutfy.Helpers.UserFavoritesHelper;
 import com.drkryz.scutfy.R;
 import com.drkryz.scutfy.Services.MusicService;
+import com.drkryz.scutfy.Utils.ContentManagerUtil;
 import com.drkryz.scutfy.Utils.PreferencesUtil;
 import com.drkryz.scutfy.Utils.ServiceManagerUtil;
 
@@ -44,7 +49,6 @@ public class PlayerActivity extends AppCompatActivity {
     private final Handler mHandler = new Handler();
     private MusicService musicService;
     private PreferencesUtil preferencesUtil;
-    private boolean serviceBound = false;
 
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -53,12 +57,10 @@ public class PlayerActivity extends AppCompatActivity {
             Log.d(getPackageName(), "service connected");
             MusicService.LocalBinder binder = (MusicService.LocalBinder) iBinder;
             musicService = binder.getService();
-            serviceBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            serviceBound = false;
         }
     };
 
@@ -94,23 +96,16 @@ public class PlayerActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             isPlaying = intent.getBooleanExtra("playback.status", false);
 
-            Log.e(getPackageName(), "PlayerActivity():status received=" + isPlaying);
-            if (isPlaying) {
-                playButton
-                        .setImageDrawable(getDrawable(R.drawable.ui_pause));
-                try {
-                    updateCoverImage();
-                    startSeekBar();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                playButton
-                        .setImageDrawable(getDrawable(R.drawable.ui_play));
+            try {
+                updateCoverImage();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     };
 
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,66 +143,58 @@ public class PlayerActivity extends AppCompatActivity {
         bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
         ServiceManagerUtil.handleAction(0, this);
 
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int audioIndex = preferencesUtil.loadAudioIndex();
 
-                Log.e(getPackageName(), "running=" + isRunning);
+        musicAlbumArt.setOnClickListener(view -> {
+            startActivity(new Intent(PlayerActivity.this, StatusViewActivity.class));
+        });
 
-                if (isRunning) {
-                    if (isPlaying) {
-                        ServiceManagerUtil.handleAction(3, getBaseContext());
-                    } else {
-                        ServiceManagerUtil.handleAction(4, getBaseContext());
-                    }
+
+        playButton.setOnClickListener(view -> {
+            int audioIndex = preferencesUtil.loadAudioIndex();
+
+            if (isRunning) {
+                if (isPlaying) {
+                    ServiceManagerUtil.handleAction(3, getBaseContext());
+
                 } else {
-                    if (audioIndex != -1) {
-                        Intent service = new Intent(getBaseContext(), MusicService.class);
-                        service.setAction(BroadcastConstants.INIT_CMD);
+                    ServiceManagerUtil.handleAction(4, getBaseContext());
+                }
 
-                        bindService(service, serviceConnection, BIND_AUTO_CREATE);
-                        startService(service);
-                    }
+            } else {
+                if (audioIndex != -1) {
+                    Intent service = new Intent(getBaseContext(), MusicService.class);
+                    service.setAction(BroadcastConstants.INIT_CMD);
+
+                    bindService(service, serviceConnection, BIND_AUTO_CREATE);
+                    startService(service);
                 }
             }
         });
 
-        skipButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isRunning) {
-                    bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
-                    ServiceManagerUtil.handleAction(5, getBaseContext());
-                } else {
-                    ServiceManagerUtil.handleAction(5, getBaseContext());
-                }
+        skipButton.setOnClickListener(view -> {
+            if (!isRunning) {
+                bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
             }
+
+            ServiceManagerUtil.handleAction(5, getBaseContext());
         });
 
-        prevButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isRunning) {
-                    bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
-                    ServiceManagerUtil.handleAction(6, getBaseContext());
-                } else {
-                    ServiceManagerUtil.handleAction(6, getBaseContext());
-                }
+        prevButton.setOnClickListener(view -> {
+            if (!isRunning) {
+                bindService(new Intent(getBaseContext(), MusicService.class), serviceConnection, BIND_AUTO_CREATE);
             }
+
+            ServiceManagerUtil.handleAction(6, getBaseContext());
         });
 
-        closePlayerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Activity activity = (Activity) view.getContext();
+        closePlayerButton.setOnClickListener(view -> {
+            Activity activity = (Activity) view.getContext();
 
-                startActivity(new Intent(getBaseContext(), MusicActivity.class), ActivityOptions
-                        .makeSceneTransitionAnimation(activity).toBundle()
-                );
+            startActivity(new Intent(getBaseContext(), MusicActivity.class), ActivityOptions
+                    .makeSceneTransitionAnimation(activity).toBundle()
+            );
 
-                finish();
-            }
+            finish();
         });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -229,71 +216,70 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
-        favoriteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (musicService == null) return;
+        favoriteButton.setOnClickListener(view -> {
+            if (musicService == null) return;
 
-                if (preferencesUtil.loadAudioIndex() == -1) return;
-                UserPlaylist userPlaylist = preferencesUtil.loadAudio().get(preferencesUtil.loadAudioIndex());
+            UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(getApplicationContext());
+            ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getApplicationContext());
 
-                if (userPlaylist.isFavorite()) {
-                    ServiceManagerUtil.handleAction(8, getBaseContext());
-                    favoriteButton.setImageDrawable(getDrawable(R.drawable.btn_favorite));
-                } else {
-                    ServiceManagerUtil.handleAction(8, getBaseContext());
-                    favoriteButton.setImageDrawable(getDrawable(R.drawable.btn_favorite_active));
-                    Drawable fab = favoriteButton.getDrawable();
-                    fab.setTint(getResources().getColor(R.color.av_red));
-                }
+
+            boolean isFavorite = userFavoritesHelper.isFavorite(
+                    contentManagerUtil.getMusics(getApplicationContext())
+                    .get(preferencesUtil.loadAudioIndex()).getTitle()
+            );
+
+
+            ServiceManagerUtil.handleAction(8, getBaseContext());
+
+            if (isFavorite) {
+                favoriteButton.setImageDrawable(AppCompatResources.getDrawable(getBaseContext(), R.drawable.btn_favorite));
+            } else {
+                favoriteButton.setImageDrawable(AppCompatResources.getDrawable(getBaseContext(), R.drawable.btn_favorite_active));
+                Drawable fab = favoriteButton.getDrawable();
+                fab.setTint(getColor(R.color.av_red));
             }
         });
 
 
-        shuffleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (musicService == null) return;
-                if (preferencesUtil.loadShuffleState()) {
-                    ServiceManagerUtil.handleAction(9, getBaseContext());
-                    shuffleButton.setImageDrawable(getDrawable(R.drawable.btn_shuffle));
-                } else {
-                    ServiceManagerUtil.handleAction(9, getBaseContext());
-                    Drawable fab = shuffleButton.getDrawable();
-                    fab.setTint(getResources().getColor(R.color.av_dark_blue));
-                }
+        shuffleButton.setOnClickListener(view -> {
+            if (musicService == null) return;
+            if (preferencesUtil.loadShuffleState()) {
+                ServiceManagerUtil.handleAction(9, getBaseContext());
+                shuffleButton.setImageDrawable(AppCompatResources.getDrawable(getBaseContext(), R.drawable.btn_shuffle));
+            } else {
+                ServiceManagerUtil.handleAction(9, getBaseContext());
+                Drawable fab = shuffleButton.getDrawable();
+                fab.setTint(getColor(R.color.av_dark_blue));
             }
         });
 
-        loopingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (musicService == null) return;
-                if (preferencesUtil.loadLoopState()) {
-                    ServiceManagerUtil.handleAction(10, getBaseContext());
-                    loopingButton.setImageDrawable(getDrawable(R.drawable.btn_loop));
-                } else {
-                    ServiceManagerUtil.handleAction(10, getBaseContext());
-                    Drawable fab = loopingButton.getDrawable();
-                    fab.setTint(getResources().getColor(R.color.av_dark_blue));
-                }
+        loopingButton.setOnClickListener(view -> {
+            if (musicService == null) return;
+            if (preferencesUtil.loadLoopState()) {
+                ServiceManagerUtil.handleAction(10, getBaseContext());
+                loopingButton.setImageDrawable(AppCompatResources.getDrawable(getBaseContext(), R.drawable.nf_repeat));
+            } else {
+                ServiceManagerUtil.handleAction(10, getBaseContext());
+                Drawable fab = loopingButton.getDrawable();
+                fab.setTint(getColor(R.color.av_dark_blue));
             }
         });
 
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (preferencesUtil.loadAudioIndex() == -1) return;
-                UserPlaylist userPlaylist = preferencesUtil.loadAudio().get(preferencesUtil.loadAudioIndex());
+        shareButton.setOnClickListener(view -> {
 
 
-                Intent shareIntentAudio = new Intent();
-                shareIntentAudio.setAction(Intent.ACTION_SEND);
-                shareIntentAudio.putExtra(Intent.EXTRA_STREAM, Uri.parse(userPlaylist.getPath()));
-                shareIntentAudio.setType("audio/mp3");
-                startActivity(Intent.createChooser(shareIntentAudio, "Enviar para..."));
-            }
+            ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getApplicationContext());
+
+            if (preferencesUtil.loadAudioIndex() == -1) return;
+            UserPlaylist userPlaylist = contentManagerUtil.getMusics(getApplicationContext())
+                    .get(preferencesUtil.loadAudioIndex());
+
+
+            Intent shareIntentAudio = new Intent();
+            shareIntentAudio.setAction(Intent.ACTION_SEND);
+            shareIntentAudio.putExtra(Intent.EXTRA_STREAM, Uri.parse(userPlaylist.getPath()));
+            shareIntentAudio.setType("audio/mp3");
+            startActivity(Intent.createChooser(shareIntentAudio, "Enviar para..."));
         });
     }
 
@@ -336,33 +322,21 @@ public class PlayerActivity extends AppCompatActivity {
 
         preferencesUtil.storeUserInApp(true);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isRunning) {
-                    isPlaying = preferencesUtil.getPlayingState();
+        new Handler().postDelayed(() -> {
+            if (isRunning) {
+                isPlaying = preferencesUtil.getPlayingState();
 
-                    if (isPlaying) {
-                        playButton.setImageDrawable(getDrawable(R.drawable.ui_pause));
-                        try {
-                            updateCoverImage();
-                            startSeekBar();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        playButton.setImageDrawable(getDrawable(R.drawable.ui_play));
-                        try {
-                            updateCoverImage();
-                            startSeekBar();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                ServiceManagerUtil.handleAction(11, getBaseContext());
+
+                try {
+                    updateCoverImage();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                loadingScreen.setVisibility(View.INVISIBLE);
+                startSeekBar();
             }
+
+            loadingScreen.setVisibility(View.INVISIBLE);
         }, 16);
     }
 
@@ -445,43 +419,63 @@ public class PlayerActivity extends AppCompatActivity {
 
         loadingScreen.setVisibility(View.INVISIBLE);
 
+        UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(getApplicationContext());
+        ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getApplicationContext());
 
-        UserPlaylist userPlaylist = preferencesUtil.loadAudio().get(preferencesUtil.loadAudioIndex());
 
-        Log.e(userPlaylist.getTitle(), "favorite?:" + userPlaylist.isFavorite());
+        boolean isFavorite = userFavoritesHelper.isFavorite(
+                contentManagerUtil.getMusics(getApplicationContext())
+                        .get(preferencesUtil.loadAudioIndex()).getTitle()
+        );
 
-        if (userPlaylist.isFavorite()) {
-            favoriteButton.setImageDrawable(getDrawable(R.drawable.btn_favorite_active));
+        if (isFavorite) {
+            favoriteButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.btn_favorite_active));
 
             Drawable fab = favoriteButton.getDrawable();
-            fab.setTint(getResources().getColor(R.color.av_red));
+            fab.setTint(getColor(R.color.av_red));
 
         } else {
-            favoriteButton.setImageDrawable(getDrawable(R.drawable.btn_favorite));
+            favoriteButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.btn_favorite));
         }
 
         if (!preferencesUtil.loadShuffleState()) {
-            shuffleButton.setImageDrawable(getDrawable(R.drawable.btn_shuffle));
+            shuffleButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.btn_shuffle));
         } else {
             Drawable fab = shuffleButton.getDrawable();
-            fab.setTint(getResources().getColor(R.color.av_dark_blue));
+            fab.setTint(getColor(R.color.av_dark_blue));
         }
 
         if (!preferencesUtil.loadLoopState()) {
-            loopingButton.setImageDrawable(getDrawable(R.drawable.btn_loop));
+            loopingButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.nf_repeat));
         } else {
             Drawable fab = loopingButton.getDrawable();
-            fab.setTint(getResources().getColor(R.color.av_dark_blue));
+            fab.setTint(getColor(R.color.av_dark_blue));
         }
+
+
+
+        if (isPlaying) {
+            playButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_play);
+        } else {
+            playButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_pause);
+        }
+
+        AnimationDrawable PLAY_PAUSE_ANIMATION = (AnimationDrawable) playButton.getBackground();
+        PLAY_PAUSE_ANIMATION.start();
 
         updateSeekBar();
     }
 
+    @SuppressLint("DefaultLocale")
     public String getTime(int time) {
         int seconds = time / 1000;
         int minutes = seconds / 60;
         seconds = seconds % 60;
 
         return String.format("%02d:%02d", minutes, seconds);
+    }
+
+    static {
+        System.loadLibrary("scutfy-msp-c");
     }
 }

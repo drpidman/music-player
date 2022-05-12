@@ -16,5 +16,7 @@ public final class UserSongs {
         public static final String SONG_ALBUM_URI = "song_album_uri";
         public static final String SONG_PATH_URI = "song_path_uri";
         public static final String SONG_FAVOURITE = "song_is_favorite";
+
+        public static final String SONG_COLUMN = "SONG_COLUMN";
     }
 }

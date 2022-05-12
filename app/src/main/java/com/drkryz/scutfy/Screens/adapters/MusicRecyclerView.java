@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,13 +19,16 @@ import com.drkryz.scutfy.Utils.PreferencesUtil;
 import com.drkryz.scutfy.Class.Default.UserPlaylist;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.ViewHolder> {
+public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.ViewHolder> implements Filterable {
 
     private final ArrayList<UserPlaylist> musicList;
     private final Context context;
     private final PreferencesUtil preferencesUtil;
     private final MusicService musicService;
+    private ArrayList<UserPlaylist> musicListAll;
 
     @NonNull
     @Override
@@ -51,6 +56,43 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
 
 
     }
+
+    
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    private final Filter filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence) {
+            ArrayList<UserPlaylist> filtered = new ArrayList<>();
+            if (charSequence == null || charSequence.length() == 0 ) {
+                filtered.addAll(musicListAll);
+            } else {
+                String filter = charSequence.toString().toLowerCase().trim();
+
+                for (UserPlaylist usr: musicListAll) {
+                    if (usr.getTitle().toLowerCase().contains(filter)) {
+                        filtered.add(usr);
+                    }
+                }
+            }
+
+            FilterResults res = new FilterResults();
+            res.values = filtered;
+            res.count = filtered.size();
+            return res;
+        }
+
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+            musicList.clear();
+            musicList.addAll((ArrayList) filterResults.values);
+            notifyDataSetChanged();
+        }
+    };
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -87,6 +129,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
         this.context = ctx;
         this.musicService = musicService;
 
+        musicListAll = new ArrayList<>(musicList);
         preferencesUtil = new PreferencesUtil(context);
     }
 }

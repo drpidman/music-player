@@ -152,9 +152,10 @@
 
             <ImageView
                 android:id="@+id/img_Support_WindowWork_Image"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:src="@drawable/se"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:padding="20dp"
+                android:src="@drawable/folder_ic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -203,8 +204,10 @@
                 android:background="@drawable/obj_rounded_blue_min"
                 android:focusable="auto"
                 android:text="@string/perm_dft_conf_str_access_msg_allow"
-                android:textColor="@color/primaryColor"
+                android:textColor="@color/textColor"
                 android:textSize="10sp"
+                android:fontFamily="@font/varela"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />

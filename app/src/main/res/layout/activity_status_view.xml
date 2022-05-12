@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primaryColor"
+    android:id="@+id/sc.mn.status"
+    tools:context=".Screens.StatusViewActivity">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/sc.mn.status_center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="20dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sc.mn.status_center.support_AppName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.drkryz.scutfy.CustomViews.CustomImageView
+                android:id="@+id/sc.mn.status_center.support_AppName.Image"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@mipmap/ic_launcher"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:fontFamily="@font/varela"
+                android:text="@string/app_name"
+                android:textAlignment="center"
+                android:textColor="#ccc"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/sc.mn.status_center.support_AppName.Image"
+                app:layout_constraintStart_toEndOf="@+id/sc.mn.status_center.support_AppName.Image"
+                app:layout_constraintTop_toTopOf="@+id/sc.mn.status_center.support_AppName.Image" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sc.mn.status_center.support_ImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sc.mn.status_center.support_AppName">
+
+            <com.drkryz.scutfy.CustomViews.CustomImageView
+                android:id="@+id/sc.mn.status_center.support_ImageView.AlbumImage"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sc.mn.status_center.support_MediaInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/sc.mn.status_center.support_ImageView"
+            tools:layout_editor_absoluteX="20dp">
+
+
+            <TextView
+                android:id="@+id/sc.mn.status_center.support_MediaInfo.Title"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:ellipsize="marquee"
+                android:fontFamily="@font/varela"
+                android:singleLine="true"
+                android:textAlignment="center"
+                android:textColor="#cccccc"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/sc.mn.status_center.support_MediaInfo.Author"
+                android:layout_width="300dp"
+                android:layout_height="40dp"
+                android:ellipsize="marquee"
+                android:fontFamily="@font/varela"
+                android:singleLine="true"
+                android:textAlignment="center"
+                android:textColor="#cccccc"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/sc.mn.status_center.support_MediaInfo.Title"
+                app:layout_constraintStart_toStartOf="@+id/sc.mn.status_center.support_MediaInfo.Title"
+                app:layout_constraintTop_toBottomOf="@+id/sc.mn.status_center.support_MediaInfo.Title" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

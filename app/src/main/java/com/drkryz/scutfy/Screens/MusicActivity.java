@@ -12,8 +12,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaMetadata;
+import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -62,17 +63,20 @@ public class MusicActivity extends AppCompatActivity {
 
 
     static {
-        System.loadLibrary("musicplayer");
+        System.loadLibrary("scutfy-msp-c");
     }
 
     private MusicService musicService;
     private PreferencesUtil preferencesUtil;
     private LinearLayoutManager layoutManager;
     private View mediaBottomControl;
+    private RecyclerView listView;
     private ImageView coverImage;
     private TextView musicTitle, musicAuthor;
     private ImageButton mediaControlPlayButton;
     private Toolbar toolbar;
+
+    private ArrayList<UserPlaylist> musics;
 
 
     private boolean serviceBound = false;
@@ -92,6 +96,7 @@ public class MusicActivity extends AppCompatActivity {
             serviceBound = false;
         }
     };
+
     private boolean isRunning = false;
     public BroadcastReceiver MusicServiceStatus = new BroadcastReceiver() {
         @Override
@@ -100,11 +105,11 @@ public class MusicActivity extends AppCompatActivity {
             isRunning = true;
         }
     };
+
     private boolean isPlaying = false;
     private final BroadcastReceiver PlaybackStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e(getPackageName(), "playback.status:" + "received");
             isPlaying = intent.getBooleanExtra("playback.status", false);
 
             if (isPlaying) {
@@ -142,7 +147,7 @@ public class MusicActivity extends AppCompatActivity {
                 .registerReceiver(MusicServiceStatus, new IntentFilter(BroadcastConstants.PREPARE_CMD + ".running"));
 
 
-        RecyclerView listView = findViewById(R.id.musicList);
+        listView = findViewById(R.id.musicList);
         coverImage = findViewById(R.id.mediaAlbumArt);
         musicTitle = findViewById(R.id.mediaTitle);
         musicAuthor = findViewById(R.id.mediaArtist);
@@ -155,9 +160,14 @@ public class MusicActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+
         if (getIntent().getExtras() == null) {
             musicList =
-                    new ContentManagerUtil(this).getMusics();
+                    new ContentManagerUtil(this).getMusics(this);
+
+            musics = new ArrayList<>();
+            musics.addAll(musicList);
+
         } else musicList = new Gson().fromJson(
                 getIntent().getExtras().getString("com.drkryz.array.musics"),
                 new TypeToken<ArrayList<UserPlaylist>>() {
@@ -167,6 +177,10 @@ public class MusicActivity extends AppCompatActivity {
         // list view adapter
 
         adapter = new MusicRecyclerView(musicList, getBaseContext(), musicService);
+
+        createChannel();
+        preferencesUtil = new PreferencesUtil(getBaseContext());
+
 
 
         AlphaInAnimationAdapter alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapter);
@@ -184,10 +198,19 @@ public class MusicActivity extends AppCompatActivity {
 
         // list view click listener
         ItemClickSupport.addTo(listView)
-                .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-                    @Override
-                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        Play(position);
+                .setOnItemClickListener((recyclerView, position, v) -> {
+                    UserPlaylist userPlaylist = musicList.get(position);
+
+                    ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getBaseContext());
+
+                    preferencesUtil.storeAudioIndex(contentManagerUtil.getMusicIndexByName(userPlaylist.getTitle(), getBaseContext()));
+
+                    Play();
+
+                    if (!preferencesUtil.getFirstInit()) {
+                        preferencesUtil.setInitFirst(true);
+
+                        mediaBottomControl.setVisibility(View.VISIBLE);
                     }
                 });
 
@@ -202,17 +225,10 @@ public class MusicActivity extends AppCompatActivity {
         });
 
 
-        createChannel();
-        preferencesUtil = new PreferencesUtil(getBaseContext());
-        preferencesUtil.storeUserInApp(true);
-        preferencesUtil.storeAudio(musicList);
 
-        mediaBottomControl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent PlayerActivityIntent = new Intent(getBaseContext(), PlayerActivity.class);
-                startActivity(PlayerActivityIntent);
-            }
+        mediaBottomControl.setOnClickListener(view -> {
+            Intent PlayerActivityIntent = new Intent(getBaseContext(), PlayerActivity.class);
+            startActivity(PlayerActivityIntent);
         });
 
         // start to first
@@ -220,27 +236,26 @@ public class MusicActivity extends AppCompatActivity {
         bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
 
 
-        mediaControlPlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int audioIndex = preferencesUtil.loadAudioIndex();
+        if (!preferencesUtil.getFirstInit()) {
+            mediaBottomControl.setVisibility(View.INVISIBLE);
+        }
 
-                Log.e(getPackageName(), "running=" + isRunning);
+        mediaControlPlayButton.setOnClickListener(view -> {
+            int audioIndex = preferencesUtil.loadAudioIndex();
 
-                if (isRunning) {
-                    if (isPlaying) {
-                        ServiceManagerUtil.handleAction(3, getBaseContext());
-                    } else {
-                        ServiceManagerUtil.handleAction(4, getBaseContext());
-                    }
+            if (isRunning) {
+                if (isPlaying) {
+                    ServiceManagerUtil.handleAction(3, getBaseContext());
                 } else {
-                    if (audioIndex != -1) {
-                        Intent service = new Intent(getBaseContext(), MusicService.class);
-                        service.setAction(BroadcastConstants.INIT_CMD);
+                    ServiceManagerUtil.handleAction(4, getBaseContext());
+                }
+            } else {
+                if (audioIndex != -1) {
+                    Intent service = new Intent(getBaseContext(), MusicService.class);
+                    service.setAction(BroadcastConstants.INIT_CMD);
 
-                        bindService(service, serviceConnection, BIND_AUTO_CREATE);
-                        startService(service);
-                    }
+                    bindService(service, serviceConnection, BIND_AUTO_CREATE);
+                    startService(service);
                 }
             }
         });
@@ -258,11 +273,13 @@ public class MusicActivity extends AppCompatActivity {
                 if (dy > 0) {
                     toolbar.setVisibility(View.VISIBLE);
                 } else {
-                    toolbar.setVisibility(View.INVISIBLE);
+                    toolbar.setVisibility(View.VISIBLE);
                 }
             }
         });
     }
+
+    AnimationDrawable animationDrawable;
 
     private void updateCoverImage() throws IOException {
         if (musicService == null) return;
@@ -270,34 +287,34 @@ public class MusicActivity extends AppCompatActivity {
         MediaMetadata metadata = musicService.getMetadata();
         Bitmap cover = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        cover.compress(Bitmap.CompressFormat.JPEG, 100, out);
-        Bitmap decode = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-
-        coverImage.setImageBitmap(decode);
+        coverImage.setImageBitmap(cover);
         musicTitle.setText(metadata.getString(MediaMetadata.METADATA_KEY_TITLE));
         musicAuthor.setText(metadata.getString(MediaMetadata.METADATA_KEY_ARTIST));
 
+        musicTitle.setSelected(true);
+
         if (isPlaying) {
-            mediaControlPlayButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.nf_pause));
+            mediaControlPlayButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_play);
         } else {
-            mediaControlPlayButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.nf_play));
+            mediaControlPlayButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_pause);
         }
+
+
+        animationDrawable = (AnimationDrawable) mediaControlPlayButton.getBackground();
+        animationDrawable.start();
 
 
     }
 
-    private void Play(int position) {
+    private void Play() {
 
         if (!isRunning) {
-            preferencesUtil.storeAudioIndex(position);
             Intent service = new Intent(this, MusicService.class);
             service.setAction(BroadcastConstants.INIT_CMD);
 
             bindService(service, serviceConnection, BIND_AUTO_CREATE);
             ServiceManagerUtil.handleAction(1, this);
         } else {
-            preferencesUtil.storeAudioIndex(position);
             ServiceManagerUtil.handleAction(2, this);
         }
     }
@@ -308,11 +325,23 @@ public class MusicActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.search_menu, menu);
 
-        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+
         androidx.appcompat.widget.SearchView searchView  = (SearchView) menu.findItem(R.id.action_search).getActionView();
 
         searchView.setBackgroundResource(R.drawable.obj_searchview_background);
 
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
         return true;
     }
 
@@ -324,6 +353,7 @@ public class MusicActivity extends AppCompatActivity {
         if (preferencesUtil.loadAudioIndex() != -1) {
             if (!isRunning) {
                 ServiceManagerUtil.handleAction(7, this);
+                ServiceManagerUtil.handleAction(11, this);
             }
         }
 
@@ -362,20 +392,18 @@ public class MusicActivity extends AppCompatActivity {
                 .registerReceiver(MusicServiceStatus, new IntentFilter(BroadcastConstants.PREPARE_CMD + ".running"));
 
         preferencesUtil.storeUserInApp(true);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isRunning) {
-                    isPlaying = preferencesUtil.getPlayingState();
+        new Handler().postDelayed(() -> {
+            if (isRunning) {
+                isPlaying = preferencesUtil.getPlayingState();
 
-                    try {
-                        updateCoverImage();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    layoutManager.scrollToPosition(preferencesUtil.loadAudioIndex());
+                ServiceManagerUtil.handleAction(11, getBaseContext());
+                try {
+                    updateCoverImage();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+
+                layoutManager.scrollToPosition(preferencesUtil.loadAudioIndex());
             }
         }, 16);
     }
@@ -417,7 +445,7 @@ public class MusicActivity extends AppCompatActivity {
     }
 
     private void createChannel() {
-        NotificationChannel channel = null;
+        NotificationChannel channel;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             channel = new NotificationChannel(
                     "Music Player",

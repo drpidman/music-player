@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.drkryz.scutfy" >
+    package="com.drkryz.scutfy">
 
     <permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
     <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
@@ -27,7 +27,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/BaseTheme"
-        tools:targetApi="o" >
+        tools:targetApi="o">
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
@@ -51,6 +51,13 @@
             android:exported="true"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".Screens.StatusViewActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
         <activity
             android:name=".Screens.PermissionActivity"
             android:exported="true"
@@ -59,7 +66,7 @@
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            tools:node="replace" >
+            tools:node="replace">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -80,11 +87,11 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-
         <activity
             android:name=".Screens.SplashActivity"
             android:exported="true"
@@ -109,7 +116,7 @@
             android:foregroundServiceType="mediaPlayback"
             android:label="MusicService"
             android:stopWithTask="false"
-            tools:ignore="ExportedService" >
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
@@ -119,7 +126,7 @@
             android:description="@string/app_name"
             android:enabled="true"
             android:exported="false"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
@@ -132,7 +139,6 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".Screens.ScutfyPlayerWidget"
             android:exported="true">

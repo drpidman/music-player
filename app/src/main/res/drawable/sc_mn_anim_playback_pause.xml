@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true"
+    >
+
+    <item android:drawable="@drawable/nf_pause" android:duration="50"/>
+    <item android:drawable="@drawable/nf_pause_anim_lvl_2" android:duration="50"/>
+    <item android:drawable="@drawable/nf_pause_anim_lvl_3" android:duration="50"/>
+
+    <item android:drawable="@drawable/nf_play_anim_lvl_3" android:duration="20"/>
+    <item android:drawable="@drawable/nf_play_anim_lvl_2" android:duration="20"/>
+    <item android:drawable="@drawable/nf_play" android:duration="50"/>
+
+</animation-list>

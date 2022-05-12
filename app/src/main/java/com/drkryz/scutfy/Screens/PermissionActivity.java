@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -22,6 +24,7 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.firebase.perf.v1.AndroidApplicationInfo;
 
 public class PermissionActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -68,26 +71,6 @@ public class PermissionActivity extends AppCompatActivity implements View.OnClic
 
     }
 
-    private void StoreStorageSwitcher(boolean isChecked) {
-        SharedPreferences preferences = getSharedPreferences("com.drkryz.musicplayer.permission.storageAccess.check", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.putBoolean("permission.storage.checked", isChecked);
-        editor.apply();
-    }
-
-    private boolean LoadStorageSwitcher() {
-        SharedPreferences preferences = getSharedPreferences("com.drkryz.musicplayer.permission.storageAccess.check", Context.MODE_PRIVATE);
-        return preferences.getBoolean("permission.storage.checked", false);
-    }
-
-    private void StoreUserCounterSwitcher(boolean isChecked) {
-        SharedPreferences preferences = getSharedPreferences("com.drkryz.musicplayer.permission.userCounter.check", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        editor.putBoolean("permission.userCounter.checked", isChecked);
-        editor.apply();
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -95,12 +78,7 @@ public class PermissionActivity extends AppCompatActivity implements View.OnClic
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 acceptPermission.setVisibility(View.VISIBLE);
             } else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(
-                        PermissionActivity.this, new String[]{
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        }, 140
-                );
+                startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getBaseContext().getPackageName(), null)));
             }
         }
 
@@ -125,16 +103,11 @@ public class PermissionActivity extends AppCompatActivity implements View.OnClic
             startActivity(new Intent(getBaseContext(), SplashActivity.class));
             finish();
         } else if (view.getId() == goPermission.getId()) {
-            if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                        PermissionActivity.this, new String[]{
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        }, 140
-                );
-            }
+
+            this.requestPermissions(new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 140);
         }
     }
 }

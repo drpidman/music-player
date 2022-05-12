@@ -30,7 +30,7 @@
         android:background="@drawable/obj_support_recyclerview_background"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toTopOf="@+id/mediaBottomControl"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:layout_editor_absoluteX="5dp">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -44,6 +44,10 @@
             android:scrollbarThumbHorizontal="@color/primaryColor"
             android:scrollbarThumbVertical="@color/primaryColor"
             app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/listview_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -63,6 +67,7 @@
             android:layout_width="65dp"
             android:layout_height="65dp"
             android:layout_margin="10dp"
+
             android:layout_marginStart="10dp"
             android:scaleType="centerCrop"
             android:src="@drawable/img_default_music"
@@ -105,7 +110,6 @@
             android:layout_height="50dp"
             android:layout_margin="10dp"
             android:background="@null"
-            android:src="@drawable/nf_play"
             app:layout_constraintBottom_toBottomOf="@+id/mediaAlbumArt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/mediaAlbumArt"

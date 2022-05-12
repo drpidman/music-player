@@ -15,31 +15,13 @@ public class PreferencesUtil {
     private final String STORAGE = "com.drkryz.musicplayer.STORAGE";
     private final String STORAGE_STATES = "com.drkryz.musicplayer.STORAGE_STATES";
     private final String STORAGE_USER = "com.drkryz.musicplayer.STORAGE_USER";
+
+
     private final Context context;
     private SharedPreferences preferences;
 
     public PreferencesUtil(Context context) {
         this.context = context;
-    }
-
-    public void storeAudio(ArrayList<UserPlaylist> arrayList) {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-
-        SharedPreferences.Editor editor = preferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(arrayList);
-        editor.putString("audio.user.defaultPlaylist", json);
-        editor.apply();
-    }
-
-    public ArrayList<UserPlaylist> loadAudio() {
-        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = preferences.getString("audio.user.defaultPlaylist", null);
-        Type type = new TypeToken<ArrayList<UserPlaylist>>() {
-        }.getType();
-
-        return gson.fromJson(json, type);
     }
 
     public void storeAudioIndex(int index) {
@@ -54,6 +36,21 @@ public class PreferencesUtil {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         return preferences.getInt("audioIndex", -1);
     }
+
+
+    public void storeAudioTitle(String title) {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString("audio.title", title);
+        editor.apply();
+    }
+
+    public String loadAudioTitle() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        return preferences.getString("audio.title", "");
+    }
+
 
     public void storePlayingState(boolean playingState) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
@@ -98,6 +95,21 @@ public class PreferencesUtil {
         editor.putBoolean("state.shuffle", shuffle);
         editor.apply();
     }
+
+
+    public void setInitFirst(boolean firstInit) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("state.first", firstInit);
+        editor.apply();
+    }
+
+    public boolean getFirstInit() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getBoolean("state.first", false);
+    }
+
 
     public boolean loadShuffleState() {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
