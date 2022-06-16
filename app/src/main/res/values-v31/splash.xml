@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="SplashTheme" parent="SplashThemeColor">
+        <item name="android:windowSplashScreenBackground">#000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/img_splash</item>
+        <item name="android:splashScreenTheme">@style/SplashThemeColor</item>
+    </style>
+
+</resources>

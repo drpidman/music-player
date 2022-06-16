@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/primaryColor"
     android:animateLayoutChanges="true"
+    android:id="@+id/playerView"
     tools:context=".Screens.PlayerActivity">
 
 
@@ -33,241 +34,251 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/topControlMenu"
+        android:id="@+id/blureableSupportView"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="match_parent"
         >
-        <ImageButton
-            android:id="@+id/closePlayerUi"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@null"
-            app:tint="#3b3b3b"
-            android:src="@drawable/btn_arrowright"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mediaMetadata"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintHeight_default="spread"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topControlMenu">
-
-        <com.drkryz.scutfy.CustomViews.CustomImageView
-            android:id="@+id/mediaAlbumArt"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_margin="10dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintTop_toBottomOf="@+id/mediaMetadata">
-
-        <TextView
-            android:id="@+id/mediaCurrentTitle"
-            android:layout_width="250dp"
-            android:layout_height="40dp"
-            android:layout_margin="10dp"
-            android:ellipsize="marquee"
-            android:fontFamily="@font/varela"
-            android:singleLine="true"
-            android:textAlignment="center"
-            android:textColor="#cccccc"
-            android:textSize="25sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/mediaCurrentAuthor"
-            android:layout_width="100dp"
-            android:layout_height="20dp"
-            android:ellipsize="marquee"
-            android:fontFamily="@font/varela"
-            android:singleLine="true"
-            android:textAlignment="center"
-            android:textColor="#3b3b3b"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
-            app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
-            app:layout_constraintTop_toBottomOf="@+id/mediaCurrentTitle" />
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!--EM DESENVOLVIMENTO-->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mediaUtils"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/mediaProgress"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-       >
-
-        <ImageButton
-            android:id="@+id/AddFavorite"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="5dp"
-            android:background="@null"
-            android:src="@drawable/btn_favorite"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#3b3b3b" />
-
-
-        <ImageButton
-            android:id="@+id/shareTo"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="5dp"
-            android:background="@null"
-            android:src="@drawable/btn_share"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#3b3b3b" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mediaProgress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/mediaControls"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:id="@+id/mediaCurrentPosition"
-            android:layout_width="50dp"
-            android:layout_height="20dp"
-            android:layout_marginLeft="10dp"
-            android:fontFamily="@font/varela"
-            android:singleLine="true"
-            android:text="00:00"
-            android:textAlignment="center"
-            android:textColor="#3b3b3b"
-            app:layout_constraintStart_toStartOf="@id/appCompatSeekBar"
-            app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar" />
-
-        <TextView
-            android:id="@+id/mediaTotalDuration"
-            android:layout_width="50dp"
-            android:layout_height="20dp"
-            android:layout_marginRight="10dp"
-            android:fontFamily="@font/varela"
-            android:singleLine="true"
-            android:text="00:00"
-            android:textAlignment="center"
-            android:textColor="#3b3b3b"
-            app:layout_constraintEnd_toEndOf="@id/appCompatSeekBar"
-            app:layout_constraintTop_toBottomOf="@id/appCompatSeekBar" />
-
-        <androidx.appcompat.widget.AppCompatSeekBar
-            android:id="@+id/appCompatSeekBar"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/topControlMenu"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@null"
-            android:maxHeight="2dp"
-            android:minHeight="2dp"
-            android:padding="0dp"
-            android:progressDrawable="@drawable/obj_seekbar_style"
-            android:splitTrack="false"
-            android:thumb="@drawable/obj_seekbar_thumb"
-            android:thumbTint="#cccccc" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_height="60dp"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+            <ImageButton
+                android:id="@+id/closePlayerUi"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@null"
+                app:tint="#3b3b3b"
+                android:src="@drawable/btn_arrowright"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mediaControls"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginStart="10dp"
-        android:elevation="10dp"
-        android:padding="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <ImageButton
-            android:id="@+id/mediaPlay"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/sc_mn_anim_playback_play"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mediaMetadata"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintHeight_default="spread"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/topControlMenu">
+
+            <com.drkryz.scutfy.CustomViews.CustomImageView
+                android:id="@+id/mediaAlbumArt"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_margin="10dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintTop_toBottomOf="@+id/mediaMetadata">
+
+            <TextView
+                android:id="@+id/mediaCurrentTitle"
+                android:layout_width="250dp"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:ellipsize="marquee"
+                android:fontFamily="@font/varela"
+                android:singleLine="true"
+                android:textAlignment="center"
+                android:textColor="#cccccc"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/mediaCurrentAuthor"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:ellipsize="marquee"
+                android:fontFamily="@font/varela"
+                android:singleLine="true"
+                android:textAlignment="center"
+                android:textColor="#3b3b3b"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
+                app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
+                app:layout_constraintTop_toBottomOf="@+id/mediaCurrentTitle" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--EM DESENVOLVIMENTO-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mediaUtils"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/mediaProgress"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            >
+
+            <ImageButton
+                android:id="@+id/AddFavorite"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@null"
+                android:src="@drawable/btn_favorite"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#3b3b3b" />
+
+
+            <ImageButton
+                android:id="@+id/shareTo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@null"
+                android:src="@drawable/btn_share"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#3b3b3b" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mediaProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/mediaControls"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/mediaCurrentPosition"
+                android:layout_width="50dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="10dp"
+                android:fontFamily="@font/varela"
+                android:singleLine="true"
+                android:text="00:00"
+                android:textAlignment="center"
+                android:textColor="#3b3b3b"
+                app:layout_constraintStart_toStartOf="@id/appCompatSeekBar"
+                app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar" />
+
+            <TextView
+                android:id="@+id/mediaTotalDuration"
+                android:layout_width="50dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="10dp"
+                android:fontFamily="@font/varela"
+                android:singleLine="true"
+                android:text="00:00"
+                android:textAlignment="center"
+                android:textColor="#3b3b3b"
+                app:layout_constraintEnd_toEndOf="@id/appCompatSeekBar"
+                app:layout_constraintTop_toBottomOf="@id/appCompatSeekBar" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/appCompatSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:minHeight="2dp"
+                android:maxHeight="2dp"
+                android:padding="0dp"
+                android:progressDrawable="@drawable/sc_pl_seekbar_style"
+                android:splitTrack="false"
+                android:thumb="@drawable/obj_seekbar_thumb"
+                android:thumbTint="#cccccc" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mediaControls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:elevation="10dp"
+            android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#458cff" />
+            app:layout_constraintStart_toStartOf="parent">
 
-        <ImageButton
-            android:id="@+id/mediaPrev"
-            android:layout_width="30dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/sc_previous_2"
-            app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
-            app:layout_constraintEnd_toStartOf="@+id/mediaPlay"
-            app:layout_constraintTop_toTopOf="@+id/mediaPlay"
-            app:tint="#3b3b3b" />
+            <ImageButton
+                android:id="@+id/mediaPlay"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/sc_mn_anim_playback_play"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#458cff" />
 
-        <ImageButton
-            android:id="@+id/mediaSkip"
-            android:layout_width="30dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="20dp"
-            android:background="@drawable/sc_skip_2"
-            app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
-            app:layout_constraintStart_toEndOf="@+id/mediaPlay"
-            app:layout_constraintTop_toTopOf="@+id/mediaPlay"
-            app:tint="#3b3b3b" />
+            <ImageButton
+                android:id="@+id/mediaPrev"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/sc_previous_2"
+                app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
+                app:layout_constraintEnd_toStartOf="@+id/mediaPlay"
+                app:layout_constraintTop_toTopOf="@+id/mediaPlay"
+                app:tint="#3b3b3b" />
 
-        <ImageButton
-            android:id="@+id/mediaShuffle"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@null"
-            android:src="@drawable/btn_shuffle"
-            app:layout_constraintBottom_toBottomOf="@+id/mediaPrev"
+            <ImageButton
+                android:id="@+id/mediaSkip"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/sc_skip_2"
+                app:layout_constraintBottom_toBottomOf="@+id/mediaPlay"
+                app:layout_constraintStart_toEndOf="@+id/mediaPlay"
+                app:layout_constraintTop_toTopOf="@+id/mediaPlay"
+                app:tint="#3b3b3b" />
 
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/mediaPrev"
-            app:tint="#3b3b3b" />
+            <ImageButton
+                android:id="@+id/mediaShuffle"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@null"
+                android:src="@drawable/btn_shuffle"
+                app:layout_constraintBottom_toBottomOf="@+id/mediaPrev"
 
-        <ImageButton
-            android:id="@+id/mediaLooping"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@null"
-            android:src="@drawable/nf_repeat"
-            app:layout_constraintBottom_toBottomOf="@+id/mediaSkip"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/mediaSkip"
-            app:tint="#3b3b3b" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/mediaPrev"
+                app:tint="#3b3b3b" />
+
+            <ImageButton
+                android:id="@+id/mediaLooping"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@null"
+                android:src="@drawable/nf_repeat"
+                app:layout_constraintBottom_toBottomOf="@+id/mediaSkip"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/mediaSkip"
+                app:tint="#3b3b3b" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

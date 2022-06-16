@@ -54,7 +54,7 @@ public class SplashActivity extends Activity {
     }
 
     private void loadPermission() {
-        Intent intent = new Intent(SplashActivity.this, PermissionActivity.class);
+        Intent intent = new Intent(SplashActivity.this, WelcomeActivity.class);
         startActivity(intent);
         finish();
     }

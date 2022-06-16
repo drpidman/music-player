@@ -28,6 +28,10 @@
         android:supportsRtl="true"
         android:theme="@style/BaseTheme"
         tools:targetApi="o">
+        <activity
+            android:name=".Screens.WelcomeActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
@@ -51,13 +55,11 @@
             android:exported="true"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".Screens.StatusViewActivity"
+            android:exported="false"
             android:launchMode="singleInstance"
-            android:screenOrientation="portrait"
-            android:exported="false" />
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Screens.PermissionActivity"
             android:exported="true"

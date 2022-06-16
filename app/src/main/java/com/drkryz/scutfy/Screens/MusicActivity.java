@@ -3,7 +3,6 @@ package com.drkryz.scutfy.Screens;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,10 +10,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaMetadata;
-import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -22,6 +19,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -29,9 +27,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -51,8 +50,6 @@ import com.drkryz.scutfy.Utils.ServiceManagerUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -66,19 +63,17 @@ public class MusicActivity extends AppCompatActivity {
         System.loadLibrary("scutfy-msp-c");
     }
 
+    AnimationDrawable animationDrawable;
     private MusicService musicService;
     private PreferencesUtil preferencesUtil;
     private LinearLayoutManager layoutManager;
-    private View mediaBottomControl;
+    private ConstraintLayout mediaBottomControl, supportList;
     private RecyclerView listView;
     private ImageView coverImage;
     private TextView musicTitle, musicAuthor;
     private ImageButton mediaControlPlayButton;
     private Toolbar toolbar;
-
     private ArrayList<UserPlaylist> musics;
-
-
     private boolean serviceBound = false;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -96,7 +91,6 @@ public class MusicActivity extends AppCompatActivity {
             serviceBound = false;
         }
     };
-
     private boolean isRunning = false;
     public BroadcastReceiver MusicServiceStatus = new BroadcastReceiver() {
         @Override
@@ -105,7 +99,6 @@ public class MusicActivity extends AppCompatActivity {
             isRunning = true;
         }
     };
-
     private boolean isPlaying = false;
     private final BroadcastReceiver PlaybackStatusReceiver = new BroadcastReceiver() {
         @Override
@@ -153,6 +146,7 @@ public class MusicActivity extends AppCompatActivity {
         musicAuthor = findViewById(R.id.mediaArtist);
         mediaControlPlayButton = findViewById(R.id.mediaControlPlayButton);
         mediaBottomControl = findViewById(R.id.mediaBottomControl);
+        supportList = findViewById(R.id.sc_mn_supportList);
         toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
@@ -183,23 +177,19 @@ public class MusicActivity extends AppCompatActivity {
 
 
 
-        AlphaInAnimationAdapter alphaInAnimationAdapter = new AlphaInAnimationAdapter(adapter);
-
-        alphaInAnimationAdapter.setDuration(200);
-        alphaInAnimationAdapter.setInterpolator(new AnticipateInterpolator());
-        alphaInAnimationAdapter.setFirstOnly(false);
-
-        listView.setAdapter(new SlideInBottomAnimationAdapter(alphaInAnimationAdapter));
-
 
         layoutManager = new LinearLayoutManager(this);
         listView.setLayoutManager(layoutManager);
         listView.setHasFixedSize(true);
+        listView.setAdapter(adapter);
 
         // list view click listener
         ItemClickSupport.addTo(listView)
                 .setOnItemClickListener((recyclerView, position, v) -> {
-                    UserPlaylist userPlaylist = musicList.get(position);
+
+                    if (position == 0) return;
+
+                    UserPlaylist userPlaylist = musicList.get(position -1);
 
                     ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getBaseContext());
 
@@ -225,7 +215,6 @@ public class MusicActivity extends AppCompatActivity {
         });
 
 
-
         mediaBottomControl.setOnClickListener(view -> {
             Intent PlayerActivityIntent = new Intent(getBaseContext(), PlayerActivity.class);
             startActivity(PlayerActivityIntent);
@@ -237,6 +226,13 @@ public class MusicActivity extends AppCompatActivity {
 
 
         if (!preferencesUtil.getFirstInit()) {
+
+            ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) mediaBottomControl.getLayoutParams();
+
+            layoutParams.matchConstraintPercentHeight = ConstraintSet.MATCH_CONSTRAINT_WRAP;
+
+            mediaBottomControl.setLayoutParams(layoutParams);
+
             mediaBottomControl.setVisibility(View.INVISIBLE);
         }
 
@@ -259,27 +255,7 @@ public class MusicActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-        listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
-                    toolbar.setVisibility(View.VISIBLE);
-                } else {
-                    toolbar.setVisibility(View.VISIBLE);
-                }
-            }
-        });
     }
-
-    AnimationDrawable animationDrawable;
 
     private void updateCoverImage() throws IOException {
         if (musicService == null) return;
@@ -326,7 +302,7 @@ public class MusicActivity extends AppCompatActivity {
         inflater.inflate(R.menu.search_menu, menu);
 
 
-        androidx.appcompat.widget.SearchView searchView  = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        androidx.appcompat.widget.SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
 
         searchView.setBackgroundResource(R.drawable.obj_searchview_background);
 

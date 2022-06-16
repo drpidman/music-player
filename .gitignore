@@ -11,3 +11,10 @@
 /captures
 .externalNativeBuild
 .cxx
+
+local.properties
+/app/release
+/app/debug
+/app/build
+
+app/src/main/cpp

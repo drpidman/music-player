@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.22447916666666667" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/btn_search.xml" value="0.1525" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/ic_wave.xml" value="0.153" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/nf_next.xml" value="0.1445" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/nf_next_anim_lvl_3.xml" value="0.1445" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/nf_pause.xml" value="0.1445" />
@@ -25,20 +27,36 @@
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_mn_anim_playback_pause.xml" value="0.1445" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_mn_anim_playback_play.xml" value="0.108" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_mn_anim_playback_playpause.xml" value="0.1" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_mn_main_gradient.xml" value="0.153" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_mn_playback_pause.xml" value="0.1445" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_anim_nf_skip.xml" value="0.1445" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_anim_player_prev.xml" value="0.1445" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_anim_player_skip.xml" value="0.1445" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_anim_prev.xml" value="0.1445" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_seekbar.xml" value="0.133" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_seekbar_progress.xml" value="0.133" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_seekbar_progress_focused.xml" value="0.133" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_seekbar_style.xml" value="0.133" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_pl_seekbar_style_focused.xml" value="0.133" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_previous.xml" value="0.108" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_previous_2.xml" value="0.108" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_skip.xml" value="0.108" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_skip_2.xml" value="0.108" />
-        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.15806159420289856" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton.xml" value="0.147" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton_bg.xml" value="0.147" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton_st_disabled.xml" value="0.147" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton_st_enabled.xml" value="0.147" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton_st_focused.xml" value="0.147" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/ui_pause.xml" value="0.153" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_permission.xml" value="0.5" />
-        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_player.xml" value="0.22" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_player.xml" value="0.33" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_splash.xml" value="0.15177426250534418" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_status_view.xml" value="0.25" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_welcome.xml" value="0.25" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/listview_header.xml" value="0.16435185185185186" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/listview_item.xml" value="0.18489583333333334" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/scutfy_player_widget.xml" value="0.16435185185185186" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/menu/search_menu.xml" value="0.18489583333333334" />
         <entry key="app/src/main/res/drawable/album_cover_background.xml" value="0.1355263157894737" />
         <entry key="app/src/main/res/drawable/bg_listitem.xml" value="0.1355263157894737" />

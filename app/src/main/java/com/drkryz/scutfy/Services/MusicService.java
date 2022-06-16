@@ -174,8 +174,8 @@ public class MusicService extends Service implements
             mediaPlayer = null;
 
 
-            mediaSession.release();
             preferencesUtil.storeAudioIndex(audioIndex);
+            mediaSession.release();
 
             removeAudioFocus();
             unregisterReceiver(becomingNoisyReceiver);
@@ -564,7 +564,6 @@ public class MusicService extends Service implements
     }
 
     private void ResumeCommand() {
-        Log.e(getPackageName(), "ResumeCommand():" + mediaPlayer.isPlaying());
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(resumePosition);
             mediaPlayer.start();

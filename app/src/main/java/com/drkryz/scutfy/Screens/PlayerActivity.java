@@ -1,5 +1,9 @@
 package com.drkryz.scutfy.Screens;
 
+import android.animation.ArgbEvaluator;
+import android.animation.IntEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -11,7 +15,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadata;
 import android.net.Uri;
@@ -20,6 +26,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroupOverlay;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -29,6 +37,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.palette.graphics.Palette;
 
 import com.drkryz.scutfy.Class.Default.UserPlaylist;
 import com.drkryz.scutfy.Constants.BroadcastConstants;
@@ -42,6 +51,8 @@ import com.drkryz.scutfy.Utils.ServiceManagerUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import jp.wasabeef.blurry.Blurry;
 
 public class PlayerActivity extends AppCompatActivity {
 
@@ -87,7 +98,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ImageView musicAlbumArt;
     private TextView musicTitle, musicArtist, mediaCurrentPosition, mediaTotalDuration;
     private SeekBar seekBar;
-    private ConstraintLayout loadingScreen;
+    private ConstraintLayout loadingScreen, blureableSupportView, playerView;
 
 
 
@@ -137,6 +148,8 @@ public class PlayerActivity extends AppCompatActivity {
 
         closePlayerButton = findViewById(R.id.closePlayerUi);
         loadingScreen = findViewById(R.id.loadingView);
+        blureableSupportView = findViewById(R.id.blureableSupportView);
+        playerView = findViewById(R.id.playerView);
         preferencesUtil = new PreferencesUtil(getBaseContext());
 
 
@@ -236,7 +249,7 @@ public class PlayerActivity extends AppCompatActivity {
             } else {
                 favoriteButton.setImageDrawable(AppCompatResources.getDrawable(getBaseContext(), R.drawable.btn_favorite_active));
                 Drawable fab = favoriteButton.getDrawable();
-                fab.setTint(getColor(R.color.av_red));
+                fab.setTint(getColor(R.color.purple));
             }
         });
 
@@ -249,7 +262,7 @@ public class PlayerActivity extends AppCompatActivity {
             } else {
                 ServiceManagerUtil.handleAction(9, getBaseContext());
                 Drawable fab = shuffleButton.getDrawable();
-                fab.setTint(getColor(R.color.av_dark_blue));
+                fab.setTint(getColor(R.color.purple));
             }
         });
 
@@ -261,7 +274,7 @@ public class PlayerActivity extends AppCompatActivity {
             } else {
                 ServiceManagerUtil.handleAction(10, getBaseContext());
                 Drawable fab = loopingButton.getDrawable();
-                fab.setTint(getColor(R.color.av_dark_blue));
+                fab.setTint(getColor(R.color.purple));
             }
         });
 
@@ -286,6 +299,8 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+
         if (preferencesUtil.loadAudioIndex() != -1) {
             if (!isRunning) {
                 ServiceManagerUtil.handleAction(7, this);
@@ -383,6 +398,7 @@ public class PlayerActivity extends AppCompatActivity {
     private void startSeekBar() {
         if (musicService == null) return;
 
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -432,7 +448,7 @@ public class PlayerActivity extends AppCompatActivity {
             favoriteButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.btn_favorite_active));
 
             Drawable fab = favoriteButton.getDrawable();
-            fab.setTint(getColor(R.color.av_red));
+            fab.setTint(getColor(R.color.purple));
 
         } else {
             favoriteButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.btn_favorite));
@@ -442,23 +458,22 @@ public class PlayerActivity extends AppCompatActivity {
             shuffleButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.btn_shuffle));
         } else {
             Drawable fab = shuffleButton.getDrawable();
-            fab.setTint(getColor(R.color.av_dark_blue));
+            fab.setTint(getColor(R.color.purple));
         }
 
         if (!preferencesUtil.loadLoopState()) {
             loopingButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.nf_repeat));
         } else {
             Drawable fab = loopingButton.getDrawable();
-            fab.setTint(getColor(R.color.av_dark_blue));
+            fab.setTint(getColor(R.color.purple));
         }
-
-
 
         if (isPlaying) {
             playButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_play);
         } else {
             playButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_pause);
         }
+
 
         AnimationDrawable PLAY_PAUSE_ANIMATION = (AnimationDrawable) playButton.getBackground();
         PLAY_PAUSE_ANIMATION.start();

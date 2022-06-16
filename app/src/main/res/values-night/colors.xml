@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primaryColor">#111</color>
+    <color name="primaryColor">#000</color>
     <color name="mediaControlColor">#1d1d1d</color>
     <color name="secondaryColor">#333</color>
     <color name="darkGray">#cccc</color>

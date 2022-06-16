@@ -1,6 +1,7 @@
 package com.drkryz.scutfy.Screens.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.ViewHolder> implements Filterable {
+public class MusicRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
     private final ArrayList<UserPlaylist> musicList;
     private final Context context;
@@ -30,31 +31,52 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
     private final MusicService musicService;
     private ArrayList<UserPlaylist> musicListAll;
 
+    private int HEADER_VIEW = 0;
+    private int MUSIC_LIST = 1;
+
     @NonNull
     @Override
-    public MusicRecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View musicView = inflater.inflate(R.layout.listview_item, parent, false);
+        View vw;
+        RecyclerView.ViewHolder vh;
 
-        return new ViewHolder(musicView);
+        if (viewType == HEADER_VIEW) {
+            vw = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.listview_header, parent, false);
+            vh = new HeaderViewHolder(vw);
+        } else {
+
+            vw = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.listview_item, parent, false);
+            vh = new MusicListViewHolder(vw);
+        }
+
+        return vh;
     }
 
     @Override
-    public void onBindViewHolder(MusicRecyclerView.ViewHolder holder, int position) {
-        UserPlaylist song = musicList.get(position);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        TextView musicTitle = holder.musicTitle;
-        TextView musicAuthor = holder.musicAuthor;
-        ImageView cover = holder.musicAlbumCover;
+        if (holder instanceof MusicListViewHolder) {
+            MusicListViewHolder musicListHolder = (MusicListViewHolder) holder;
 
-
-        cover.setImageBitmap(MediaMetadataUtil.getCover(context, position, musicList));
-        musicTitle.setText(song.getTitle());
-        musicAuthor.setText(song.getAuthor());
+            UserPlaylist song = getItem(position);
 
 
+
+            TextView musicTitle = musicListHolder.musicTitle;
+            TextView musicAuthor = musicListHolder.musicAuthor;
+            ImageView cover = musicListHolder.musicAlbumCover;
+
+
+            cover.setImageBitmap(MediaMetadataUtil.getCover(context, position -1, musicList));
+            musicTitle.setText(song.getTitle());
+            musicAuthor.setText(song.getAuthor());
+
+        } else if (holder instanceof HeaderViewHolder) {
+
+        }
     }
 
     
@@ -94,13 +116,13 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
         }
     };
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class MusicListViewHolder extends RecyclerView.ViewHolder {
 
         public TextView musicTitle, musicAuthor;
         public ImageView musicAlbumCover;
         public androidx.constraintlayout.widget.ConstraintLayout constraintLayout;
 
-        public ViewHolder(View itemView) {
+        public MusicListViewHolder(View itemView) {
             super(itemView);
 
             musicTitle = itemView.findViewById(R.id.musicTitle);
@@ -110,11 +132,31 @@ public class MusicRecyclerView extends RecyclerView.Adapter<MusicRecyclerView.Vi
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return musicList.size();
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
+
+        public HeaderViewHolder(View itemView) {
+            super(itemView);
+        }
     }
 
+    @Override
+    public int getItemCount() {
+        return musicList.size() + 1;
+    }
+
+    public UserPlaylist getItem(int pos) {
+        return musicList.get(pos - 1);
+    }
+
+
+    @Override
+    public int getItemViewType(int position) {
+         if (position == 0) {
+            return HEADER_VIEW;
+        } else {
+             return MUSIC_LIST;
+         }
+    }
 
     public MusicRecyclerView(ArrayList<UserPlaylist> music, Context ctx) {
         this.musicList = music;
