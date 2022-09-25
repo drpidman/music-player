@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class PreferencesUtil {
 
     private final String STORAGE = "com.drkryz.musicplayer.STORAGE";
-    private final String STORAGE_STATES = "com.drkryz.musicplayer.STORAGE_STATES";
+    private final String STORAGE_STATES = "com.drkryz.musicplayer.playback_state";
     private final String STORAGE_USER = "com.drkryz.musicplayer.STORAGE_USER";
 
 
@@ -35,6 +35,20 @@ public class PreferencesUtil {
     public int loadAudioIndex() {
         preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
         return preferences.getInt("audioIndex", -1);
+    }
+
+
+    public void storeAudioTrackData(String track) {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString("audioTrack", track);
+        editor.apply();
+    }
+
+    public String loadAudioTrackData() {
+        preferences = context.getSharedPreferences(STORAGE, Context.MODE_PRIVATE);
+        return preferences.getString("audioTrack", "track");
     }
 
 
@@ -65,6 +79,23 @@ public class PreferencesUtil {
         return preferences.getBoolean("playingState", false);
 
     }
+
+
+    public void pausedByUser(boolean paused) {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("pausedByUser", false);
+        editor.apply();
+    }
+
+
+    public boolean getPausedByUserState() {
+        preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);
+        return preferences.getBoolean("pausedByUser", false);
+
+    }
+
 
     public void setLastPosition(int index) {
         preferences = context.getSharedPreferences(STORAGE_STATES, Context.MODE_PRIVATE);

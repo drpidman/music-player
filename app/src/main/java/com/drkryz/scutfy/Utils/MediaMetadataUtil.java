@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Picture;
 import android.net.Uri;
 import android.provider.MediaStore;
 
@@ -19,19 +20,19 @@ public class MediaMetadataUtil {
 
     public static Bitmap getCover(Context context, int index, ArrayList<UserPlaylist> song) {
         UserPlaylist userPlaylist = song.get(index);
-        String albumUri = userPlaylist.getAlbum();
+        Uri uri = Uri.parse(userPlaylist.getAlbum(context));
 
         Bitmap cover = null;
+
         try {
             cover = MediaStore.Images.Media.getBitmap(
                     context.getContentResolver(),
-                    Uri.parse(albumUri)
+                    uri
             );
         } catch (IOException e) {
-            cover = BitmapFactory
-                    .decodeResource(context.getResources(), R.drawable.img_default_music);
-            e.printStackTrace();
+            cover = BitmapFactory.decodeResource(context.getResources(), R.drawable.folder_ic);
         }
+
 
         return cover;
     }

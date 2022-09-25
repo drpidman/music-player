@@ -55,7 +55,8 @@ public class WelcomeActivity extends AppCompatActivity {
         handlePermission.setOnClickListener((View v) -> {
             this.requestPermissions(new String[]{
                     Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_PHONE_STATE
             }, 140);
         });
 

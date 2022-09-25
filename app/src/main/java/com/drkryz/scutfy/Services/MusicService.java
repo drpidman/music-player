@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaMetadata;
 import android.media.MediaPlayer;
 import android.media.session.MediaController.TransportControls;
 import android.media.session.MediaSession;
@@ -45,6 +46,8 @@ import com.drkryz.scutfy.Utils.ApplicationUtil;
 import com.drkryz.scutfy.Utils.ContentManagerUtil;
 import com.drkryz.scutfy.Utils.MediaMetadataUtil;
 import com.drkryz.scutfy.Utils.PreferencesUtil;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -54,7 +57,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 public class MusicService extends Service implements
         AudioManager.OnAudioFocusChangeListener,
@@ -63,7 +71,9 @@ public class MusicService extends Service implements
         MediaPlayer.OnInfoListener,
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnSeekCompleteListener {
+        MediaPlayer.OnSeekCompleteListener
+
+{
 
     private final IBinder iBinder = new LocalBinder();
     private final String packageName = "com.drkryz.musicplayer";
@@ -285,7 +295,15 @@ public class MusicService extends Service implements
                 break;
             case PLAY_CMD:
                 Log.e(getPackageName(), "play():service=" + preferencesUtil.loadAudioIndex());
-                audioIndex = preferencesUtil.loadAudioIndex();
+
+                String trackData = preferencesUtil.loadAudioTrackData();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    audioIndex = IntStream.range(0, musicList.size())
+                            .filter(item -> musicList.get(item).getPath().equals(trackData)).findFirst().getAsInt();
+                }
+
+
                 MEDIA_ACTIVE_TITLE = preferencesUtil.loadAudioTitle();
 
                 if (audioIndex != -1 && audioIndex < musicList.size()) {
@@ -316,9 +334,7 @@ public class MusicService extends Service implements
                         audioIndex = 0;
                         activeAudio = musicList.get(audioIndex);
                     } else {
-                        if (preferencesUtil.loadShuffleState()) {
-                            activeAudio = musicList.get(new Random().nextInt(musicList.size()));
-                        } else activeAudio = musicList.get(++audioIndex);
+                        activeAudio = musicList.get(++audioIndex);
                     }
 
                     preferencesUtil.storeAudioIndex(audioIndex);
@@ -391,20 +407,55 @@ public class MusicService extends Service implements
                 }
                 break;
             case SHUFFLE_CMD:
-                preferencesUtil.storeShuffleState(!isShuffle());
+                if (preferencesUtil.loadShuffleState()) {
+                    Collections.sort(musicList, new Comparator<UserPlaylist>() {
+                        @Override
+                        public int compare(UserPlaylist o1, UserPlaylist o2) {
+                            return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+                        }
+                    });
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        audioIndex = IntStream.range(0, musicList.size())
+                                .filter(idx -> musicList.get(idx).getTitle().equals(activeAudio.getTitle())).findFirst().getAsInt();
+                    }
+
+
+                    preferencesUtil.storeAudioIndex(audioIndex);
+                    preferencesUtil.storeShuffleState(false);
+                } else {
+                    Collections.shuffle(musicList);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        audioIndex = IntStream.range(0, musicList.size())
+                                        .filter(idx -> musicList.get(idx).getTitle().equals(activeAudio.getTitle())).findFirst().getAsInt();
+                    }
+
+                    preferencesUtil.storeAudioIndex(audioIndex);
+                    preferencesUtil.storeShuffleState(true);
+                }
                 break;
             case LOOPING_CMD:
-                if (isLooping()) {
-                    mediaPlayer.setLooping(false);
-                    preferencesUtil.storeLoopState(mediaPlayer.isLooping());
-                } else {
-                    mediaPlayer.setLooping(true);
-                    preferencesUtil.storeLoopState(mediaPlayer.isLooping());
-                }
+                mediaPlayer.setLooping(!isLooping());
+
+                preferencesUtil.storeLoopState(mediaPlayer.isLooping());
                 break;
             case "update.playlist":
                 musicList = new ContentManagerUtil(getBaseContext())
                         .getMusics(getBaseContext());
+
+
+                if (preferencesUtil.loadShuffleState()) {
+                    Collections.shuffle(musicList);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        audioIndex = IntStream.range(0, musicList.size())
+                                .filter(idx -> musicList.get(idx).getTitle().equals(activeAudio.getTitle())).findFirst().getAsInt();
+                    }
+
+                    preferencesUtil.storeAudioIndex(audioIndex);
+                    preferencesUtil.storeShuffleState(true);
+                }
                 break;
         }
 
@@ -457,6 +508,7 @@ public class MusicService extends Service implements
         try {
             if (activeAudio == null) return;
             mediaPlayer.setDataSource(activeAudio.getPath());
+            preferencesUtil.storeAudioTrackData(activeAudio.getPath());
         } catch (IOException e) {
             stopSelf();
             e.printStackTrace();
@@ -512,11 +564,7 @@ public class MusicService extends Service implements
             activeAudio = musicList.get(audioIndex);
             MEDIA_ACTIVE_TITLE = musicList.get(audioIndex).getTitle();
         } else {
-            if (preferencesUtil.loadShuffleState()) {
-                int nextInt = new Random().nextInt(musicList.size());
-                activeAudio = musicList.get(nextInt);
-                audioIndex = nextInt;
-            } else activeAudio = musicList.get(++audioIndex);
+            activeAudio = musicList.get(++audioIndex);
         }
 
         preferencesUtil.storeAudioIndex(audioIndex);
@@ -718,7 +766,7 @@ public class MusicService extends Service implements
     private void updateMetaData() {
         if (activeAudio == null) return;
 
-        Uri url = Uri.parse(activeAudio.getAlbum());
+        Uri url = Uri.parse(activeAudio.getAlbum(getBaseContext()));
 
         Bitmap albumArt = null;
         try {
@@ -735,6 +783,7 @@ public class MusicService extends Service implements
                 .putString(android.media.MediaMetadata.METADATA_KEY_ARTIST, activeAudio.getAuthor())
                 .putString(android.media.MediaMetadata.METADATA_KEY_ALBUM, activeAudio.getTitle())
                 .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, activeAudio.getTitle())
+                .putString(android.media.MediaMetadata.METADATA_KEY_MEDIA_URI, activeAudio.getPath())
                 .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, convertString(activeAudio.getDuration()))
                 .build());
     }
@@ -767,14 +816,10 @@ public class MusicService extends Service implements
 
         Bitmap cover = MediaMetadataUtil.getCover(getBaseContext(), audioIndex, musicList);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        cover.compress(Bitmap.CompressFormat.JPEG, 50, out);
-        Bitmap largeIcon = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-
         Notification.Builder mBuilder = null;
 
         Intent mainIntent = new Intent(getBaseContext(), MusicActivity.class);
-        PendingIntent mainPending = PendingIntent.getActivity(getBaseContext(), 1006, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent mainPending = PendingIntent.getActivity(getBaseContext(), 1006, mainIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -787,7 +832,7 @@ public class MusicService extends Service implements
                             .setMediaSession(mediaSession.getSessionToken())
                     )
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
-                    .setLargeIcon(largeIcon)
+                    .setLargeIcon(cover)
                     .setSmallIcon(R.drawable.img_splash)
                     .setContentText(activeAudio.getAuthor())
                     .setContentTitle(activeAudio.getTitle())
@@ -815,7 +860,7 @@ public class MusicService extends Service implements
                     .setShowWhen(true)
                     .setOnlyAlertOnce(true)
                     .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC)
-                    .setLargeIcon(largeIcon)
+                    .setLargeIcon(cover)
                     .setSmallIcon(R.drawable.img_splash)
                     .setContentText(activeAudio.getAuthor())
                     .setContentTitle(activeAudio.getTitle())
@@ -835,28 +880,29 @@ public class MusicService extends Service implements
         Context context = getApplicationContext();
         Intent playbackAction = new Intent(context, MusicService.class);
 
+        // FLAG_IMMUTABLE API 32&31(12l, 12) NÃO PODE SER MODIFICADO POR OUTRO APLICATIVO
         switch (actionNumber) {
             case 0:
                 playbackAction.setAction(BroadcastConstants.ACTION_PLAY);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE);
             case 1:
                 playbackAction.setAction(BroadcastConstants.ACTION_PAUSE);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE);
             case 2:
                 playbackAction.setAction(BroadcastConstants.ACTION_SKIP);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE);
             case 3:
                 playbackAction.setAction(BroadcastConstants.ACTION_PREV);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE);
             case 4:
                 playbackAction.setAction(BroadcastConstants.ACTION_CLOSE);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE);
             case 5:
                 playbackAction.setAction(BroadcastConstants.ACTION_FAVORITE);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE);
             case 6:
                 playbackAction.setAction(BroadcastConstants.ACTION_FAVORITE_UNDO);
-                return PendingIntent.getService(context, actionNumber, playbackAction, 0);
+                return PendingIntent.getService(context, actionNumber, playbackAction, PendingIntent.FLAG_IMMUTABLE);
             default:
                 break;
         }
@@ -1122,22 +1168,18 @@ public class MusicService extends Service implements
         return 0;
     }
 
+    public ArrayList<UserPlaylist> getMusicList() {
+        return musicList;
+    }
+
     public class LocalBinder extends Binder {
         public MusicService getService() {
             return MusicService.this;
         }
     }
 
-
-
     private static native int convertString(String text);
-    
-
-    
     static {
         System.loadLibrary("scutfy-msp-c");
     }
-
-
-    
 }

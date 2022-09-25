@@ -71,6 +71,7 @@ public class MusicRecyclerView extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
             cover.setImageBitmap(MediaMetadataUtil.getCover(context, position -1, musicList));
+
             musicTitle.setText(song.getTitle());
             musicAuthor.setText(song.getAuthor());
 

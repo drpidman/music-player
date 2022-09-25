@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.22447916666666667" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/btn_favorite_active.xml" value="0.1525" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/btn_search.xml" value="0.1525" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/ic_wave.xml" value="0.153" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/nf_next.xml" value="0.1445" />
@@ -47,10 +48,11 @@
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton_st_disabled.xml" value="0.147" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton_st_enabled.xml" value="0.147" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/sc_wlc_nextbutton_st_focused.xml" value="0.147" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/test.xml" value="0.1525" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/drawable/ui_pause.xml" value="0.153" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_permission.xml" value="0.5" />
-        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_player.xml" value="0.33" />
+        <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_player.xml" value="0.22" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_splash.xml" value="0.15177426250534418" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_status_view.xml" value="0.25" />
         <entry key="..\:/Users/augus/projects/MusicPlayer/app/src/main/res/layout/activity_welcome.xml" value="0.25" />

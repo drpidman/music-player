@@ -3,6 +3,7 @@ package com.drkryz.scutfy.Screens;
 import android.animation.ArgbEvaluator;
 import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -19,8 +20,10 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadata;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -33,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -51,6 +55,8 @@ import com.drkryz.scutfy.Utils.ServiceManagerUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import jp.wasabeef.blurry.Blurry;
 
@@ -101,7 +107,6 @@ public class PlayerActivity extends AppCompatActivity {
     private ConstraintLayout loadingScreen, blureableSupportView, playerView;
 
 
-
     private final BroadcastReceiver PlaybackStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -116,8 +121,12 @@ public class PlayerActivity extends AppCompatActivity {
     };
 
 
+    private GradientDrawable gradientDrawable;
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ClickableViewAccessibility")
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
@@ -168,9 +177,10 @@ public class PlayerActivity extends AppCompatActivity {
             if (isRunning) {
                 if (isPlaying) {
                     ServiceManagerUtil.handleAction(3, getBaseContext());
-
+                    preferencesUtil.pausedByUser(true);
                 } else {
                     ServiceManagerUtil.handleAction(4, getBaseContext());
+                    preferencesUtil.pausedByUser(false);
                 }
 
             } else {
@@ -238,7 +248,7 @@ public class PlayerActivity extends AppCompatActivity {
 
             boolean isFavorite = userFavoritesHelper.isFavorite(
                     contentManagerUtil.getMusics(getApplicationContext())
-                    .get(preferencesUtil.loadAudioIndex()).getTitle()
+                            .get(preferencesUtil.loadAudioIndex()).getTitle()
             );
 
 
@@ -281,19 +291,25 @@ public class PlayerActivity extends AppCompatActivity {
         shareButton.setOnClickListener(view -> {
 
 
-            ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getApplicationContext());
-
-            if (preferencesUtil.loadAudioIndex() == -1) return;
-            UserPlaylist userPlaylist = contentManagerUtil.getMusics(getApplicationContext())
-                    .get(preferencesUtil.loadAudioIndex());
+            MediaMetadata mediaMetadata = musicService.getMetadata();
 
 
             Intent shareIntentAudio = new Intent();
             shareIntentAudio.setAction(Intent.ACTION_SEND);
-            shareIntentAudio.putExtra(Intent.EXTRA_STREAM, Uri.parse(userPlaylist.getPath()));
+            shareIntentAudio.putExtra(Intent.EXTRA_STREAM, Uri.parse(mediaMetadata.getString(MediaMetadata.METADATA_KEY_MEDIA_URI)));
             shareIntentAudio.setType("audio/mp3");
             startActivity(Intent.createChooser(shareIntentAudio, "Enviar para..."));
         });
+
+
+        final int colorFrom = ((ColorDrawable) playerView.getBackground()).getColor();
+
+
+        gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
+                new int[]{colorFrom, colorFrom}
+        );
+
+        playerView.setBackground(gradientDrawable);
     }
 
     @Override
@@ -421,7 +437,6 @@ public class PlayerActivity extends AppCompatActivity {
         cover.compress(Bitmap.CompressFormat.JPEG, 100, out);
         Bitmap decode = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
 
-
         musicAlbumArt.setImageBitmap(decode);
         musicTitle.setSelected(true);
         musicTitle.setText(
@@ -468,15 +483,52 @@ public class PlayerActivity extends AppCompatActivity {
             fab.setTint(getColor(R.color.purple));
         }
 
+
+        Palette palette = new Palette.Builder(cover).generate();
+
+
+        final int colorTo = palette.getDominantColor(Color.TRANSPARENT);
+        final int dark = Color.BLACK;
+
+
+        ValueAnimator valueAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), dark, colorTo);
+        valueAnimator.setDuration(1000);
+
         if (isPlaying) {
             playButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_play);
+
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    gradientDrawable.setColors(new int[]{dark, (int) animation.getAnimatedValue()});
+                    getWindow().setStatusBarColor((int) animation.getAnimatedValue());
+                    getWindow().setNavigationBarColor(dark);
+                }
+            });
+
+
         } else {
-            playButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_pause);
+
+        playButton.setBackgroundResource(R.drawable.sc_mn_anim_playback_pause);
+
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                gradientDrawable.setColors(new int[]{dark, dark});
+                getWindow().setStatusBarColor(dark);
+                getWindow().setNavigationBarColor(dark);
+            }
+        });
+
+
         }
+        valueAnimator.start();
 
 
         AnimationDrawable PLAY_PAUSE_ANIMATION = (AnimationDrawable) playButton.getBackground();
         PLAY_PAUSE_ANIMATION.start();
+
+
 
         updateSeekBar();
     }

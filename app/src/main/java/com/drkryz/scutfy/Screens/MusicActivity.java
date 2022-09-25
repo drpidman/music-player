@@ -12,6 +12,7 @@ import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaMetadata;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -44,6 +45,7 @@ import com.drkryz.scutfy.Listeners.OnSwipeTouchListener;
 import com.drkryz.scutfy.R;
 import com.drkryz.scutfy.Screens.adapters.MusicRecyclerView;
 import com.drkryz.scutfy.Services.MusicService;
+import com.drkryz.scutfy.Services.MusicServiceApiBeta;
 import com.drkryz.scutfy.Utils.ContentManagerUtil;
 import com.drkryz.scutfy.Utils.PreferencesUtil;
 import com.drkryz.scutfy.Utils.ServiceManagerUtil;
@@ -52,6 +54,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
@@ -75,6 +78,22 @@ public class MusicActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ArrayList<UserPlaylist> musics;
     private boolean serviceBound = false;
+
+
+    private MusicServiceApiBeta musicServiceApiBeta;
+    private final ServiceConnection serviceConnectionBet = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicServiceApiBeta.LocalBinder binder = (MusicServiceApiBeta.LocalBinder) service;
+            musicServiceApiBeta = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -123,7 +142,7 @@ public class MusicActivity extends AppCompatActivity {
     private ArrayList<UserPlaylist> musicList;
     private MusicRecyclerView adapter;
 
-    @SuppressLint({"ServiceCast", "ClickableViewAccessibility", "NotifyDataSetChanged"})
+    @SuppressLint({"ServiceCast", "ClickableViewAccessibility", "NotifyDataSetChanged", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,6 +213,7 @@ public class MusicActivity extends AppCompatActivity {
                     ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getBaseContext());
 
                     preferencesUtil.storeAudioIndex(contentManagerUtil.getMusicIndexByName(userPlaylist.getTitle(), getBaseContext()));
+                    preferencesUtil.storeAudioTrackData(userPlaylist.getPath());
 
                     Play();
 
@@ -279,16 +299,21 @@ public class MusicActivity extends AppCompatActivity {
         animationDrawable = (AnimationDrawable) mediaControlPlayButton.getBackground();
         animationDrawable.start();
 
-
     }
 
     private void Play() {
 
         if (!isRunning) {
             Intent service = new Intent(this, MusicService.class);
-            service.setAction(BroadcastConstants.INIT_CMD);
+            Intent service2 = new Intent(this, MusicServiceApiBeta.class);
+            service2.setAction("prepare");
 
+            service.setAction(BroadcastConstants.INIT_CMD);
             bindService(service, serviceConnection, BIND_AUTO_CREATE);
+            bindService(service2, serviceConnectionBet, BIND_AUTO_CREATE);
+
+
+
             ServiceManagerUtil.handleAction(1, this);
         } else {
             ServiceManagerUtil.handleAction(2, this);
@@ -379,7 +404,15 @@ public class MusicActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                layoutManager.scrollToPosition(preferencesUtil.loadAudioIndex());
+                int audioIndex = 0;
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    audioIndex = IntStream.range(0, musicList.size())
+                            .filter(item -> musicList.get(item).getPath().equals(preferencesUtil.loadAudioTrackData())).findFirst().getAsInt();
+                }
+
+
+                layoutManager.scrollToPosition(audioIndex);
             }
         }, 16);
     }

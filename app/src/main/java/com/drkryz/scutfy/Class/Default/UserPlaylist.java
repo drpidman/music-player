@@ -1,4 +1,15 @@
 package com.drkryz.scutfy.Class.Default;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+
+import com.drkryz.scutfy.R;
+
+import java.io.InputStream;
+
 public class UserPlaylist {
 
     private String Title;
@@ -98,7 +109,12 @@ public class UserPlaylist {
      *
      * @return {@link #Album}
      */
-    public String getAlbum() {
+    public String getAlbum(Context ctx) {
+
+        if (Album == null) {
+            Album = ctx.getResources().getResourcePackageName(R.drawable.img_default_music);
+        }
+
         return Album;
     }
 

@@ -51,7 +51,7 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@null"
-                app:tint="#3b3b3b"
+                app:tint="#fff"
                 android:src="@drawable/btn_arrowright"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -112,7 +112,7 @@
                 android:fontFamily="@font/varela"
                 android:singleLine="true"
                 android:textAlignment="center"
-                android:textColor="#3b3b3b"
+                android:textColor="#ccc"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/mediaCurrentTitle"
                 app:layout_constraintStart_toStartOf="@+id/mediaCurrentTitle"
@@ -142,7 +142,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="#3b3b3b" />
+                app:tint="#ccc" />
 
 
             <ImageButton
@@ -155,7 +155,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="#3b3b3b" />
+                app:tint="#ccc" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -177,7 +177,7 @@
                 android:singleLine="true"
                 android:text="00:00"
                 android:textAlignment="center"
-                android:textColor="#3b3b3b"
+                android:textColor="#ccc"
                 app:layout_constraintStart_toStartOf="@id/appCompatSeekBar"
                 app:layout_constraintTop_toBottomOf="@+id/appCompatSeekBar" />
 
@@ -190,7 +190,7 @@
                 android:singleLine="true"
                 android:text="00:00"
                 android:textAlignment="center"
-                android:textColor="#3b3b3b"
+                android:textColor="#ccc"
                 app:layout_constraintEnd_toEndOf="@id/appCompatSeekBar"
                 app:layout_constraintTop_toBottomOf="@id/appCompatSeekBar" />
 
@@ -265,7 +265,7 @@
 
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/mediaPrev"
-                app:tint="#3b3b3b" />
+                app:tint="#ccc" />
 
             <ImageButton
                 android:id="@+id/mediaLooping"
@@ -276,7 +276,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/mediaSkip"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/mediaSkip"
-                app:tint="#3b3b3b" />
+                app:tint="#ccc" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
