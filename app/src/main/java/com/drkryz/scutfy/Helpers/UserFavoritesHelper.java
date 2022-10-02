@@ -52,6 +52,7 @@ public class UserFavoritesHelper extends SQLiteOpenHelper {
         encripta = new Encripta();
 
         String newMusicTitle = encripta.encrypt(music_title);
+        Log.d("encrypt", newMusicTitle);
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(UserFavorites.UserFavoritesValues.COLUMN_TITLE, newMusicTitle);
@@ -84,6 +85,7 @@ public class UserFavoritesHelper extends SQLiteOpenHelper {
         encripta = new Encripta();
 
         String newMusicTitle = encripta.encrypt(music_title);
+
 
         String[] selection = {
                 newMusicTitle

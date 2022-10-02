@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroupOverlay;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -107,6 +108,9 @@ public class PlayerActivity extends AppCompatActivity {
     private ConstraintLayout loadingScreen, blureableSupportView, playerView;
 
 
+    private UserFavoritesHelper userFavoritesHelper;
+
+
     private final BroadcastReceiver PlaybackStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -155,8 +159,11 @@ public class PlayerActivity extends AppCompatActivity {
         shuffleButton = findViewById(R.id.mediaShuffle);
         loopingButton = findViewById(R.id.mediaLooping);
 
+
         closePlayerButton = findViewById(R.id.closePlayerUi);
         loadingScreen = findViewById(R.id.loadingView);
+
+
         blureableSupportView = findViewById(R.id.blureableSupportView);
         playerView = findViewById(R.id.playerView);
         preferencesUtil = new PreferencesUtil(getBaseContext());
@@ -164,6 +171,8 @@ public class PlayerActivity extends AppCompatActivity {
 
         bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
         ServiceManagerUtil.handleAction(0, this);
+
+        userFavoritesHelper = new UserFavoritesHelper(this);
 
 
         musicAlbumArt.setOnClickListener(view -> {
@@ -210,6 +219,7 @@ public class PlayerActivity extends AppCompatActivity {
             ServiceManagerUtil.handleAction(6, getBaseContext());
         });
 
+
         closePlayerButton.setOnClickListener(view -> {
             Activity activity = (Activity) view.getContext();
 
@@ -219,6 +229,7 @@ public class PlayerActivity extends AppCompatActivity {
 
             finish();
         });
+
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -242,14 +253,9 @@ public class PlayerActivity extends AppCompatActivity {
         favoriteButton.setOnClickListener(view -> {
             if (musicService == null) return;
 
-            UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(getApplicationContext());
-            ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getApplicationContext());
 
-
-            boolean isFavorite = userFavoritesHelper.isFavorite(
-                    contentManagerUtil.getMusics(getApplicationContext())
-                            .get(preferencesUtil.loadAudioIndex()).getTitle()
-            );
+            MediaMetadata metadata = musicService.getMetadata();
+            boolean isFavorite = userFavoritesHelper.isFavorite(metadata.getString(MediaMetadata.METADATA_KEY_TITLE));
 
 
             ServiceManagerUtil.handleAction(8, getBaseContext());
@@ -293,11 +299,12 @@ public class PlayerActivity extends AppCompatActivity {
 
             MediaMetadata mediaMetadata = musicService.getMetadata();
 
-
             Intent shareIntentAudio = new Intent();
             shareIntentAudio.setAction(Intent.ACTION_SEND);
+            shareIntentAudio.putExtra(Intent.EXTRA_TITLE, mediaMetadata.getString(MediaMetadata.METADATA_KEY_TITLE));
+            shareIntentAudio.putExtra(Intent.EXTRA_TEXT, mediaMetadata.getString(MediaMetadata.METADATA_KEY_TITLE));
             shareIntentAudio.putExtra(Intent.EXTRA_STREAM, Uri.parse(mediaMetadata.getString(MediaMetadata.METADATA_KEY_MEDIA_URI)));
-            shareIntentAudio.setType("audio/mp3");
+            shareIntentAudio.setType(mediaMetadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID));
             startActivity(Intent.createChooser(shareIntentAudio, "Enviar para..."));
         });
 
@@ -367,8 +374,7 @@ public class PlayerActivity extends AppCompatActivity {
                 startSeekBar();
             }
 
-            loadingScreen.setVisibility(View.INVISIBLE);
-        }, 16);
+        }, 0);
     }
 
     @Override
@@ -448,16 +454,8 @@ public class PlayerActivity extends AppCompatActivity {
                 metadata.getText(MediaMetadata.METADATA_KEY_ARTIST)
         );
 
-        loadingScreen.setVisibility(View.INVISIBLE);
 
-        UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(getApplicationContext());
-        ContentManagerUtil contentManagerUtil = new ContentManagerUtil(getApplicationContext());
-
-
-        boolean isFavorite = userFavoritesHelper.isFavorite(
-                contentManagerUtil.getMusics(getApplicationContext())
-                        .get(preferencesUtil.loadAudioIndex()).getTitle()
-        );
+        boolean isFavorite = userFavoritesHelper.isFavorite(metadata.getString(MediaMetadata.METADATA_KEY_TITLE));
 
         if (isFavorite) {
             favoriteButton.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.btn_favorite_active));

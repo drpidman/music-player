@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#fff"
+    android:background="#FFFFFF"
     android:layout_height="match_parent"
     tools:context=".Screens.WelcomeActivity">
 
@@ -106,7 +106,7 @@
             android:background="@drawable/sc_wlc_nextbutton_st_bg"
             android:layout_margin="5dp"
             android:fontFamily="@font/varela"
-            android:backgroundTint="#8c52ff"
+            android:backgroundTint="#8C52FF"
             android:textColor="#fff"
             app:layout_constraintTop_toBottomOf="@+id/textView2" />
     </androidx.constraintlayout.widget.ConstraintLayout>

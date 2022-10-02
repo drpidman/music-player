@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:descendantFocusability="afterDescendants"
-        android:foreground="?android:attr/selectableItemBackground"
         android:id="@+id/itemSpace"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="afterDescendants"
+        android:foreground="?android:attr/selectableItemBackground">
 
         <com.drkryz.scutfy.CustomViews.CustomImageView
             android:id="@+id/musicAlbumCover"
@@ -26,12 +26,12 @@
             android:id="@+id/musicTitle"
             android:layout_width="150dp"
             android:layout_height="30dp"
-            android:singleLine="true"
+            android:ellipsize="marquee"
             android:fontFamily="@font/varela"
+            android:singleLine="true"
+            android:textColor="#cccccc"
             android:textStyle="bold"
             android:theme="@style/BaseTheme"
-            android:textColor="#cccccc"
-            android:ellipsize="marquee"
             app:layout_constraintBottom_toBottomOf="@+id/musicAlbumCover"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/musicAlbumCover"
@@ -41,11 +41,11 @@
             android:id="@+id/musicAuthor"
             android:layout_width="150dp"
             android:layout_height="20dp"
+            android:ellipsize="marquee"
             android:fontFamily="@font/varela"
-            android:textStyle="bold|italic"
             android:singleLine="true"
             android:textColor="#ccc"
-            android:ellipsize="marquee"
+            android:textStyle="bold|italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/musicTitle"
             app:layout_constraintStart_toStartOf="@+id/musicTitle"

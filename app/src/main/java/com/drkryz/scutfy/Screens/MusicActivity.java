@@ -414,7 +414,7 @@ public class MusicActivity extends AppCompatActivity {
 
                 layoutManager.scrollToPosition(audioIndex);
             }
-        }, 16);
+        }, 0);
     }
 
     @Override

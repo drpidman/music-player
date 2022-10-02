@@ -38,6 +38,7 @@ public class ContentManagerUtil {
                     String author = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
                     String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
                     String duration = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+                    String type = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE));
 
                     long AlbumArt = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
                     Uri artWork = Uri.parse("content://media/external/audio/albumart");
@@ -46,7 +47,7 @@ public class ContentManagerUtil {
                     index++;
                     UserPlaylist userPlaylist = new UserPlaylist(
                             title, author, path, duration,
-                            String.valueOf(albumArt), false
+                            String.valueOf(albumArt), false, type
                     );
 
 

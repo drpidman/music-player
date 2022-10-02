@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -60,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -394,10 +396,10 @@ public class MusicService extends Service implements
                 }
                 break;
             case FAVORITE_CMD:
-                if (isFavorite(audioIndex)) {
-                    RemoveFavoriteCommand(audioIndex);
+                if (isFavorite(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE))) {
+                    RemoveFavoriteCommand(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE));
                 } else {
-                    AddFavoriteCommand(audioIndex);
+                    AddFavoriteCommand(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE));
                 }
 
                 if (mediaPlayer.isPlaying()) {
@@ -623,28 +625,34 @@ public class MusicService extends Service implements
         }
     }
 
-    private void AddFavoriteCommand(int index) {
+    private void AddFavoriteCommand(String music_name) {
         if (mediaPlayer == null) return;
 
 
         UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(this);
 
-        if (index != -1 && index < musicList.size()) {
-            userFavoritesHelper.storeFavorite(musicList.get(index).getTitle());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            int pos = IntStream.range(0, musicList.size())
+                    .filter(itemPos -> musicList.get(itemPos).getTitle().equals(music_name)).findFirst().getAsInt();
+
+            userFavoritesHelper.storeFavorite(musicList.get(pos).getTitle());
         }
+
 
     }
 
-    private void RemoveFavoriteCommand(int index) {
+    private void RemoveFavoriteCommand(String music_name) {
         if (mediaPlayer == null) return;
-
-
 
         UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(this);
 
-        if (index != -1 && index < musicList.size()) {
-            userFavoritesHelper.removeFavorite(musicList.get(index).getTitle());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            int pos = IntStream.range(0, musicList.size())
+                    .filter(itemPos -> musicList.get(itemPos).getTitle().equals(music_name)).findFirst().getAsInt();
+
+            userFavoritesHelper.removeFavorite(musicList.get(pos).getTitle());
         }
+
 
     }
 
@@ -677,7 +685,7 @@ public class MusicService extends Service implements
         mediaSessionManager =
                 (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
 
-        mediaSession = new MediaSession(getApplicationContext(), getClass().getSimpleName());
+        mediaSession = new MediaSession(getApplicationContext(), "Scutfy Music");
         transportControls = mediaSession.getController().getTransportControls();
 
         mediaSession.setActive(true);
@@ -784,6 +792,7 @@ public class MusicService extends Service implements
                 .putString(android.media.MediaMetadata.METADATA_KEY_ALBUM, activeAudio.getTitle())
                 .putString(android.media.MediaMetadata.METADATA_KEY_TITLE, activeAudio.getTitle())
                 .putString(android.media.MediaMetadata.METADATA_KEY_MEDIA_URI, activeAudio.getPath())
+                .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, activeAudio.getMime_Type())
                 .putLong(android.media.MediaMetadata.METADATA_KEY_DURATION, convertString(activeAudio.getDuration()))
                 .build());
     }
@@ -806,7 +815,7 @@ public class MusicService extends Service implements
         PendingIntent fav_unfavAction = null;
 
 
-        if (isFavorite(audioIndex)) {
+        if (isFavorite(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE))) {
             notificationFavAction = R.drawable.btn_favorite_active;
             fav_unfavAction = playbackAction(6);
         } else {
@@ -1101,10 +1110,10 @@ public class MusicService extends Service implements
             preferencesUtil.storePlayingState(false);
             stopForeground(true);
         } else if (actionString.equalsIgnoreCase(ACTION_FAVORITE)) {
-            if (isFavorite(audioIndex)) {
-                RemoveFavoriteCommand(audioIndex);
+            if (isFavorite(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE))) {
+                RemoveFavoriteCommand(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE));
             } else {
-                AddFavoriteCommand(audioIndex);
+                AddFavoriteCommand(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE));
             }
 
             if (mediaPlayer.isPlaying()) {
@@ -1115,10 +1124,10 @@ public class MusicService extends Service implements
 
             emitActionToUI(mediaPlayer.isPlaying());
         } else if (actionString.equalsIgnoreCase(ACTION_FAVORITE_UNDO)) {
-            if (!isFavorite(audioIndex)) {
-                AddFavoriteCommand(audioIndex);
+            if (!isFavorite(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE))) {
+                AddFavoriteCommand(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE));
             } else {
-                RemoveFavoriteCommand(audioIndex);
+                RemoveFavoriteCommand(getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE));
             }
 
             if (mediaPlayer.isPlaying()) {
@@ -1132,12 +1141,17 @@ public class MusicService extends Service implements
     }
 
 
-    private boolean isFavorite(int index) {
+    private boolean isFavorite(String MUSIC_TITLE) {
 
         UserFavoritesHelper userFavoritesHelper = new UserFavoritesHelper(this);
 
         if (mediaPlayer != null) {
-            return userFavoritesHelper.isFavorite(musicList.get(index).getTitle());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                int pos = IntStream.range(0, musicList.size())
+                        .filter(itemPos -> musicList.get(itemPos).getTitle().equals(MUSIC_TITLE)).findFirst().getAsInt();
+
+                return userFavoritesHelper.isFavorite(musicList.get(pos).getTitle());
+            }
         }
 
         return false;
