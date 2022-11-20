@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroupOverlay;
@@ -37,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -52,6 +54,7 @@ import com.drkryz.scutfy.Services.MusicService;
 import com.drkryz.scutfy.Utils.ContentManagerUtil;
 import com.drkryz.scutfy.Utils.PreferencesUtil;
 import com.drkryz.scutfy.Utils.ServiceManagerUtil;
+import com.google.android.material.slider.Slider;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -96,6 +99,7 @@ public class PlayerActivity extends AppCompatActivity {
 
 
     private boolean isPlaying = false;
+    private int seekbar_height_dft = 0;
 
 
     private ImageButton
@@ -104,7 +108,7 @@ public class PlayerActivity extends AppCompatActivity {
             shuffleButton, loopingButton, shareButton;
     private ImageView musicAlbumArt;
     private TextView musicTitle, musicArtist, mediaCurrentPosition, mediaTotalDuration;
-    private SeekBar seekBar;
+    private Slider seekBar;
     private ConstraintLayout loadingScreen, blureableSupportView, playerView;
 
 
@@ -167,6 +171,8 @@ public class PlayerActivity extends AppCompatActivity {
         blureableSupportView = findViewById(R.id.blureableSupportView);
         playerView = findViewById(R.id.playerView);
         preferencesUtil = new PreferencesUtil(getBaseContext());
+
+        seekbar_height_dft = seekBar.getTrackHeight();
 
 
         bindService(new Intent(this, MusicService.class), serviceConnection, BIND_AUTO_CREATE);
@@ -231,24 +237,29 @@ public class PlayerActivity extends AppCompatActivity {
         });
 
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        seekBar.addOnChangeListener(new Slider.OnChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int position, boolean fromUser) {
+            public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
                 if (fromUser) {
-                    musicService.getTransportControls().seekTo(position);
+                    musicService.getTransportControls().seekTo((long) value);
                 }
             }
+        });
 
+        seekBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
+            public void onStartTrackingTouch(@NonNull Slider slider) {
+                ObjectAnimator.ofObject(seekBar, "trackHeight", new IntEvaluator(), seekbar_height_dft, 50)
+                                .setDuration(100).start();
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                ObjectAnimator.ofObject(seekBar, "trackHeight", new IntEvaluator(),  50, seekbar_height_dft)
+                        .setDuration(100).start();
             }
         });
+
 
         favoriteButton.setOnClickListener(view -> {
             if (musicService == null) return;
@@ -413,8 +424,13 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void updateSeekBar() {
         MediaMetadata mediaMetadata = musicService.getMetadata();
-        seekBar.setMax((int) mediaMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION));
         mediaTotalDuration.setText(getTime((int) mediaMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION)));
+
+        Long duration = mediaMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
+
+
+        seekBar.setValueFrom(0.0f);
+        seekBar.setValueTo(duration.floatValue());
     }
 
     private void startSeekBar() {
@@ -424,10 +440,18 @@ public class PlayerActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                seekBar.setProgress(musicService.getCurrentPosition());
+                Integer in = musicService.getCurrentPosition();
+
+                try {
+                    seekBar.setValue(in.floatValue());
+                } catch (Exception e) {
+                    Log.e("e", "error");
+                }
+
+
                 mediaCurrentPosition.setText(getTime(musicService.getCurrentPosition()));
 
-                mHandler.postDelayed(this, 1000);
+                mHandler.postDelayed(this, 100);
             }
         });
     }
@@ -528,6 +552,7 @@ public class PlayerActivity extends AppCompatActivity {
 
 
 
+        seekBar.setValue(0.0f);
         updateSeekBar();
     }
 

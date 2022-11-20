@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.MusicPlayer" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.MusicPlayer" parent="Theme.MaterialComponents.NoActionBar">
         <!-- Primary brand color. -->
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/primaryColor</item>

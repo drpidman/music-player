@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="BaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="android:windowLightStatusBar">true</item>
         <item name="statusBarBackground">@color/primaryColor</item>
         <item name="android:statusBarColor">@color/primaryColor</item>
@@ -10,7 +10,7 @@
 
     </style>
 
-    <style name="BaseTheme.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+    <style name="BaseTheme.AppWidgetContainer" parent="Theme.MaterialComponents">
         <item name="appWidgetRadius">8dp</item>
         <item name="appWidgetPadding">4dp</item>
         <item name="appWidgetInnerRadius">4dp</item>
@@ -20,6 +20,4 @@
         <item name="background">@drawable/obj_searchview_background</item>
         <item name="queryBackground">@null</item>
     </style>
-
-    <style name="BaseTheme.AppWidgetContainer" parent="BaseTheme.AppWidgetContainerParent" />
 </resources>

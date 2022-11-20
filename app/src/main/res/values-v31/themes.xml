@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="BaseTheme.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault.DayNight">
+    <style name="BaseTheme.AppWidgetContainerParent" parent="Theme.MaterialComponents.DayNight">
         <item name="appWidgetRadius">20dp</item>
         <item name="appWidgetInnerRadius">20dp</item>
     </style>
